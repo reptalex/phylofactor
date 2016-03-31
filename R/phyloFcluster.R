@@ -4,7 +4,6 @@ phyloFcluster <- function(ncores=2,...){
   clusterEvalQ(cl,library(picante))
   clusterEvalQ(cl,library(ape))
   clusterEvalQ(cl,library(caper))
-  clusterEvalQ(cl,library(phytools))
   clusterEvalQ(cl,library(ggtree))
   clusterEvalQ(cl,library(phangorn))
   clusterEvalQ(cl,library(compositions))
