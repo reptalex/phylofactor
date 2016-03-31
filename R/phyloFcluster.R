@@ -9,7 +9,6 @@ phyloFcluster <- function(ncores=2,...){
   clusterEvalQ(cl,library(phangorn))
   clusterEvalQ(cl,library(compositions))
   clusterEvalQ(cl,library(stats))
-  clusterExport(cl,'sourceDir')
-  clusterEvalQ(cl,sourceDir('C:/Users/Big Alculus/Documents/Boulder/PhyloStats/R files/Essential PhyloFactor Files/'))
+  clusterExport(cl,library(phylofactor))
   return(cl)
 }
