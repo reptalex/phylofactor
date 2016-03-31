@@ -9,11 +9,12 @@ Description: More about what it does (maybe more than one line)
 License: What license is it under?
 LazyData: TRUE
 Imports:
-compositions
-ape
-phangorn
-parallel
-stats
-phytools
-caper
-magrittr
+  compositions,
+  ape,
+  phangorn,
+  stats,
+  phytools,
+  caper,
+  magrittr
+Suggests:
+  parallel
