@@ -2,8 +2,8 @@ removeGroup <- function(Grps,id){
   ##### This code can definitely be made cleaner & more efficient.
   grp <- Grps[[id]]  #find the chosen group
   Grps <- Grps[setdiff(1:length(Grps),id)] #remove chosen group
-  
-  
+
+
   #Now put remaining groups into their appropriate partitions
   #instead of contrasts being between G1/G2, they are now (G1\grp)/(G2\grp)
   for (nn in 1:2){
@@ -13,15 +13,17 @@ removeGroup <- function(Grps,id){
       }
     }
   }
-  
+
   #some remaining groups will be redundant, namely those groups of clades neighboring the new partition.
-  ix <- NULL
-  for (mm in 1:(length(Grps)-1)){
-    for(nn in (mm+1):length(Grps)){
-      if (all(Grps[[mm]][[1]] %in% Grps[[nn]][[2]])  && all(Grps[[mm]][[2]] %in% Grps[[nn]][[1]])){ix <- c(ix,mm)}
-      if (all(Grps[[mm]][[1]] %in% Grps[[nn]][[1]])  && all(Grps[[mm]][[2]] %in% Grps[[nn]][[2]])){ix <- c(ix,mm)}
+  if (length(Grps)>1){
+    ix <- NULL
+    for (mm in 1:(length(Grps)-1)){
+      for(nn in (mm+1):length(Grps)){
+        if (all(Grps[[mm]][[1]] %in% Grps[[nn]][[2]])  && all(Grps[[mm]][[2]] %in% Grps[[nn]][[1]])){ix <- c(ix,mm)}
+        if (all(Grps[[mm]][[1]] %in% Grps[[nn]][[1]])  && all(Grps[[mm]][[2]] %in% Grps[[nn]][[2]])){ix <- c(ix,mm)}
+      }
     }
+    Grps <- Grps[setdiff(1:length(Grps),ix)]
   }
-  Grps <- Grps[setdiff(1:length(Grps),ix)]
   return(Grps)
 }

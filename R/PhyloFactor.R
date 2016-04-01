@@ -1,4 +1,4 @@
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclades=NULL,stop.fcn=NULL,cl=NULL,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclades=NULL,stop.fcn=NULL,dataReturn=T,cl=NULL,...){
  #Data - Data Matrix, rows must be labelled as in tree and columns labelled by indepedent variable, X
  #tree - Phylogeny
  #X - independent variable
@@ -21,11 +21,11 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
   if(is.rooted(tree)){
     warning('Tree is rooted. Output nodes will correspond to unrooted, tree <- unroot(tree)')
     tree <- unroot(tree)}
-  
-  
+
+
  #### Get list of groups from tree ####
  Grps <- getGroups(tree)
- # This is a list of 2-element lists containing the partitioning of tips 
+ # This is a list of 2-element lists containing the partitioning of tips
  # in our tree according to the edges. The groups can be mapped to the tree
  # via the node given names(Grps)[i]. The OTUs corresponding to the Groups can be found with:
  ### Get OTUs from tree
@@ -34,20 +34,23 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
  ################ OUTPUT ###################
  output <- NULL
  output$method <- method
- 
+ if (dataReturn){
+   output$Data <- Data
+ }
+
  pfs=1
  while (pfs <= min(length(OTUs)-1,nclades)){
-   
+
    if (pfs>1){
    Data <- t(clo(t(Data/PhyloReg$residualData)))
    Grps <- removeGroup(Grps,PhyloReg$group) #removeGroup can be made more efficient if need be.
    }
-   
+
    ############# Perform Regression on all of Groups, and implement choice function ##############
    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice)
    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
-   
-   
+
+
    ############# update output ########################
    # output$group <- c(output$group,PhyloReg$group)
    output$nodes <- c(output$nodes,PhyloReg$node)
@@ -60,8 +63,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
      }
    }
    output$basis <- output$basis %>% c(PhyloReg$basis) %>% matrix(ncol=pfs,byrow=F)
-   
-   
+
+
    ############# Decide whether or not to stop based on PhyloReg #################
    if (is.null(stop.fcn)==F){
      if (stop.fcn=='KS'){
@@ -71,12 +74,12 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
       stop.fcn(PhyloReg)
      }
    }
-   
-   
+
+
    ### If we haven't stopped, let's update the key variables
    pfs=pfs+1
  }
- 
+
  output$atoms <- atoms(output$basis)
  return(output)
 }
