@@ -15,7 +15,7 @@ predict.phylofactor <- function(Factor,factors=NULL,method='ILR',...){
 
     Dat <- coefs %>% apply(MARGIN=1,ilrInv,V=Factor$basis[,factors])
 
-  } else { ### predict for log-ratio, with additive amalgamation
+  } else { ### Coming Soon - predict for log-ratio, with additive amalgamation
 
   }
 
