@@ -6,10 +6,8 @@ Date: 2016-03-31
 Author: Alex Washburne
 Maintainer: Yours truly, Alex Washburne <bigalculus@gmail.com>
 Description:
-  Functions for the implementation and visualization of PhyloFactor for compositional data - defining a sequential binary partition
-  consistent with the phylogenetic tree, where successive partitions are chosen based on minimizing an objective
-  function.
-License: GPL-3
+  Functions for the implementation and visualization of PhyloFactor for compositional data - defining a sequential binary partition consistent with the phylogenetic tree, where successive partitions are chosen based on minimizing an objective function.
+License: GPL-2 | GPL-3
 LazyData: TRUE
 Imports:
   compositions,
