@@ -1,6 +1,10 @@
 #Ghetto, AW version of phylo.heatmap - optionally does not include tip labels, but does not appropriately re-scale margins.
 phylo.heatmapAW <- function(tree,Y,tipLabels=TRUE,...){
-  if (all(colnames(Y) %in% tree$tip.label) && all(tree$tip.label %in% colnames(Y)) == FALSE){stop('colnames of Y and tiplabels of tree do not match')}
+  if (all(colnames(Y) %in% tree$tip.label) && all(tree$tip.label %in% colnames(Y)) == FALSE){
+    if (all(rownames(Y) %in% tree$tip.label) && all (tree$tip.label %in% rownames(Y)) == TRUE){
+      Y <- t(Y)
+      } else {
+    stop('cannot match rows or columns of Y to tiplabels of tree')}
   edgs <- tree$edge
   n <- length(tree$tip.label)
 
