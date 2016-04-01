@@ -1,13 +1,8 @@
-
-atoms.PhyloFactor <- function(PF,nfactors=1){
-  return(atoms(PF$ilrs[,1:nfactors]))
-}
-
 ################################### atoms #########################################################
 atoms <- function(V=NULL,G=NULL,set=NULL){
   #input ILR sub-basis, V, or, alternatively, a list of groups G along with the set of all possible taxa, set
   # G <- Groups[Groupn-n]
-  
+
   if (is.null(V)==F){
     G <- find.unsplit.Grps(V)
     if (is.null(dim(V))){
@@ -17,17 +12,17 @@ atoms <- function(V=NULL,G=NULL,set=NULL){
     }
     dm <- setdiff(set,unique(unlist(G)))
     return(c(G,dm))
-  } 
-  
+  }
+
   if (is.null(G)==F && is.null(set)){
     stop('If input only G, must also include the set of all possible elements')
   } else {
-    
-    
+
+
     #It's possible the G has some overlap in it, so first we need to split the groups in G
-    
+
     ## This function returns the atomic sets in overlapping vectors, x and y.
-    ## Specifically, it returns the elements unique to x, unique to y, and the intersect of x,y 
+    ## Specifically, it returns the elements unique to x, unique to y, and the intersect of x,y
     set.split <- function(x,y){
       if (length(intersect(x,y))==0){
         return(NULL)
@@ -36,7 +31,7 @@ atoms <- function(V=NULL,G=NULL,set=NULL){
         return(unique(list(setdiff(x,C),setdiff(y,C),C)))
       }
     }
-    
+
     ## the next bit of code iterates through the list of groups and, if there is overlap, splits the sets into atomic elements
     for (nn in 1:(length(G)-1)){
       for (mm in (nn+1):length(G)){
@@ -51,9 +46,9 @@ atoms <- function(V=NULL,G=NULL,set=NULL){
         }
       }
     }
-    
+
   }
-  
+
   dm <- list(setdiff(set,unique(unlist(G))))
   return(c(G,dm))
   ### Now we need to iterate through our group and split those groups with overlap
