@@ -24,7 +24,7 @@ amalgamate <- function(Grp,Data,method,collapse=F){
       }
 
       output <- output %>% t %>% clo %>% t
-      rownames(output) <- mapply(FUN = paste, as.list(repa('Atom',n)),as.list(1:n))
+      rownames(output) <- mapply(FUN = paste, as.list(rep('Atom',n)),as.list(1:n))
       return(output)
 
     } else {
