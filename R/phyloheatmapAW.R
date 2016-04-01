@@ -4,7 +4,7 @@ phylo.heatmapAW <- function(tree,Y,tipLabels=TRUE,...){
     if (all(rownames(Y) %in% tree$tip.label) && all (tree$tip.label %in% rownames(Y)) == TRUE){
       Y <- t(Y)
       } else {
-    stop('cannot match rows or columns of Y to tiplabels of tree')}
+    stop('cannot match rows or columns of Y to tiplabels of tree')}}
   edgs <- tree$edge
   n <- length(tree$tip.label)
 
