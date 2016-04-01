@@ -19,10 +19,11 @@ phylo.heatmapAW <- function(tree,Y,tipLabels=TRUE,...){
   layout(matrix(c(1,1,2),1,3))
   ### image of data ###
   image(1:m,1:n,Y[,ord],main='Data',xlab="sample",ylab='OTU')
-
+  mar1 <- par()$mar
   ### left-facing phylogeny with colored tip-labels corresponding to stacked plot above ###
-  par(mar=c(5, 4, 4, 2)+.1)
-  pp <- plot.phylo(tree,type='p', use.edge.length=F,direction='l',main='Community Phylogeny',show.tip.label=FALSE,...)
+  par(mar=mar1+c(-1,3,-1,0))
+  pp <- plot.phylo(tree,type='p', use.edge.length=F,direction='l',main='Community Phylogeny',show.tip.label=FALSE,align.tip.label = T)
+  # pp <- plot.phylo(tree,type='p', use.edge.length=F,direction='l',main='Community Phylogeny',show.tip.label=FALSE,...)
   if (tipLabels==TRUE){
     tiplabels(text= tree$tip.label,bg='white',col = 'black',cex=3)
   }
