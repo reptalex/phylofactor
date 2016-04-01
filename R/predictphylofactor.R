@@ -1,4 +1,4 @@
-predict.phylofactor <- function(Factor,factors=NULL,...){
+predict.phylofactor <- function(Factor,factors=NULL,method='ILR',...){
   #outputs the predictions, using nfactors from PhyloFactor.
   #additional arguments '...' are for function predict()
 
