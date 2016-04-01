@@ -4,16 +4,17 @@ plot.sig.clades <- function(tree,sigOTUs,taxon_site,level='p',legend=FALSE,treet
   #this function plots the tree and highlights those edges unique to SigOTUs in the tree,
   # Significant taxa are overlayed on tree labelled by taxonomic level.
   #input tree, sigOTus, taxon_site=taxonomy (mapping from OTU IDs to green genes taxonomy), taxonomic level, whether or not to include a legend, etc.)
-  # Uses DJ Bennet's extractEdges function to pull out the edges for sigOTUs. In particular,
-  # type = 1: tree if all other taxa besides sigOTUs are dropped
-  # type = 2: Edges connecting sigOTUs to terminal node
-  # type = 3: edges unique to sigOUTs
+  # Uses DJ Bennet's extractEdges function to pull out the edges for sigOTUs.
   otuids <- tree$tip.label
   if (all(sigOTUs %in% otuids)==FALSE){
     stop('Some SigOTUs are not in the tree')
   }
 
-  Sigedges <- extractEdges(tree,sigOTUs,type=3)
+  if (is.list(sigOTUs)==F){
+    Sigedges <- extractEdges(tree,sigOTUs,type=3)
+  } else {
+    Sigedges <- lapply(sigOTUs,FUN=extractEdges,tree=tree,type=3)
+  }
 
   # plot the tree
   Taxa <- listTaxa(taxon_site,level)
