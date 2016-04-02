@@ -7,7 +7,6 @@ phyloFcluster <- function(ncores=2,...){
   clusterEvalQ(cl,library(ggtree))
   clusterEvalQ(cl,library(phangorn))
   clusterEvalQ(cl,library(compositions))
-  clusterEvalQ(cl,library(stats))
-  clusterExport(cl,library(phylofactor),envir = .GlobalEnv)
+  clusterEvalQ(cl,library(phylofactor))
   return(cl)
 }

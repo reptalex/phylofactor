@@ -59,7 +59,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
      if (pfs==1){
        output$ExplainedVar <- PhyloReg$explainedvar
      } else {
-      output$ExplainedVar <- c(output$ExplainedVar,output$ExplainedVar[pfs-1]*PhyloReg$explainedvar)
+       output$ExplainedVar <- c(output$ExplainedVar,(1-cumsum(output$ExplainedVar[1:(pfs-1)]))*PhyloReg$explainedvar)
      }
    }
    output$basis <- output$basis %>% c(PhyloReg$basis) %>% matrix(ncol=pfs,byrow=F)
