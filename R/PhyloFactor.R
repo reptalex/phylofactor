@@ -1,4 +1,4 @@
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclades=NULL,stop.fcn=NULL,stop.early=NULL,dataReturn=T,cl=NULL,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,dataReturn=T,cl=NULL,...){
  #Data - Data Matrix, rows must be labelled as in tree and columns labelled by indepedent variable, X
  #tree - Phylogeny
  #X - independent variable
@@ -24,7 +24,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
 
 
  #### Get list of groups from tree ####
- Grps <- getGroups(tree)
+  if(is.null(Grps)){ #inputting groups allows us to make wrappers around PhyloFactor for efficient parallelization.
+    Grps <- getGroups(tree)
+  }
  # This is a list of 2-element lists containing the partitioning of tips
  # in our tree according to the edges. The groups can be mapped to the tree
  # via the node given names(Grps)[i]. The OTUs corresponding to the Groups can be found with:
