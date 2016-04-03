@@ -76,7 +76,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    }
 
    ############# update output ########################
-   # output$group <- c(output$group,PhyloReg$group)
+   output$group <- c(output$group,PhyloReg$group)
    output$nodes <- c(output$nodes,PhyloReg$node)
    output$glms <- c(output$glms,PhyloReg$glm)
    if (choice=='var'){
