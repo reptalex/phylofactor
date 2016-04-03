@@ -40,10 +40,14 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
 
  if (is.null(stop.early)==F && is.null(stop.fcn)==T){
    warning('you wanted to stop.early, but did not input stop.fcn. Using KS test')
+   stop.fcn='KS'
  }
 
  pfs=1
  while (pfs <= min(length(OTUs)-1,nclades)){
+
+   ############################## EARLY STOP #####################################
+   ###############################################################################
    if (is.null(stop.early)==F){
      if (is.null(stop.fcn)==F){
        if (stop.fcn=='KS'){
@@ -79,16 +83,18 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
    output$basis <- output$basis %>% c(PhyloReg$basis) %>% matrix(ncol=pfs,byrow=F)
 
 
+   ############################## LATE STOP ######################################
    ############# Decide whether or not to stop based on PhyloReg #################
-   if (is.null(stop.fcn)==F){
-     if (stop.fcn=='KS'){
-       ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-       if (ks>0.01){break}
-     } else {
-      stop.fcn(PhyloReg)
+   if (is.null(stop.early)==T){
+     if (is.null(stop.fcn)==F){
+       if (stop.fcn=='KS'){
+         ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+         if (ks>0.01){break}
+       } else {
+        stop.fcn(PhyloReg)
+       }
      }
    }
-
 
    ### If we haven't stopped, let's update the key variables
    pfs=pfs+1
