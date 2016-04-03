@@ -5,18 +5,18 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   #X - independent variable
   #frmla - object of class "formula" indicating the regression of variable "Data" in terms of variable "X".
   #Grps - set of groups (must be list of 2-element lists containing taxa within 'set')
-  #method - method for amalgamation of groups, either 'add' or 'multiply'. 
+  #method - method for amalgamation of groups, either 'add' or 'multiply'.
      #'add' looks at the log-ratio of relative abundances of the taxa in the two groups of Grps[]
      #'ILR' uses geometric means as centers of groups, and regression is performed on balances of groups according to the ILR method of Egozcue et al. (2003)
-  #choice - method for choosing the dominant partition in tree, either 't' or 'var'. 
+  #choice - method for choosing the dominant partition in tree, either 't' or 'var'.
      #'t' will choose dominant partition based on the Grps whose regression maximized the test-statistic
      #'var' will choose based on Grps which maximized the percent explained variance in the clr-transformed dataset.
   #cl - optional phyloCluster input for parallelization of regression across multiple groups.
   if(is.null(Pbasis)){Pbasis=1}
   n <- dim(Data)[1]
-  
+
   ############# REGRESSION ################
-  #these can both be parallelized 
+  #these can both be parallelized
   if (is.null(cl)){
     Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
     GLMs <- lapply(X=Y,FUN = phyloreg,x=X,frmla=frmla,choice,...)
@@ -25,11 +25,13 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
     GLMs <- dum$GLMs
     Y <- dum$Y
+    clusterEvalQ(cl,rm())
+    clusterEvalQ(cl,gc())
   }
   stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
   colnames(stats) <- c('Pval','F')
   Yhat <- lapply(GLMs,predict)
-  
+
   ############# CHOICE - EXTRACT "BEST" CLADE ##################
   if (choice=='F'){
     #in this case, the GLM outputs was an F-statistic.
@@ -37,10 +39,10 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   } else { #we pick the clade that best reduces the residual variance. Since all have the same total variance
            #this means we pick the clade with the minimum residual variance.
            #To be clear, here for total variance of a data matrix, X, I'm using var(c(X)).
-    
+
       #the  GLM.outputs above are predictions on log-ratios based on the "amalgamation" function.
-      #The computation of percent variance explained by each 
-      #partition can also be parallelized. A function such as 
+      #The computation of percent variance explained by each
+      #partition can also be parallelized. A function such as
       #phyloregPar and phyloregParV will be useful to parellelize
       # Y, GLM.outputs, and PercVar
       totalvar <- var(c(clr(t(Data))))
@@ -54,7 +56,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     if (length(clade)>1){stop('minimizing residual variance produced  more than one group')}
   }
   node <- names(clade)
-  
+
   ############ OUTPUT ##########################
   output <- NULL
   output$group <- clade #this is helps us pull out the Group from getGroups(tree)
@@ -74,6 +76,6 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     }
   }
   output$residualData <- PredictAmalgam(Yhat[[clade]],Grps[[clade]],n,method,Pbasis)
-  
+
   return(output)
 }
