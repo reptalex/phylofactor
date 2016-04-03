@@ -1,4 +1,4 @@
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclades=NULL,stop.fcn=NULL,dataReturn=T,cl=NULL,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclades=NULL,stop.fcn=NULL,stop.early=NULL,dataReturn=T,cl=NULL,...){
  #Data - Data Matrix, rows must be labelled as in tree and columns labelled by indepedent variable, X
  #tree - Phylogeny
  #X - independent variable
@@ -38,8 +38,22 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
    output$Data <- Data
  }
 
+ if (is.null(stop.early)==F && is.null(stop.fcn)==T){
+   warning('you wanted to stop.early, but did not input stop.fcn. Using KS test')
+ }
+
  pfs=1
  while (pfs <= min(length(OTUs)-1,nclades)){
+   if (is.null(stop.early)==F){
+     if (is.null(stop.fcn)==F){
+       if (stop.fcn=='KS'){
+         ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+         if (ks>0.01){break}
+       } else {
+         stop.fcn(PhyloReg)
+       }
+     }
+   }
 
    if (pfs>1){
    Data <- t(clo(t(Data/PhyloReg$residualData)))
