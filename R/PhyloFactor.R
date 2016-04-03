@@ -44,20 +44,10 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
  }
 
  pfs=1
+ output$terminated=F
  while (pfs <= min(length(OTUs)-1,nclades)){
 
-   ############################## EARLY STOP #####################################
-   ###############################################################################
-   if (is.null(stop.early)==F){
-     if (is.null(stop.fcn)==F){
-       if (stop.fcn=='KS'){
-         ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-         if (ks>0.01){break}
-       } else {
-         stop.fcn(PhyloReg)
-       }
-     }
-   }
+
 
    if (pfs>1){
    Data <- t(clo(t(Data/PhyloReg$residualData)))
@@ -67,7 +57,21 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
    ############# Perform Regression on all of Groups, and implement choice function ##############
    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice)
    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
-
+   ############################## EARLY STOP #####################################
+   ###############################################################################
+   if (is.null(stop.early)==F){
+     if (is.null(stop.fcn)==F){
+       if (stop.fcn=='KS'){
+         ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+         if (ks>0.01){
+           output$terminated=T
+           break
+           }
+       } else {
+         stop.fcn(PhyloReg)
+       }
+     }
+   }
 
    ############# update output ########################
    # output$group <- c(output$group,PhyloReg$group)
@@ -89,7 +93,10 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',nclad
      if (is.null(stop.fcn)==F){
        if (stop.fcn=='KS'){
          ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-         if (ks>0.01){break}
+         if (ks>0.01){
+           output$terminated=T
+           break
+           }
        } else {
         stop.fcn(PhyloReg)
        }
