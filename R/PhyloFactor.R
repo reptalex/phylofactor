@@ -14,6 +14,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
      } else {if (all(rownames(Data)!=tree$tip.label)){ #we need to re-arrange the data matrix to correspond to the tree tip labels
        Data <- Data[match(rownames(Data),tree$tip.label),]
      }}
+  if (all(tree$tip.label %in% rownames(Data))==F){
+    warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
+    tree <- drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
   if (is.null(frmla)){frmla=Data ~ X}
   if (method %in% c('add','ILR')==F){stop('improper input method - must be either "add" or "multiply"')}
   if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "t" or "var"')}
@@ -37,6 +40,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  output <- NULL
  output$method <- method
  output$Data <- Data
+ output$tree <- tree
+ n <- length(tree$tip.label)
 
  if (is.null(stop.early)==F && is.null(stop.fcn)==T){
    warning('you wanted to stop.early, but did not input stop.fcn. Using KS test')
@@ -108,6 +113,12 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  }
 
  output$atoms <- atoms(output$basis)
+
+ if (length(output$nodes)>0){
+   names(output$nodes[output$nodes>n]) <- "clade"
+   names(output$nodes[output$nodes<=n]) <- "tip"
+   }
+
  return(output)
 }
 

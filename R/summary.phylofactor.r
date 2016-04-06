@@ -1,6 +1,15 @@
-summary.node <- function(PF,tree,taxonomy,node,subtree=F,prediction=T,tipLabels=F,...){
+summary.phylofactor <- function(PF,tree,taxonomy,node=NULL,factor=NULL,subtree=F,prediction=T,tipLabels=F,...){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
-  if ((node %in% PF$nodes)==F){stop('Node is not contained in PhyloFactor')}
+  if (is.null(node)==F){
+    if (is.null(factor)==F){stop('need to input either a node or a factor, not both')}
+    if ((node %in% PF$nodes)==F){stop('Node is not contained in PhyloFactor')}
+  } else {
+    if (is.null(factor)){stop('need to input either a node or a factor.')}
+    if ((length(PF$nodes))>0){
+      if (factor > length(PF$nodes)){stop('factor input exceeds the number of factors in Phylofactor object')}
+      node <- PF$nodes[factor]
+    } else {stop('PhyloFactor object contains no nodes or factors')}
+  }
 
   nd <- which(PF$nodes==node)
     if (nd>1){
