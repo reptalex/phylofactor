@@ -13,10 +13,10 @@ find.unsplit.Grps <- function(V){ #function to find out the groups which still n
     ix=1:dim(S)[1]
     m <- dim(S)[2]
     ss <- vector(mode='list',length=m+1)
-    ss[1:2] <- split(ix,S[,1])
+    ss[1:length(unique(S[,1]))] <- split(ix,S[,1])
   }
-  
-  
+
+
   if(m>1){
     for (ll in 2:m){
       ind <- which(S[,ll]!=0)
