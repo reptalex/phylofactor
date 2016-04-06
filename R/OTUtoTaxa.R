@@ -1,6 +1,7 @@
 OTUtoTaxa <- function(otus,Taxonomy,common.name=T){
 
-  if (is.null(otus$group)==F){
+  if (typeof(otus)=='list'){
+    if (is.null(otus$group)==F)
     taxa <- otus$group$IDs[,'TaxaIDs']
     otus <- otus$group$IDs[,'otuIDs']
   } else {
