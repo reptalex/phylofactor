@@ -86,7 +86,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
      if (pfs==1){
        output$ExplainedVar <- PhyloReg$explainedvar
      } else {
-       output$ExplainedVar <- c(output$ExplainedVar,(1-cumsum(output$ExplainedVar[1:(pfs-1)]))*PhyloReg$explainedvar)
+       output$ExplainedVar <- c(output$ExplainedVar,(1-sum(output$ExplainedVar[1:(pfs-1)]))*PhyloReg$explainedvar)
      }
    }
    output$basis <- output$basis %>% c(PhyloReg$basis) %>% matrix(ncol=pfs,byrow=F)
@@ -113,12 +113,17 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  }
 
  output$atoms <- atoms(output$basis)
+ names(output$ExplainedVar) <- output$nodes
 
  if (length(output$nodes)>0){
-   names(output$nodes[output$nodes>n]) <- "clade"
-   names(output$nodes[output$nodes<=n]) <- "tip"
+   if (sum(output$nodes>n)>0){
+   names(output$nodes)[output$nodes>n] <- "clade"
    }
 
+   if (sum(output$nodes<=n)>0){
+     names(output$nodes)[output$nodes<=n] <- "tip"
+   }
+  }
  return(output)
 }
 
