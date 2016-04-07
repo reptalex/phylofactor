@@ -113,6 +113,19 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  }
 
  output$atoms <- atoms(output$basis)
+ NewOTUs <- output$atoms
+ Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(is.monophyletic(y,x)),y=tree))
+ names(output$atoms)[Monophyletic] <- 'Monophyletic'
+ names(output$atoms)[!Monophyletic] <- 'Paraphyletic'
+
+
+ ### Make the atom size distribution data frame ###
+ atomsize <- unlist(lapply(NewOTUs,FUN = length))
+ ### The atoms are not all OTUs, but vary in size:
+ sizes <- as.list(sort(unique(atomsize)))
+ nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=atomsize))
+ output$atom.sizes <- data.frame('Atom Size'=unlist(sizes),'Number of Atoms'=nsizes)
+
  names(output$ExplainedVar) <- output$nodes
 
  if (length(output$nodes)>0){
@@ -123,7 +136,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    if (sum(output$nodes<=n)>0){
      names(output$nodes)[output$nodes<=n] <- "tip"
    }
-  }
+ }
+ output$Monophyletic.clades <- intersect(which(names(output$atoms)=='Monophyletic'),which(atomsize>1))
+
  return(output)
 }
 

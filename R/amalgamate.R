@@ -1,3 +1,16 @@
+#' amalgamate two groups in a compositional data matrix. Returns either a log-ratio of the groups or the geometric mean of each group.
+#'
+#' @param Grp List containing two non-overlapping vectors of positive, non-zero integers less than the number of rows in the Data matrix.
+#' @param Data Compositional data matrix whose rows are parts and whose columns are samples.
+#' @param method Method for amalgamation. Takes values of "sum" and "ILR". ILR amalgamates using geometric means, whereas "sum" amalgamates by summing relative abundances.
+#' @param collapse Logical indicating whether or not to collapse groups (collapse=T) by summing or geometric means, or to output log-ratios from amalgamation & comparison.
+#'
+#' @example
+#' Data <- t(rcomp(matrix(rlnorm(80),nrow=8)))
+#' Grp <- list(c(1,2),c(3,4,8))
+#' method='ILR'
+#'
+
 amalgamate <- function(Grp,Data,method,collapse=F){
 
   if (collapse==T){
