@@ -25,8 +25,6 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
     GLMs <- dum$GLMs
     Y <- dum$Y
-    clusterEvalQ(cl,rm())
-    clusterEvalQ(cl,gc())
   }
   stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
   colnames(stats) <- c('Pval','F')
@@ -77,5 +75,6 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   }
   output$residualData <- PredictAmalgam(Yhat[[clade]],Grps[[clade]],n,method,Pbasis)
 
+  gc()
   return(output)
 }

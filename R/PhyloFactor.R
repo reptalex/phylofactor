@@ -1,10 +1,10 @@
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,cl=NULL,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,cl.age=1,...){
  #Data - Data Matrix, rows must be labelled as in tree and columns labelled by indepedent variable, X
  #tree - Phylogeny
  #X - independent variable
  #method - amalgamation method, either "add" or "ILR". ILR groups by multiplication, consistent with Egozcue's ILR basis
  #choice - how to choose the best edge, either "F" for F-statistic from analysis of variance of the glm, or "var" for percent explained variance.
- #cl - optional phyloCluster for parellelization of PhyloRegression.
+ #ncores - number of cores in optional phyloCluster for parellelization of PhyloRegression.
   # note - future input "GPU" will enable GPU computing.
  #... arguments for glm(), such as family, weights, subset, etc.
 
@@ -19,7 +19,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     tree <- drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
   if (is.null(frmla)){frmla=Data ~ X}
   if (method %in% c('add','ILR')==F){stop('improper input method - must be either "add" or "multiply"')}
-  if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "t" or "var"')}
+  if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "F" or "var"')}
   if(is.null(nclades)){nclades=Inf}
   if(is.rooted(tree)){
     warning('Tree is rooted. Output nodes will correspond to unrooted, tree <- unroot(tree)')
@@ -44,12 +44,14 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  n <- length(tree$tip.label)
 
  if (is.null(stop.early)==F && is.null(stop.fcn)==T){
-   warning('you wanted to stop.early, but did not input stop.fcn. Using KS test')
    stop.fcn='KS'
  }
 
  pfs=1
+ age=0
  output$terminated=F
+
+
  while (pfs <= min(length(OTUs)-1,nclades)){
 
 
@@ -59,11 +61,27 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    Grps <- removeGroup(Grps,PhyloReg$group) #removeGroup can be made more efficient if need be.
    }
 
+
+  if (is.null(ncores)==F){
+    cl <- phyloFcluster(ncores)
+    age=0
+  }
    ############# Perform Regression on all of Groups, and implement choice function ##############
    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice)
    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
+
+   age=age+1
+
+   if (is.null(ncores)==F && age == cl.age){
+     stopCluster(cl)
+     rm(cl)
+     gc()
+     cl <- NULL
+     age=0
+   }
+
    if (is.null(stop.early)==F){
      if (is.null(stop.fcn)==F){
        if (stop.fcn=='KS'){
@@ -101,7 +119,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
          if (ks>0.01){
            output$terminated=T
            break
-           }
+         }
        } else {
         stop.fcn(PhyloReg)
        }
@@ -110,6 +128,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
    ### If we haven't stopped, let's update the key variables
    pfs=pfs+1
+   gc()
+
  }
 
  output$atoms <- atoms(output$basis)
@@ -126,7 +146,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=atomsize))
  output$atom.sizes <- data.frame('Atom Size'=unlist(sizes),'Number of Atoms'=nsizes)
 
- names(output$ExplainedVar) <- output$nodes
+ if (choice=='var'){
+  names(output$ExplainedVar) <- output$nodes
+ }
 
  if (length(output$nodes)>0){
    if (sum(output$nodes>n)>0){
