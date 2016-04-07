@@ -9,24 +9,26 @@
 #'  @param compare Whether or not to compare the Data with phylofactor prediction. If compare = TRUE, two phylo-heatmaps will be produced for direct comparison.
 #'  @param ... additional arguments for phylo.heatmap
 #'  @example
+#'  ### Create Data ###
 #'  set.seed(1)
-#'  tree <- rtree(7)
-#'  X <- as.factor(c(rep(0,5),rep(1,5)))
-#'  sigClade <- Descendants(tree,10,type='tips)
-#'  Data <- matrix(rlnorm(70),nrow=7)
-#'  rownames(Data) <- tree$tip.label
-#'  colnames(Data) <- X
-#'  Data[sigClade,X==1] <- Data[sigClade,X==1]*8
-#'  Data <- t(clo(t(Data)))
-#'
-#'  PF <- PhyloFactor(Data,tree,nclades=1)
-#'
-#'  plot.phylofactor(PF,compare=T)
-#'
-#'
-#'  Data[sigClade,]
+#' tree <- unroot(rtree(7))
 
-plot.phyloPF <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,compare=F,...){
+#' X <- as.factor(c(rep(0,5),rep(1,5)))
+#' sigClades <- Descendants(tree,c(9,12),type='tips')
+#' Data <- matrix(rlnorm(70,meanlog = 8,sdlog = .5),nrow=7)
+#' rownames(Data) <- tree$tip.label
+#' colnames(Data) <- X
+#' Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*8
+#' Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
+#' Data <- t(clo(t(Data)))
+
+#' PF <- PhyloFactor(Data,tree,X,nclades=2)
+
+#' plot.phylofactor(PF,clades=1)
+#' plot.phylofactor(PF,clades=c(1,2),compare=T)
+
+
+plot.phylofactor <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,compare=F,...){
   #returns phylo.heatmap highlighting our PFs.
   if(is.null(tree)){
     if(is.null(PF$tree)){stop('Input Phylofactor object does not contain tree - must input tree')}
@@ -35,11 +37,11 @@ plot.phyloPF <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,compar
 
   if (compare==F){
     #makes just one plot
-
+    par(mfrow=c(1,1))
     if (is.null(Data)==T){
       if (is.null(names)){stop('must input rownames for PhyloPF predicted dataset')}
       row.names=tree$tip.label
-      PData <- predict.phyloPF(PF,clades)
+      PData <- predict.phylofactor(PF,clades)
       rownames(PData) <- row.names
       colnames(PData) <- colnames(PData)
       phylo.heatmap(tree,t(clr(t(PData))),...)
@@ -56,7 +58,7 @@ plot.phyloPF <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,compar
       stop('if compare==T, need to input Data for Comparison')
     }
     row.names=rownames(Data)
-    PData <-  predict.phyloPF(PF,clades)
+    PData <-  predict.phylofactor(PF,clades)
     rownames(PData) <- row.names
     rownames(PData) <- tree$tip.label
     colnames(PData) <- colnames(Data)
