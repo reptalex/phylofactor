@@ -1,4 +1,4 @@
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,cl.age=1,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
  #Data - Data Matrix, rows must be labelled as in tree and columns labelled by indepedent variable, X
  #tree - Phylogeny
  #X - independent variable
@@ -50,7 +50,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  pfs=1
  age=0
  output$terminated=F
-
+ cl=NULL
 
  while (pfs <= min(length(OTUs)-1,nclades)){
 
@@ -62,9 +62,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    }
 
 
-  if (is.null(ncores)==F){
+  if (is.null(ncores)==F && age==0){
     cl <- phyloFcluster(ncores)
-    age=0
   }
    ############# Perform Regression on all of Groups, and implement choice function ##############
    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice)
@@ -74,11 +73,10 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
    age=age+1
 
-   if (is.null(ncores)==F && age == cl.age){
+   if (is.null(ncores)==F && age>=clusterage){
      stopCluster(cl)
      rm(cl)
      gc()
-     cl <- NULL
      age=0
    }
 
