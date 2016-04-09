@@ -1,3 +1,5 @@
+
+#' @title Summarize phylofactor output
 summary.phylofactor <- function(PF,tree,taxonomy,node=NULL,factor=NULL,subtree=F,prediction=T,tipLabels=F,...){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(node)==F){
@@ -13,7 +15,7 @@ summary.phylofactor <- function(PF,tree,taxonomy,node=NULL,factor=NULL,subtree=F
 
   nd <- which(PF$nodes==node)
     if (nd>1){
-      atms <- atoms(PF$basis[,1:(nd-1)])
+      atms <- atoms(PF$basis[,1:(nd-1), drop=FALSE])
       splt <- which(PF$basis[,nd]>0)
       grp <- atms[[which(unlist(lapply(atms,function(x,y){all(y %in% x)},y=splt)))]]
 
