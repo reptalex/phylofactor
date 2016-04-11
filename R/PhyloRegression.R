@@ -27,6 +27,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     Y <- dum$Y
   }
   stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
+  rownames(stats) <- names(GLMs)
   colnames(stats) <- c('Pval','F')
   Yhat <- lapply(GLMs,predict)
 
@@ -54,6 +55,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     if (length(clade)>1){stop('minimizing residual variance produced  more than one group')}
   }
   node <- names(clade)
+
 
   ############ OUTPUT ##########################
   output <- NULL
