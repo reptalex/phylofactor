@@ -1,6 +1,6 @@
 #' Projects Data onto basis defined by phylofactor object
 #'
-#' @param PF Phylofactor object. See \code{\Link{PhyloFactor}}
+#' @param PF Phylofactor object. See \code{\link{PhyloFactor}}
 #' @param Data Optional new data matrix, Must have rownames matching those in PF$Data
 #' @param nfactors Number of factors used for projection. Default nfactors=2 for ordination-visualization
 

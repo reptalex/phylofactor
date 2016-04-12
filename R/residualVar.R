@@ -3,7 +3,7 @@
 #' @param prediction predicted matrix of relative abundances
 #' @param Data Data matrix
 #' @return Takes clr transform of Data, subtracts clr transform of prediction, and calculates the variance of all elements in the matrix.
-#' @example
+#' @examples
 #'  set.seed(1)
 #' tree <- unroot(rtree(7))
 

@@ -1,4 +1,4 @@
-#' Parallelized version of \code{\Link{phyloreg}} for PhyloRegression
+#' Parallelized version of \code{\link{phyloreg}} for PhyloRegression
 #'
 #' @param Grps Groups over which to amalgamate Data & regress
 #' @param Data Data matrix whose rows are parts and columns samples
@@ -7,9 +7,9 @@
 #' @param choice Method for choosing best group. choice='var' parallelizes computation of residual variance.
 #' @param method method for amalgamating
 #' @param Pbasis Coming soon...
-#' @param cl phyloFcluster object. See \code{\Link{phyloFcluster}}
+#' @param cl phyloFcluster object. See \code{\link{phyloFcluster}}
 #' @return list of glm objects
-#' @example
+#' @examples
 #' set.seed(1)
 #' tree <- unroot(rtree(7))
 

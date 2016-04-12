@@ -3,7 +3,7 @@
 #' @param A matrix
 #' @param B matrix
 #' @return Matrix where upper-left block is matrix A, upper-right block is the abundances in B of parts in A. Lower left block is abundances in A of parts in B not found in A, and lower-right block is abundances in B of parts not found in A.
-#' @example
+#' @examples
 #' A <- matrix(rnorm(12),ncol=4)
 #' rownames(A) <- 1:3
 #' B <- matrix(rnorm(36),ncol=6)

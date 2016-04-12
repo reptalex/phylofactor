@@ -2,7 +2,7 @@
 #'
 #' @param GLM glm object
 #' @return vector containing P value and F statistic from aov(GLM)
-#' @example
+#' @examples
 #' x <- rnorm(10)
 #' y <- 2*x+rnorm(10)
 #'

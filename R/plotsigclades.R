@@ -7,7 +7,7 @@
 #' @param legend Logical whether or not to include legend of taxonomic types corresponding to colors in tree
 #' @param ... optional arguments for plot.phylo()
 #' @return colored plot of phylogeny, highlighting sigOTUs
-#' @example
+#' @examples
 #' data("FTmicrobiome")
 #' set.seed(1)
 #' tree <- drop.tip(tree,tree$tip.label[sample(Ntip(tree),Ntip(tree)-100)])

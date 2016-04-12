@@ -1,8 +1,13 @@
-TaxaSplit <- function(NodeSummary){
+#' Describes the taxa split at a particular factor summarized by summary.phylofactor
+#'
+#' @param Summary summary.phylofactor object
+#' @return list of taxa (with trimmed taxonomy strings) unique to the group & complement for the input summarized factor
 
-  #
-  taxG <- NodeSummary$group$IDs
-  taxC <- NodeSummary$complement$IDs
+
+TaxaSplit <- function(Summary){
+
+  taxG <- Summary$group$IDs
+  taxC <- Summary$complement$IDs
 
   #### Grab the first unique taxonomic category for the Group and Complement ###
 

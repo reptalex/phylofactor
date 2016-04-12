@@ -9,12 +9,13 @@ Description: TBD
 License: GPL-3
 LazyData: TRUE
 Imports:
-  compositions,
-  ape,
-  phangorn,
-  stats,
-  phytools,
-  caper,
-  magrittr
+    compositions,
+    ape,
+    phangorn,
+    stats,
+    phytools,
+    caper,
+    magrittr
 Suggests:
-  parallel
+    parallel
+RoxygenNote: 5.0.1

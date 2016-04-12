@@ -4,7 +4,7 @@
 #' @param Y data matrix. row names must match tip labels of tree
 #' @param tipLabels Logical indicating whether or not to include tip labels
 #' @param ... optional arguments for plot.phylo(...)
-#' @example
+#' @examples
 #' set.seed(1)
 #' tree <- unroot(rtree(7))
 

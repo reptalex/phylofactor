@@ -3,7 +3,7 @@
 #' @param ix two-member list containing the parts split by a partition
 #' @param n total number of parts
 #' @return ILR basis element corresponding to the split of ix[[1]] with ix[[2]] out of n-part composition.
-#' @example
+#' @examples
 #' n <- 10
 #' ix <- NULL
 #' ix[[1]] <- c(3,4)

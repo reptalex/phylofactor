@@ -5,7 +5,7 @@
 #' @param method Method for amalgamation. Takes values of "sum" and "ILR". ILR amalgamates using geometric means, whereas "sum" amalgamates by summing relative abundances.
 #' @param collapse Logical indicating whether or not to collapse groups (collapse=T) by summing or geometric means, or to output log-ratios from amalgamation & comparison.
 #' @return If collapse=T, returns either a log-ratio of the groups. If collapse=F, returns the geometric mean of each group.
-#' @example
+#' @examples
 #' library(compositions)
 #' set.seed(1)
 #' Data <- matrix(rlnorm(80),nrow=8)

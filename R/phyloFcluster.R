@@ -2,7 +2,7 @@
 #'
 #' @param ncores number of cores
 #' @param ... optional input arguments for makeClsuter
-#' @example
+#' @examples
 #' set.seed(1)
 #' tree <- unroot(rtree(7))
 

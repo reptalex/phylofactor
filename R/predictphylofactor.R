@@ -4,7 +4,7 @@
 #' @param factors Set of factors to be used for prediction. Currently, must be a continuous integer sequence from 1:nfactors
 #' @param ... optional input arguments for glm
 #' @return estimated data based on estimates from phylofactorization
-#' @example
+#' @examples
 #' library(compositions)
 #' library(caper)
 #' set.seed(1)

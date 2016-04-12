@@ -4,7 +4,7 @@
 #' @param G If V is not input, can instead input a list of groups, G, whose elements are all contained in the input set
 #' @param set If V is not input, set determines the full set of elements of which G is sub-groups and of which atoms are constructed.
 #' @return a list of atoms - list of elements corresponding to minimal, unsplit groups given the partition or the group list.
-#' @example
+#' @examples
 #' V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)
 #' atoms(V)
 #'

@@ -13,7 +13,7 @@
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
 #' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=1.
 #' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "nodes","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "atoms", "atom.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which atoms are monophyletic and have atom.size>1
-#' @example
+#' @examples
 #'  set.seed(1)
 #' tree <- unroot(rtree(7))
 

@@ -9,7 +9,7 @@
 #' @param prediction Logical. If subtree=T, prediction=T will produce a phylo.heatmap containing the predicted data. Otherwise, will output phylo.heatmap of real data
 #' @param tipLabels Logical indicating whether or not to include tip labels in plot of subtree.
 #' @return summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction
-#' @example
+#' @examples
 #' data("FTmicrobiome")
 #' OTUTable <- FTmicrobiome$OTUTable        #OTU table
 #' Taxonomy <- FTmicrobiome$taxonomy        #taxonomy

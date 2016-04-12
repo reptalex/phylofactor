@@ -2,7 +2,7 @@
 #'
 #' @param tree Phylogeny
 #' @return list of groups and their complements, i.e. lists of groups split by each edge of the unrooted phylogeny
-#' @example
+#' @examples
 #' tr <- rtree(8)
 #' tr$tip.label <- 1:8
 #' par(mfrow=c(1,1))

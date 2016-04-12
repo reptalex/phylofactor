@@ -4,7 +4,7 @@
 #' @param x independent variable
 #' @param frmla Formula for dependence of y on x
 #' @return glm object
-#' @example
+#' @examples
 #' x <- rnorm(10)
 #' y <- x+rnorm(10)
 #' phyloreg(y,x,y~x)

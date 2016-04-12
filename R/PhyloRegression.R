@@ -8,7 +8,7 @@
 #' @param choice Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.
 #' @param cl phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.
 #' @param Pbasis Coming soon - input Pbasis for amalgamation method "add".
-#' @example
+#' @examples
 #' data("FTmicrobiome")
 #' Y <- FTmicrobiome$OTUTable
 #' Y <- Y[which(rowSums(Y==0)<30),] #only include taxa present in at least 29 samples

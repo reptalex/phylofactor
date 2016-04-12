@@ -5,7 +5,7 @@
 #' @param type Which types of edges to extract, default type='1', type='1' returns phylogeny consisting solely of taxa.
 #'  type='2' extracts edges from taxon tips to terminal node
 #'  type='3' extracts edges unique to taxa.
-#' @example
+#' @examples
 #' set.seed(1)
 #' tr <- rtree(7)
 #' txa <- tr$tip.label[3:6]
