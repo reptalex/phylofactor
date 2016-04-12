@@ -31,23 +31,6 @@
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
 
-  require(compositions)
-  require(ape)
-  require(phangorn)
-  require(phytools)
-  require(caper)
-  require(parallel)
-  require(magrittr)
-  require(Biostrings)
- #Data - Data Matrix, rows must be labelled as in tree and columns labelled by indepedent variable, X
- #tree - Phylogeny
- #X - independent variable
- #method - amalgamation method, either "add" or "ILR". ILR groups by multiplication, consistent with Egozcue's ILR basis
- #choice - how to choose the best edge, either "F" for F-statistic from analysis of variance of the glm, or "var" for percent explained variance.
- #ncores - number of cores in optional phyloCluster for parellelization of PhyloRegression.
-  # note - future input "GPU" will enable GPU computing.
- #... arguments for glm(), such as family, weights, subset, etc.
-
   #### Housekeeping
   if (all(colnames(Data) != X)){stop('column names of Data do not correspond to X')}
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')
