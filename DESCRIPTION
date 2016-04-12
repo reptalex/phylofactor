@@ -9,14 +9,14 @@ Description: Phylofactorization of compositional data. This package allows users
 License: GPL-3
 LazyData: TRUE
 Imports:
-    compositions,
-    ape,
-    phangorn,
-    stats,
-    phytools,
-    caper,
-    magrittr,
-    Biostrings
+    compositions (>= 1.40.1),
+    ape (>= 3.4),
+    phangorn (>= 2.0.2),
+    stats (>= 3.2.2),
+    phytools (>= 0.5.22),
+    caper (>= 0.5.2),
+    magrittr (>= 1.5),
+    Biostrings (>= 2.38.4)
 Suggests:
-    parallel
+    parallel (>= 3.2.2)
 RoxygenNote: 5.0.1
