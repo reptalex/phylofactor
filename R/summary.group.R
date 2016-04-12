@@ -1,5 +1,5 @@
 #' Summarizes OTU IDs, taxonomic detail, data and phylofactor predictions of a given input group of taxa
-#'
+#' @export
 #' @param PF PhyloFactor object
 #' @param tree phylogeny (ape class)
 #' @param taxonomy First column is OTU ids also found in tree$tip.label and second column is greengenes taxonomic strings

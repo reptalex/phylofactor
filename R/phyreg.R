@@ -1,5 +1,4 @@
 #' Internal function for phyloregPar
-#'
 #' @param Grps list of groups. see \code{\link{getGroups}}
 #' @param Data data matrix. Rows are parts and columns are samples
 #' @param XX independent variable

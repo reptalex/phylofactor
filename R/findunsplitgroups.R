@@ -1,5 +1,5 @@
 #' Finds unsplit groups in a signed partition matrix, V
-#'
+#' @export
 #' @param V Partition matrix.
 #' @examples
 #' V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)

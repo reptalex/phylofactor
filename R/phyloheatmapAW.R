@@ -1,5 +1,5 @@
-#' Ghetto, AW version of phylo.heatmap intended to allow more plot.phylo functionality. Needs to re-scale margins of tree/image
-#'
+#' Ghetto, AW version of phylo.heatmap
+#'@export
 #' @param tree phylogeny (ape class)
 #' @param Y data matrix. row names must match tip labels of tree
 #' @param tipLabels Logical indicating whether or not to include tip labels

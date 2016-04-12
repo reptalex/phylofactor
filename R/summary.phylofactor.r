@@ -1,5 +1,5 @@
 #' Summary of phylofactor object for a given node or factor number
-#'
+#' @export
 #' @param PF PhyloFactor object
 #' @param tree phylogeny (ape class)
 #' @param taxonomy Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string

@@ -1,5 +1,5 @@
 #' Produces cluster object with ncores and all necessary functions to perform phylofactorization
-#'
+#' @export
 #' @param ncores number of cores
 #' @param ... optional input arguments for makeClsuter
 #' @examples

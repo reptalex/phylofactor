@@ -1,5 +1,5 @@
 #' Internal function for computing an ilr balancing element given a list of split taxa in and the total number of taxa
-#'
+#' @export
 #' @param ix two-member list containing the parts split by a partition
 #' @param n total number of parts
 #' @return ILR basis element corresponding to the split of ix[[1]] with ix[[2]] out of n-part composition.

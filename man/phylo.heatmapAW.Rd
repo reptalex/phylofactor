@@ -2,7 +2,7 @@
 % Please edit documentation in R/phyloheatmapAW.R
 \name{phylo.heatmapAW}
 \alias{phylo.heatmapAW}
-\title{Ghetto, AW version of phylo.heatmap intended to allow more plot.phylo functionality. Needs to re-scale margins of tree/image}
+\title{Ghetto, AW version of phylo.heatmap}
 \usage{
 phylo.heatmapAW(tree, Y, tipLabels = TRUE, ...)
 }
@@ -16,7 +16,7 @@ phylo.heatmapAW(tree, Y, tipLabels = TRUE, ...)
 \item{...}{optional arguments for plot.phylo(...)}
 }
 \description{
-Ghetto, AW version of phylo.heatmap intended to allow more plot.phylo functionality. Needs to re-scale margins of tree/image
+Ghetto, AW version of phylo.heatmap
 }
 \examples{
 set.seed(1)

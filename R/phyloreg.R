@@ -1,5 +1,5 @@
 #' Returns regression of x on y according to frmla
-#'
+#' @export
 #' @param y response variable
 #' @param x independent variable
 #' @param frmla Formula for dependence of y on x

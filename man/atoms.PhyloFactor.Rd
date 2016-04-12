@@ -2,12 +2,18 @@
 % Please edit documentation in R/atomsphylofactor.R
 \name{atoms.PhyloFactor}
 \alias{atoms.PhyloFactor}
-\title{Outputs the atoms made by the first n factors in PhyloFactor object}
+\title{Outputs the atoms made by the first n factors in PhyloFactor object
+ @export
+ @param PF Phylofactor object. See \code{\link{PhylOFactor}}
+ @param nfactors Number of factors, from 1:nfactors, whose resultant atoms are desired.
+ @return a list of atoms}
 \usage{
 atoms.PhyloFactor(PF, nfactors = 1)
 }
 \description{
-@param PF Phylofactor object. See \code{\link{PhylOFactor}}
+Outputs the atoms made by the first n factors in PhyloFactor object
+ @export
+ @param PF Phylofactor object. See \code{\link{PhylOFactor}}
  @param nfactors Number of factors, from 1:nfactors, whose resultant atoms are desired.
  @return a list of atoms
 }

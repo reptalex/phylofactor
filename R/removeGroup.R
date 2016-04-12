@@ -1,5 +1,5 @@
 #' Slow, brute-force AF internal function for removing a group from a list of groups/complements
-#'
+#' @export
 #' @param Grps Full set of groups and their complements, in format of output of \code{\link{getGroups}}
 #' @param id Group number to be removed from Grps
 #' @return list of groups and their complements constrained to the partition defined by removing Grps[[id]]

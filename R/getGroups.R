@@ -1,5 +1,5 @@
 #' Get list of groups defined by phylogeny
-#'
+#' @export
 #' @param tree Phylogeny
 #' @return list of groups and their complements, i.e. lists of groups split by each edge of the unrooted phylogeny
 #' @examples

@@ -4,8 +4,8 @@
 \alias{summary.phylofactor}
 \title{Summary of phylofactor object for a given node or factor number}
 \usage{
-summary.phylofactor(PF, tree, taxonomy, node = NULL, factor = NULL,
-  subtree = F, prediction = T, tipLabels = F, ...)
+\method{summary}{phylofactor}(PF, tree, taxonomy, node = NULL,
+  factor = NULL, subtree = F, prediction = T, tipLabels = F, ...)
 }
 \arguments{
 \item{PF}{PhyloFactor object}

@@ -1,5 +1,5 @@
 #' Outputs the atoms made by the first n factors in PhyloFactor object
-#'
+#'  @export
 #'  @param PF Phylofactor object. See \code{\link{PhylOFactor}}
 #'  @param nfactors Number of factors, from 1:nfactors, whose resultant atoms are desired.
 #'  @return a list of atoms

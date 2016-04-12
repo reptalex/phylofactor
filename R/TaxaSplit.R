@@ -1,5 +1,5 @@
 #' Describes the taxa split at a particular factor summarized by summary.phylofactor
-#'
+#' @export
 #' @param Summary summary.phylofactor object
 #' @return list of taxa (with trimmed taxonomy strings) unique to the group & complement for the input summarized factor
 

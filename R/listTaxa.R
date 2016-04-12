@@ -1,5 +1,5 @@
 #' Lists all unique taxonomic names in a Taxonomy at a given level
-#'
+#' @export
 #' @param taxonomy Taxonomy. First row is species IDs, second row is their taxonomy. This function assumes greengenes-compatible taxonomic strings
 #' @param level Taxonomic level from set {'k','p','c','o','f','g'}
 #' @return list of taxonomic strings for all taxa up to speficied level.

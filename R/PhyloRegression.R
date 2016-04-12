@@ -1,5 +1,5 @@
 #' Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.
-#'
+#' @export
 #' @param Data Compositional data matrix whose rows are parts and columns are samples.
 #' @param X independent variables for input into glm.
 #' @param frmla Formula for input into glm by lapply(Y,FUN = phyloreg,x=X,frmla=frmla,choice,...)

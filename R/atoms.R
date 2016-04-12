@@ -1,5 +1,5 @@
 #' Outputs atoms from a partition matrix, V, or from a list of groups G and their full set.
-#'
+#' @export
 #' @param V Signed partition matrix, need not be normalized, but can be an ilr basis.
 #' @param G If V is not input, can instead input a list of groups, G, whose elements are all contained in the input set
 #' @param set If V is not input, set determines the full set of elements of which G is sub-groups and of which atoms are constructed.

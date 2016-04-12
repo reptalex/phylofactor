@@ -1,4 +1,5 @@
 #' Construct tree for particular taxonomic group
+#' @export
 #' @param tree Ape class phylogeny whose tips are contained in the OTUids of the taxonomy
 #' @param taxonomy Taxonomy list whose first column is OTUids and whose second column is taxonomic strings
 #' @param Taxon the particular Taxonomic string to include in tree.

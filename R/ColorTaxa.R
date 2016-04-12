@@ -1,5 +1,5 @@
 #' Color tree based on taxonomic level
-#'
+#' @export
 #' @param tree Phylogeny whose tips are contained in the first column of the list, Taxonomy
 #' @param Taxonomy list whose first column contains the tip labels of the tree and whose second column contains greengenes taxonomic strings for each OTU.
 #' @param level Taxonomic level from set {'k','p','c','o','f','g','s'} default ='p'.

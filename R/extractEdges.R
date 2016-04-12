@@ -1,5 +1,5 @@
 #' Function by Dom J. Bennett from MoreTreeTools. Function extracts edges from a phylogeny
-#'
+#' @export
 #' @param phylo Phylogeny (ape class)
 #' @param taxa vector of taxon names
 #' @param type Which types of edges to extract, default type='1', type='1' returns phylogeny consisting solely of taxa.

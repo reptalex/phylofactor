@@ -1,5 +1,6 @@
-#' Plots phylogeny and the data, highlighting nodes pulled out by PhyloPF object and optionally comparing to the PhyloPF prediction.
+#' Label and visualize phylofactors
 #'
+#'  @export
 #'  @param PF PhyloFactor object
 #'  @param tree Phylogeny used in generating PhyloFactor object. Default will scan PF for a tree.
 #'  @param Data Data used to generate PhyloFactor object. If Null, default will plot the phylofactor prediction of the dataset.

@@ -1,5 +1,5 @@
 #' Internal function for prediction of data matrix given a method of amalgamation and its expectation
-#'
+#' @export
 #' @param yhat Estimated coordinate (expected value of coordinate) from regression on the amalgamation of Grp
 #' @param Grp Two element list containing a group and its complement for amalgamation & contrast
 #' @param n number of parts in entire dataset

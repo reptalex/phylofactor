@@ -1,4 +1,5 @@
 #' Returns the taxonomic IDs for all the OTUs in the atoms formed by splits in a Phylofactor object.
+#' @export
 #' @param PF Phylofactor object
 #' @param Taxonomy taxonomy list. First column must be species IDs corresponding to tip-labels of the tree, second column must be taxonomy strings (currently, this works for greengenes taxonomy strings - beware other taxonomy formats)
 #' @param tree Phylogeny

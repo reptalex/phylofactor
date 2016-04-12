@@ -1,5 +1,4 @@
 #' Calculates residual variance by removing 'prediction' from data matrix
-#'
 #' @param prediction predicted matrix of relative abundances
 #' @param Data Data matrix
 #' @return Takes clr transform of Data, subtracts clr transform of prediction, and calculates the variance of all elements in the matrix.

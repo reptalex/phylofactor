@@ -1,5 +1,5 @@
 #' Rarefies and OTU table to a given level
-#'
+#' @export
 #' @param OTUTable Table of species abundances/counts whose rows are species and whose columns are samples
 #' @param to Number of counts post-rarefaction, from 'min','max', or an integer. Default is 'min', minimum number of counts of all samples in the table
 #' @param method Method for randomly drawing counts. Currently only supports "multinom", but coming soon: 'nbinom' and 'PoisLN'

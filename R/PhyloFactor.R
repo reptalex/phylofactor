@@ -1,5 +1,5 @@
 #' Performs phylofactorization of a compositional dataset
-#'
+#'@export
 #' @param Data Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1
 #' @param tree Phylogeny whose tip-labels are row-names in Data. Regardless if phylogeny input is rooted, the output nodes and  will correspond to an unrooted tree.
 #' @param X independent variable.

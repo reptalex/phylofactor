@@ -1,5 +1,5 @@
 #' Plots tree and highlights otus given by sigOTUs
-#'
+#' @export
 #' @param tree phylogeny (ape class)
 #' @param sigOTUs taxa to highlight, corresponding to tip labels of tree.
 #' @param Taxonomy Taxonomy whose first column is OTU ids and whose second column is a greengenes style taxonomic string

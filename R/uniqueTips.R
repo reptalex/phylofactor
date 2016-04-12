@@ -1,5 +1,5 @@
 #' Find all unique tips in a set of clades
-#'
+#' @export
 #' @param tree ape class phylogeny
 #' @param Clades clades of interest
 #' @return a vector of all the tips that are unique to \code{Clades} in \code{tree}

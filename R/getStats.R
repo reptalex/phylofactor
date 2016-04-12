@@ -1,5 +1,5 @@
 #' Grabs P value and F statistic from aov of glm object.
-#'
+#' @export
 #' @param GLM glm object
 #' @return vector containing P value and F statistic from aov(GLM)
 #' @examples
