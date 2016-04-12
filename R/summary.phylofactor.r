@@ -1,3 +1,44 @@
+#' Summary of phylofactor object for a given node or factor number
+#'
+#' @param PF PhyloFactor object
+#' @param tree phylogeny (ape class)
+#' @param taxonomy Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string
+#' @param node node number, must be in PF$nodes. Takes priority over "factor" for what is summarized
+#' @param factor Factor number to summarize.
+#' @param subtree Logical indicating whether or not to output the subtree partitioned when PF$node was split (i.e. sub-tree split by factor)
+#' @param prediction Logical. If subtree=T, prediction=T will produce a phylo.heatmap containing the predicted data. Otherwise, will output phylo.heatmap of real data
+#' @param tipLabels Logical indicating whether or not to include tip labels in plot of subtree.
+#' @return summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction
+#' @example
+#' data("FTmicrobiome")
+#' OTUTable <- FTmicrobiome$OTUTable        #OTU table
+#' Taxonomy <- FTmicrobiome$taxonomy        #taxonomy
+#' tree <- FTmicrobiome$tree                #tree
+#' X <- FTmicrobiome$X                      #independent variable - factor indicating if sample is from feces or tongue
+#'
+#' rm('FTmicrobiome')
+#'
+#' # remove rare taxa
+#' ix <- which(rowSums(OTUTable==0)<30)
+#' OTUTable <- OTUTable[ix,]
+#' OTUs <- rownames(OTUTable)
+#' tree <- drop.tip(tree,which(!(tree$tip.label %in% OTUs)))
+#' delta=0.65
+#' OTUTable[OTUTable==0]=delta
+#' OTUTable <- OTUTable %>% t %>% clo %>% t
+#' OTUTable <- OTUTable[tree$tip.label,]
+#'
+#' par(mfrow=c(1,1))
+#' phylo.heatmap(tree,t(clr(t(OTUTable))))
+#' PF <- PhyloFactor(OTUTable,tree,X,nclades=2,choice='var')
+#'
+#' FactorSummary <- summary.phylofactor(PF,tree,Taxonomy,factor=1)
+#' NodeSummary <- summary.phylofactor(PF,tree,Taxonomy, node=PF$nodes[2])
+#'
+#' str(FactorSummary)
+#'
+#' NodeSummary$group$IDs
+#'
 summary.phylofactor <- function(PF,tree,taxonomy,node=NULL,factor=NULL,subtree=F,prediction=T,tipLabels=F,...){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(node)==F){
@@ -13,7 +54,11 @@ summary.phylofactor <- function(PF,tree,taxonomy,node=NULL,factor=NULL,subtree=F
 
   nd <- which(PF$nodes==node)
     if (nd>1){
-      atms <- atoms(PF$basis[,1:(nd-1)])
+      if (nd==2){
+        atms <- list(which(PF$basis[,1]<0),which(PF$basis[,1]>0))
+      } else {
+        atms <- atoms(PF$basis[,1:(nd-1)])
+      }
       splt <- which(PF$basis[,nd]>0)
       grp <- atms[[which(unlist(lapply(atms,function(x,y){all(y %in% x)},y=splt)))]]
 

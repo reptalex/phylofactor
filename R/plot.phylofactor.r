@@ -8,6 +8,7 @@
 #'  @param clades Clades, also referred to as the splits or factors, of phylofactor object to be labelled on tree and used in prediction.
 #'  @param compare Whether or not to compare the Data with phylofactor prediction. If compare = TRUE, two phylo-heatmaps will be produced for direct comparison.
 #'  @param ... additional arguments for phylo.heatmap
+#'  @return phylo.heatmap labelling the tree with phylofactors and optionally comparing data to phylofactor predictions.
 #'  @example
 #'  ### Create Data ###
 #'  set.seed(1)

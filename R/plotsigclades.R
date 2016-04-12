@@ -1,9 +1,30 @@
+#' Plots tree and highlights otus given by sigOTUs
+#'
+#' @param tree phylogeny (ape class)
+#' @param sigOTUs taxa to highlight, corresponding to tip labels of tree.
+#' @param Taxonomy Taxonomy whose first column is OTU ids and whose second column is a greengenes style taxonomic string
+#' @param level Taxonomic level from {'k','p','c','o','f','g'} for coloring tree
+#' @param legend Logical whether or not to include legend of taxonomic types corresponding to colors in tree
+#' @param ... optional arguments for plot.phylo()
+#' @return colored plot of phylogeny, highlighting sigOTUs
+#' @example
+#' data("FTmicrobiome")
+#' set.seed(1)
+#' tree <- drop.tip(tree,tree$tip.label[sample(Ntip(tree),Ntip(tree)-100)])
+#' otus <- tree$tip.label
+#' Taxonomy <- FTmicrobiome$taxonomy[which(FTmicrobiome$taxonomy[,1] %in% otus),]
+#' txa <- listTaxa(Taxonomy,level='c')
+#' txa <- txa[[3]]  #these are the p__Firmicutes; c__Bacilli
+#' otus <- TaxaToOTU(txa,Taxonomy)[[1]]
+#'
+#' plot.sig.clades(tree,otus,Taxonomy,level='p',legend=T)
+
 
 ################################### plot.sig.clades  ############################################
-plot.sig.clades <- function(tree,sigOTUs,taxon_site,level='p',legend=FALSE,treetype='unrooted',show.tip.labels=FALSE,use.edge.length=FALSE){
+plot.sig.clades <- function(tree,sigOTUs,Taxonomy,level='p',legend=FALSE,...){
   #this function plots the tree and highlights those edges unique to SigOTUs in the tree,
   # Significant taxa are overlayed on tree labelled by taxonomic level.
-  #input tree, sigOTus, taxon_site=taxonomy (mapping from OTU IDs to green genes taxonomy), taxonomic level, whether or not to include a legend, etc.)
+  #input tree, sigOTus, Taxonomy=taxonomy (mapping from OTU IDs to green genes taxonomy), taxonomic level, whether or not to include a legend, etc.)
   # Uses DJ Bennet's extractEdges function to pull out the edges for sigOTUs.
   otuids <- tree$tip.label
   if (all(sigOTUs %in% otuids)==FALSE){
@@ -17,14 +38,14 @@ plot.sig.clades <- function(tree,sigOTUs,taxon_site,level='p',legend=FALSE,treet
   }
 
   # plot the tree
-  Taxa <- listTaxa(taxon_site,level)
+  Taxa <- listTaxa(Taxonomy,level)
 
   #Second, for each taxon we grab the OTUids and the unique edges
   nT <- length(Taxa)
-  Otus <- lapply(Taxa,grep,x=taxon_site[,2])
+  Otus <- lapply(Taxa,grep,x=Taxonomy[,2])
   Edgelist <- vector(mode='list',length=nT)
   for (n in 1:nT){
-    Otus[[n]] <- as.character(taxon_site[Otus[[n]],1])
+    Otus[[n]] <- as.character(Taxonomy[Otus[[n]],1])
     Edgelist[[n]] <- extractEdges(tree,Otus[[n]],type=3)
   }
 

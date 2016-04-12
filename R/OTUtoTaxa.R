@@ -1,3 +1,9 @@
+#'Input OTUs and outputs their taxonomic detail, optinally trimmed to their common taxonomic levels.
+#'
+#'@param otus Species IDs found in first column of Taxonomy
+#'@param Taxonomy Taxonomy whose first column has OTUs/species IDs and whose second column has greengenes-compatible taxonomic strings
+#'@param common.name Logical indicating whether or not to trim the output to the longest common prefix in the taxonomic strings of all otus
+
 OTUtoTaxa <- function(otus,Taxonomy,common.name=T){
 
     if(typeof(otus)!='character'){otus <- as.character(otus)}

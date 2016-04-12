@@ -1,3 +1,12 @@
+#' Lists all unique taxonomic names in a Taxonomy at a given level
+#'
+#' @param taxonomy Taxonomy. First row is species IDs, second row is their taxonomy. This function assumes greengenes-compatible taxonomic strings
+#' @param level Taxonomic level from set {'k','p','c','o','f','g'}
+#' @return list of taxonomic strings for all taxa up to speficied level.
+#' @example
+#' data(FTmicrobiome)
+#' listTaxa(FTmicrobiome$taxonomy,level='p')
+
 listTaxa <- function(taxonomy,level='p'){
   #This function inputs a taxonomy table whose first column is OTU ids and whose second column is
   #greengenes taxonomy. Output will be a list of the uniqiue taxa at taxonomic level= "level" in the table.

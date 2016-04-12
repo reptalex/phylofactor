@@ -1,3 +1,14 @@
+#' Slow, brute-force AF internal function for removing a group from a list of groups/complements
+#'
+#' @param Grps Full set of groups and their complements, in format of output of \code{\Link{getGroups}}
+#' @param id Group number to be removed from Grps
+#' @return list of groups and their complements constrained to the partition defined by removing Grps[[id]]
+#' @example
+#' set.seed(1)
+#' tree <- rtree(10)
+#' Grps <- getGroups(tree)
+#' removeGroup(Grps,11)
+
 removeGroup <- function(Grps,id){
   ##### This code can definitely be made cleaner & more efficient.
   grp <- Grps[[id]]  #find the chosen group
