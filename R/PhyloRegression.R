@@ -75,7 +75,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
       #partition can also be parallelized. A function such as
       #phyloregPar and phyloregParV will be useful to parellelize
       # Y, GLM.outputs, and PercVar
-      totalvar <- var(c(clr(t(Data))))
+      totalvar <- var(c(compositions::clr(t(Data))))
       if (is.null(cl)){
         predictions <- mapply(PredictAmalgam,Yhat,Grps,n,method,Pbasis,SIMPLIFY=F)
         residualvar <- sapply(predictions,residualVar,Data=Data)

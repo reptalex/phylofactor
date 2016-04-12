@@ -31,9 +31,9 @@ amalgamate <- function(Grp,Data,method,collapse=F){
 
       for (nn in 1:n){
         grp <- Grp[[nn]]
-          if (method=='add'){
+          if (method=='ILR'){
             if (length(grp)>1){
-              output[nn,] <- geometricmeanCol(Data[grp,])
+              output[nn,] <- compositions::geometricmeanCol(Data[grp,])
             } else {
               output[nn,] <- Data[grp,]
             }
@@ -46,7 +46,7 @@ amalgamate <- function(Grp,Data,method,collapse=F){
           }
       }
 
-      output <- output %>% t %>% clo %>% t
+      output <- output %>% t %>% compositions::clo %>% t
       rownames(output) <- mapply(FUN = paste, as.list(rep('Atom',n)),as.list(1:n))
       return(output)
 

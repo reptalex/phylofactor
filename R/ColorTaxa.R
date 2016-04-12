@@ -25,7 +25,7 @@ ColorTaxa <- function(tree,Taxonomy,level='p',legend=FALSE){
 
   #Then we assign colors to each taxon
   colors <- rainbow(nT)
-  edge_colors <- rep('black',Nedge(tree))
+  edge_colors <- rep('black',ape::Nedge(tree))
 
   for (n in 1:nT){
     edge_colors[Edgelist[[n]]] <- colors[n]
@@ -33,7 +33,7 @@ ColorTaxa <- function(tree,Taxonomy,level='p',legend=FALSE){
   edge_widths <- rep(2,Nedge(tree))
 
   # plot the tree
-  plot.phylo(tree,use.edge.length = FALSE, show.tip.label = FALSE, type='unrooted',edge.color = edge_colors, edge.width = edge_widths)
+  ape::plot.phylo(tree,use.edge.length = FALSE, show.tip.label = FALSE, type='unrooted',edge.color = edge_colors, edge.width = edge_widths)
 
   if (legend==TRUE){
     lims <- par('usr')

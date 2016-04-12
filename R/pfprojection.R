@@ -8,14 +8,14 @@ pf.projection <- function(PF,Data=NULL,nfactors=2){
 
 
   if (is.null(Data)){
-    output <- t(ilr(t(PF$Data),V=PF$basis[,1:nfactors]))
+    output <- t(compositions::ilr(t(PF$Data),V=PF$basis[,1:nfactors]))
     colnames(output) <- colnames(PF$Data)
   }
   else {
     if(!all(rownames(Data) %in% rownames(PF$Data))){stop('Not all rownames in data are found in Phylofactor tree')}
     dum <- PF$Data
     dum[match(rownames(Data),rownames(dum)),] <- Data
-    output <- t(ilr(t(Data),V=PF$basis[1:nfactors]))
+    output <- t(compositions::ilr(t(Data),V=PF$basis[1:nfactors]))
     colnames(output) <- colnames(Data)
     rownames(output) <- rownames(Data)
   }

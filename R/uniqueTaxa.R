@@ -1,4 +1,4 @@
-#' Returns the first unique taxonomic level, starting from K, for all otus in x compared to y
+#' Find shortest taxonomic prefix
 #' @param x list of taxonomic strings whose unique taxonomies we want to know
 #' @param y list of taxonomic strings for "subtraction" from x
 #' @return list of taxonomic strings unique to x, i.e. the shortest taxonomic prefix of x that is unique to x

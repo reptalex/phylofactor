@@ -10,5 +10,5 @@ TaxaTree <- function(tree,taxonomy,Taxon){
   # e.g. p__Firmicutes.
   # Must include taxonomy which maps otuids in tree to the taxonomic labels in Taxon
   OTUs <- as.character(taxonomy[grep(Taxon,taxonomy[,2]),1])
-  return(drop.tip(tree,tip = setdiff(tree$tip.label,OTUs)))
+  return(ape::drop.tip(tree,tip = setdiff(tree$tip.label,OTUs)))
 }

@@ -51,18 +51,18 @@ plot.sig.clades <- function(tree,sigOTUs,Taxonomy,level='p',legend=FALSE,...){
 
   #Then we assign colors to each taxon
   colors <- rainbow(nT)
-  edge_colors <- rep('red',Nedge(tree))
+  edge_colors <- rep('red',ape::Nedge(tree))
 
   for (n in 1:nT){
     edge_colors[Edgelist[[n]]] <- colors[n]
   }
   edge_colors[extractEdges(tree,sigOTUs,type=3)] <- 'black'
 
-  edge_widths <- rep(2,Nedge(tree))
+  edge_widths <- rep(2,ape::Nedge(tree))
   edge_widths[extractEdges(tree,sigOTUs,type=3)] <- 8
 
   # plot the tree
-  plot.phylo(tree,use.edge.length = FALSE, show.tip.label = FALSE, type='unrooted',edge.color = edge_colors, edge.width = edge_widths)
+  ape::plot.phylo(tree,use.edge.length = FALSE, show.tip.label = FALSE, type='unrooted',edge.color = edge_colors, edge.width = edge_widths)
 
   if (legend==TRUE){
     lims <- par('usr')

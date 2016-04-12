@@ -18,7 +18,7 @@ uniqueTips <- function(tree,Clades){
   Clds <- length(Clades)
   tips <- NULL
   for (cc in 1:Clds){
-    tips <- sort(unique(c(tips,Descendants(tree,Clades[cc],type='tips')[[1]])))
+    tips <- sort(unique(c(tips,phangorn::Descendants(tree,Clades[cc],type='tips')[[1]])))
   }
   return(tips)
 }

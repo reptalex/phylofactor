@@ -33,7 +33,7 @@ phyloregPar <- function(Grps,Data,X,frmla,choice,method,Pbasis,cl,...){
 
 n <- dim(Data)[1]
 m <- length(Grps)
-parG <- lapply(clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
+parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
 
 reg <- parLapply(cl,X=parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
 

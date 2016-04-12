@@ -43,9 +43,9 @@ phylo.heatmapAW <- function(tree,Y,tipLabels=TRUE,...){
 
   ### left-facing phylogeny with colored tip-labels corresponding to stacked plot above ###
   par(mar=c(5,4,4,1)+1)
-  pp <- plot.phylo(tree,type='p', use.edge.length=F,direction='l',main='Community Phylogeny',show.tip.label=FALSE,...)
+  pp <- ape::plot.phylo(tree,type='p', use.edge.length=F,direction='l',main='Community Phylogeny',show.tip.label=FALSE,...)
   if (tipLabels==TRUE){
-    tiplabels(text= tree$tip.label,bg='white',col = 'black',cex=3)
+    ape::tiplabels(text= tree$tip.label,bg='white',col = 'black',cex=3)
   }
   ###########################
 }

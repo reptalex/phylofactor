@@ -9,6 +9,8 @@ Description:
   Phylofactorization of compositional data. This package allows users to identify clades of interest through a series of independent regressions on groups defined by phylogeny. There are many functions to assist the listing and visualization of phylofactorizations. See Washburne et al. (2016) for more details.
 License: GPL-3
 LazyData: TRUE
+Depends:
+  magrittr (>= 1.5)
 Imports:
   compositions (>= 1.40.1),
   ape (>= 3.4),
@@ -16,7 +18,6 @@ Imports:
   stats (>= 3.2.2),
   phytools (>= 0.5.22),
   caper (>= 0.5.2),
-  magrittr (>= 1.5),
   Biostrings (>= 2.38.4)
 Suggests:
   parallel (>= 3.2.2)

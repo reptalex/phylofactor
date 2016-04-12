@@ -45,7 +45,7 @@ predict.phylofactor <- function(PF,factors=NULL,...){
       d=d+1
     }
 
-    Dat <- coefs %>% apply(MARGIN=1,ilrInv,V=PF$basis[,factors])
+    Dat <- coefs %>% apply(MARGIN=1,compositions::ilrInv,V=PF$basis[,factors])
 
   return(Dat)
 }

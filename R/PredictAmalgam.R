@@ -18,7 +18,7 @@ PredictAmalgam <- function(yhat,Grp,n,method,Pbasis=1){
     # prediction <- d
   } else { #use ILR approach
     v <- ilrvec(Grp,n) %>% c(rep(0,n)) %>% matrix(ncol=2,byrow=F)
-    prediction <- yhat %>% c(rep(0,length(yhat))) %>% matrix(ncol=2,byrow=F) %>% ilrInv(v) %>% t %>% matrix(ncol=length(yhat))
+    prediction <- yhat %>% c(rep(0,length(yhat))) %>% matrix(ncol=2,byrow=F) %>% compositions::ilrInv(v) %>% t %>% matrix(ncol=length(yhat))
   }
 
   return(prediction)

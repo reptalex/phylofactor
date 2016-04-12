@@ -20,7 +20,7 @@ getGroups <- function(tree){
   names(Grps)[1:n] <- 1:n
 
 
-  cml <- clade.members.list(tree)[2:(n-2)]
+  cml <- caper::clade.members.list(tree)[2:(n-2)]
   Grps[(n+1):(2*n-3)] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
   names(Grps)[(n+1):(2*n-3)] <- names(cml)
 

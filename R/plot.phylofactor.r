@@ -46,11 +46,11 @@ plot.phylofactor <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,co
       PData <- predict.phylofactor(PF,clades)
       rownames(PData) <- row.names
       colnames(PData) <- colnames(PData)
-      phylo.heatmap(tree,t(clr(t(PData))),...)
+      phytools::phylo.heatmap(tree,t(compositions::clr(t(PData))),...)
     } else {
-      phylo.heatmap(tree,t(clr(t(Data))),...)
+      phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))),...)
     }
-    nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
+    ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
   } else {
 
 
@@ -65,10 +65,10 @@ plot.phylofactor <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,co
     rownames(PData) <- tree$tip.label
     colnames(PData) <- colnames(Data)
 
-    phylo.heatmap(tree,t(clr(t(Data))))
-    nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
-    phylo.heatmap(tree,t(clr(t(PData))))
-    nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
+    phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
+    ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
+    phytools::phylo.heatmap(tree,t(compositions::clr(t(PData))))
+    ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
 
 
 

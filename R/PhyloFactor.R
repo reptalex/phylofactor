@@ -39,12 +39,12 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
      }}
   if (all(tree$tip.label %in% rownames(Data))==F){
     warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
-    tree <- drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
+    tree <- ape::drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
   if (is.null(frmla)){frmla=Data ~ X}
   if (method %in% c('add','ILR')==F){stop('improper input method - must be either "add" or "multiply"')}
   if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "F" or "var"')}
   if(is.null(nclades)){nclades=Inf}
-  if(is.rooted(tree)){
+  if(ape::is.rooted(tree)){
     warning('Tree is rooted. Output nodes will correspond to unrooted, tree <- unroot(tree)')
     tree <- unroot(tree)}
 
@@ -80,7 +80,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
 
    if (pfs>1){
-   Data <- t(clo(t(Data/PhyloReg$residualData)))
+   Data <- t(compositions::clo(t(Data/PhyloReg$residualData)))
    Grps <- removeGroup(Grps,PhyloReg$group) #removeGroup can be made more efficient if need be.
    }
 
@@ -155,7 +155,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
  output$atoms <- atoms(output$basis)
  NewOTUs <- output$atoms
- Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(is.monophyletic(y,x)),y=tree))
+ Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
  names(output$atoms)[Monophyletic] <- 'Monophyletic'
  names(output$atoms)[!Monophyletic] <- 'Paraphyletic'
 

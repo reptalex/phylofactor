@@ -58,13 +58,13 @@ summary.phylofactor <- function(PF,tree,taxonomy,node=NULL,factor=NULL,subtree=F
       splt <- which(PF$basis[,nd]>0)
       grp <- atms[[which(unlist(lapply(atms,function(x,y){all(y %in% x)},y=splt)))]]
 
-      grp1 <- intersect(grp,Descendants(tree,PF$nodes[nd],type='tips')[[1]])  ## this is our group
+      grp1 <- intersect(grp,phangorn::Descendants(tree,PF$nodes[nd],type='tips')[[1]])  ## this is our group
       grp2 <- setdiff(grp,grp1)                                               ## this is our complement
     } else {
       otus <- tree$tip.label
 
       grp <- 1:length(PF$basis[,nd])
-      grp1 <- intersect(grp,Descendants(tree,PF$nodes[nd],type='tips')[[1]])  ## this is our group
+      grp1 <- intersect(grp,phangorn::Descendants(tree,PF$nodes[nd],type='tips')[[1]])  ## this is our group
       grp2 <- setdiff(grp,grp1)
 
     }
@@ -76,16 +76,16 @@ summary.phylofactor <- function(PF,tree,taxonomy,node=NULL,factor=NULL,subtree=F
   output$complement <- summary.group(PF,tree,taxonomy,factor=nd,grp2)
 
   if (subtree==T){
-    tr <- drop.tip(tree,setdiff(unlist(atms),grp))
-    edgs <- rep(2,Nedge(tr))
-    cols <- rep('black',Nedge(tr))
+    tr <- ape::drop.tip(tree,setdiff(unlist(atms),grp))
+    edgs <- rep(2,ape::Nedge(tr))
+    cols <- rep('black',ape::Nedge(tr))
 
     edgG <- extractEdges(tr,taxa=tree$tip.label[grp1],type=3)
     edgs[edgG]=8
     cols[edgG]='red'
     if (prediction==T){
     dta <- rbind(output$group$PF.prediction,output$complement$PF.prediction)
-    } else { dta <- t(clr(t(rbind(output$group$otuData,output$complement$otuData))))}
+    } else { dta <- t(compositions::clr(t(rbind(output$group$otuData,output$complement$otuData))))}
     phylo.heatmapAW(tree=tr,Y=dta,tipLabels = tipLabels,edge.width=edgs,edge.color=cols,...)
     output$subtree <- tr
   }
