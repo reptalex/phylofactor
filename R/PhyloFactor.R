@@ -30,6 +30,16 @@
 
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
+
+  require(compositions)
+  require(ape)
+  require(phangorn)
+  require(phytools)
+  require(caper)
+  require(parallel)
+  require(magrittr)
+  require(Biostrings)
+
  #Data - Data Matrix, rows must be labelled as in tree and columns labelled by indepedent variable, X
  #tree - Phylogeny
  #X - independent variable
