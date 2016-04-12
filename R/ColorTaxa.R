@@ -12,6 +12,8 @@ ColorTaxa <- function(tree,Taxonomy,level='p',legend=FALSE){
   #This function produces a tree of the entire community in which the taxa at level "p" are
   #labelled by color.
 
+  plot.phylo <- ape::plot.phylo
+  Nedge <- ape::Nedge
   #First, we grab the list of taxa
   Taxa <- listTaxa(Taxonomy,level)
 

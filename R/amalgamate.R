@@ -22,6 +22,8 @@
 
 amalgamate <- function(Grp,Data,method,collapse=F){
 
+  geometricmeanCol <- compositions::geometricmeanCol
+
   if (collapse==T){
 
       n <- length(Grp) #this is the number of rows in our new OTU table
