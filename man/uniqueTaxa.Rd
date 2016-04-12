@@ -2,7 +2,7 @@
 % Please edit documentation in R/uniqueTaxa.R
 \name{uniqueTaxa}
 \alias{uniqueTaxa}
-\title{Returns the first unique taxonomic level, starting from K, for all otus in x compared to y}
+\title{Find shortest taxonomic prefix}
 \usage{
 uniqueTaxa(x, y)
 }
@@ -15,6 +15,6 @@ uniqueTaxa(x, y)
 list of taxonomic strings unique to x, i.e. the shortest taxonomic prefix of x that is unique to x
 }
 \description{
-Returns the first unique taxonomic level, starting from K, for all otus in x compared to y
+Find shortest taxonomic prefix
 }
 

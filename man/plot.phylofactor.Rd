@@ -4,8 +4,8 @@
 \alias{plot.phylofactor}
 \title{Label and visualize phylofactors}
 \usage{
-plot.phylofactor(PF, tree = NULL, Data = NULL, bg = "white", cex = 2,
-  clades = 1, compare = F, ...)
+\method{plot}{phylofactor}(PF, tree = NULL, Data = NULL, bg = "white",
+  cex = 2, clades = 1, compare = F, ...)
 }
 \description{
 @export

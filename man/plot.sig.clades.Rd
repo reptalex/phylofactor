@@ -4,7 +4,8 @@
 \alias{plot.sig.clades}
 \title{Plots tree and highlights otus given by sigOTUs}
 \usage{
-plot.sig.clades(tree, sigOTUs, Taxonomy, level = "p", legend = FALSE, ...)
+\method{plot}{sig.clades}(tree, sigOTUs, Taxonomy, level = "p",
+  legend = FALSE, ...)
 }
 \arguments{
 \item{tree}{phylogeny (ape class)}

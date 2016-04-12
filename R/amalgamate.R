@@ -21,7 +21,7 @@
 #' plot(1:10,lr,xlab='sample',ylab='log-ratio of Grp {1,2} over {3,4,8}')
 
 amalgamate <- function(Grp,Data,method,collapse=F){
-
+  clo <- compositions::clo
 
   if (collapse==T){
 
@@ -46,7 +46,7 @@ amalgamate <- function(Grp,Data,method,collapse=F){
           }
       }
 
-      output <- output %>% t %>% compositions::clo %>% t
+      output <- output %>% t %>% clo %>% t
       rownames(output) <- mapply(FUN = paste, as.list(rep('Atom',n)),as.list(1:n))
       return(output)
 

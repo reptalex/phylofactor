@@ -1,4 +1,5 @@
 #' Predicts based on phylofactorization
+#'
 #' @export
 #' @param PF PhyloFactor object
 #' @param factors Set of factors to be used for prediction. Currently, must be a continuous integer sequence from 1:nfactors

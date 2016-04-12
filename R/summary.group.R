@@ -16,7 +16,7 @@ summary.group <- function(PF,tree,taxonomy,factor,grp){
   output$IDs <- data.frame(otuIDs,TaxaIDs)
 
   output$otuData <- PF$Data[grp, ,drop=F]
-  output$PF.prediction <- predict.phylofactor(Factor=PF,factors=1:factor)[grp, ,drop=F]
+  output$PF.prediction <- predict.phylofactor(PF,factors=1:factor)[grp, ,drop=F]
   colnames(output$PF.prediction) <- colnames(PF$Data)
   rownames(output$PF.prediction) <- rownames(PF$Data[grp, ,drop=F])
   return(output)
