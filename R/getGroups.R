@@ -12,8 +12,6 @@
 ######################### getGroups ######################################
 
 getGroups <- function(tree){
-  clade.members.list <- caper::clade.members.list
-
   set=1:length(tree$tip.label)
   n=length(set)
   Grps <- vector(mode='list',length=(2*n-3))

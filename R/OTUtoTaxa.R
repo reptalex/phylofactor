@@ -5,7 +5,6 @@
 #'@param common.name Logical indicating whether or not to trim the output to the longest common prefix in the taxonomic strings of all otus
 
 OTUtoTaxa <- function(otus,Taxonomy,common.name=T){
-  lcprefix <- Biostrings::lcprefix
 
 
     if(typeof(otus)!='character'){otus <- as.character(otus)}

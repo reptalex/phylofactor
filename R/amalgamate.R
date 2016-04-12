@@ -22,7 +22,6 @@
 
 amalgamate <- function(Grp,Data,method,collapse=F){
 
-  geometricmeanCol <- compositions::geometricmeanCol
 
   if (collapse==T){
 

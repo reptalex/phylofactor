@@ -6,7 +6,6 @@
 
 pf.projection <- function(PF,Data=NULL,nfactors=2){
 
-  ilr <- compositions::ilr
 
   if (is.null(Data)){
     output <- t(ilr(t(PF$Data),V=PF$basis[,1:nfactors]))
