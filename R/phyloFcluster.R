@@ -24,7 +24,7 @@
 #' PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl)
 #' stopCluster(cl)
 #' gc()
-library(parallel)
+require(parallel)
 
 phyloFcluster <- function(ncores=2,...){
   #creates cluster with all the necessary packages and functions to use these functions in parallel
