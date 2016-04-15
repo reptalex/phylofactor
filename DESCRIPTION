@@ -18,6 +18,7 @@ Imports:
   stats (>= 3.2.2),
   phytools (>= 0.5.22),
   caper (>= 0.5.2),
+  scatterplot3d (>= 0.3.36),
   Biostrings (>= 2.38.4)
 Suggests:
   parallel (>= 3.2.2)

@@ -63,6 +63,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  output <- NULL
  output$method <- method
  output$Data <- Data
+ output$X <- X
  output$tree <- tree
  n <- length(tree$tip.label)
 

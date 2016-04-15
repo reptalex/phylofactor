@@ -43,7 +43,7 @@ phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,co
     if (is.null(Data)==T){
       if (is.null(names)){stop('must input rownames for PhyloPF predicted dataset')}
       row.names=tree$tip.label
-      PData <- predict.phylofactor(PF,clades)
+      PData <- phylofactor.predict(PF,clades)
       rownames(PData) <- row.names
       colnames(PData) <- colnames(PData)
       phytools::phylo.heatmap(tree,t(compositions::clr(t(PData))),...)
@@ -60,7 +60,7 @@ phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,co
       stop('if compare==T, need to input Data for Comparison')
     }
     row.names=rownames(Data)
-    PData <-  predict.phylofactor(PF,clades)
+    PData <-  phylofactor.predict(PF,clades)
     rownames(PData) <- row.names
     rownames(PData) <- tree$tip.label
     colnames(PData) <- colnames(Data)
