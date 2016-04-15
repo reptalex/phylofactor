@@ -1,12 +1,12 @@
+#' Summarizes OTU IDs, taxonomic detail, data and phylofactor predictions of a given input group of taxa
+#' @export
+#' @param PF PhyloFactor object
+#' @param tree phylogeny (ape class)
+#' @param taxonomy First column is OTU ids also found in tree$tip.label and second column is greengenes taxonomic strings
+#' @param factor Factor number up to which phylofactor predictions should be used
+#' @param grp input vector of taxa to be summarized
+#' @return summary object with $IDs, $otuData, $PF.prediction
 
-
-#' @title Summarize groups from phylofactor
-#' @description This is the description
-#' @param PF Phylofactor output
-#' @param tree The tree
-#' @param taxonomy The taxonomy.
-#' @param factor The factor.
-#' @param grp The group.
 summary.group <- function(PF,tree,taxonomy,factor,grp){
   #summarizes the OTUids, taxonomic details, data and predictions for an input group of taxa up to a factor level factor.
 
@@ -15,9 +15,9 @@ summary.group <- function(PF,tree,taxonomy,factor,grp){
   TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name=F)
   output$IDs <- data.frame(otuIDs,TaxaIDs)
 
-  output$otuData <- PF$Data[grp,]
-  output$PF.prediction <- predict.phylofactor(Factor=PF,factors=1:factor)[grp, , drop = FALSE]
+  output$otuData <- PF$Data[grp, ,drop=F]
+  output$PF.prediction <- phylofactor.predict(PF,factors=1:factor)[grp, ,drop=F]
   colnames(output$PF.prediction) <- colnames(PF$Data)
-  rownames(output$PF.prediction) <- rownames(PF$Data[grp, , drop = FALSE])
+  rownames(output$PF.prediction) <- rownames(PF$Data[grp, ,drop=F])
   return(output)
 }

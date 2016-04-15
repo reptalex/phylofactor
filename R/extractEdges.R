@@ -1,6 +1,36 @@
+#' Function by Dom J. Bennett from MoreTreeTools. Function extracts edges from a phylogeny
+#' @export
+#' @param phylo Phylogeny (ape class)
+#' @param taxa vector of taxon names
+#' @param type Which types of edges to extract, default type='1', type='1' returns phylogeny consisting solely of taxa.
+#'  type='2' extracts edges from taxon tips to terminal node
+#'  type='3' extracts edges unique to taxa.
+#' @examples
+#' set.seed(1)
+#' tr <- rtree(7)
+#' txa <- tr$tip.label[3:6]
+#'
+#' edgw <- 1:Nedge(tr)
+#' ecols <- rep('black',Nedge(tr))
+#' par(mfrow=c(1,3))
+#'
+#' ## type=1
+#' ec <- ecols
+#' ec[extractEdges(tr,txa)] = 'red'
+#' plot.phylo(tr,edge.color=ec,edge.width=3,main='Type=1')
+#'
+#' ## type=2
+#' ec <- ecols
+#' ec[extractEdges(tr,txa,type=2)] = 'red'
+#' plot.phylo(tr,edge.color=ec,edge.width=3,main='Type=2')
+#'
+#' ## type=3
+#' ec <- ecols
+#' ec[extractEdges(tr,txa,type=3)] = 'red'
+#' plot.phylo(tr,edge.color=ec,edge.width=3,main='Type=3')
 
 ###################### extractEdges ###################################################
-###### This function was created by DJ Bennett and downloaded from his GitHub #########
+###### This function was created by Dom J Bennett and downloaded from his GitHub #########
 extractEdges <- function(phylo, taxa, type = 1) {
   # Extract edges from a phylo object using 1 of 3 methods
   #

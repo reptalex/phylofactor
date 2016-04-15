@@ -1,3 +1,34 @@
+#' Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.
+#' @export
+#' @param Data Compositional data matrix whose rows are parts and columns are samples.
+#' @param X independent variables for input into glm.
+#' @param frmla Formula for input into glm by lapply(Y,FUN = phyloreg,x=X,frmla=frmla,choice,...)
+#' @param Grps Groups - a list whose elements are two-element lists containing the groups and their compliments for log-ratio regression by "method"
+#' @param method Method for amalgamation and comparison of groups. Default is method='ILR'.
+#' @param choice Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.
+#' @param cl phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.
+#' @param Pbasis Coming soon - input Pbasis for amalgamation method "add".
+#' @examples
+#' data("FTmicrobiome")
+#' Y <- FTmicrobiome$OTUTable
+#' Y <- Y[which(rowSums(Y==0)<30),] #only include taxa present in at least 29 samples
+#' Y[Y==0]=.65
+#'
+#' Y <- t(clo(t(Y)))
+#' tree <- drop.tip(FTmicrobiome$tree, setdiff(tree$tip.label,rownames(Y)))
+#' X <- FTmicrobiome$X
+#' Grps <- getGroups(tree)
+#' method='ILR'
+#' choice='var'
+#' cl <- phyloFcluster(2)
+#' pr <- PhyloRegression(Y,X,frmla,Grps,method,choice,cl)
+#'
+#' stopCluster(cl)
+#' gc()
+#' par(mfrow=c(1,2))
+#' image(clr(t(Y)),main="Original Data")
+#' image(clr(t(pr$residualData)),main="residual Data")
+
 PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   #Groups taxa by "Grps" and regresses independent variable X on Data according to formula.
   #Regression is done for a set of groups, "Grps", out of a total possible set of taxa, "set" (e.g. can perform regression on log-ratio (1,2) over (3,4) out of (1,2,3,4,5))
@@ -19,16 +50,17 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   #these can both be parallelized
   if (is.null(cl)){
     Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
-    GLMs <- lapply(X=Y,FUN = phyloreg,x=X,frmla=frmla,choice,...)
+    GLMs <- lapply(X=Y,FUN = phyloreg,x=X,frmla=frmla,...)
   } else {
     ## the following includes paralellization of residual variance if choice=='var'
     dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
     GLMs <- dum$GLMs
     Y <- dum$Y
-    clusterEvalQ(cl,rm())
+    clusterEvalQ(cl,rm(list=ls()))
     clusterEvalQ(cl,gc())
   }
   stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
+  rownames(stats) <- names(GLMs)
   colnames(stats) <- c('Pval','F')
   Yhat <- lapply(GLMs,predict)
 
@@ -45,7 +77,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
       #partition can also be parallelized. A function such as
       #phyloregPar and phyloregParV will be useful to parellelize
       # Y, GLM.outputs, and PercVar
-      totalvar <- var(c(clr(t(Data))))
+      totalvar <- var(c(compositions::clr(t(Data))))
       if (is.null(cl)){
         predictions <- mapply(PredictAmalgam,Yhat,Grps,n,method,Pbasis,SIMPLIFY=F)
         residualvar <- sapply(predictions,residualVar,Data=Data)
@@ -56,6 +88,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     if (length(clade)>1){stop('minimizing residual variance produced  more than one group')}
   }
   node <- names(clade)
+
 
   ############ OUTPUT ##########################
   output <- NULL
@@ -77,5 +110,6 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   }
   output$residualData <- PredictAmalgam(Yhat[[clade]],Grps[[clade]],n,method,Pbasis)
 
+  gc()
   return(output)
 }

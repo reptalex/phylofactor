@@ -1,3 +1,10 @@
+#' Finds unsplit groups in a signed partition matrix, V
+#' @export
+#' @param V Partition matrix.
+#' @examples
+#' V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)
+#' find.unsplit.Grps(V)
+
 #################################### find.unsplit.groups ###############################################
 #useful function for grabbing groups given a partition
 

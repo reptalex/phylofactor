@@ -5,16 +5,21 @@ Version: 0.1
 Date: 2016-03-31
 Author: Alex Washburne
 Maintainer: Yours truly, Alex Washburne <bigalculus@gmail.com>
-Description: TBD
+Description:
+  Phylofactorization of compositional data. This package allows users to identify clades of interest through a series of independent regressions on groups defined by phylogeny. There are many functions to assist the listing and visualization of phylofactorizations. See Washburne et al. (2016) for more details.
 License: GPL-3
 LazyData: TRUE
+Depends:
+  magrittr (>= 1.5)
 Imports:
-  compositions,
-  ape,
-  phangorn,
-  stats,
-  phytools,
-  caper,
-  magrittr
+  compositions (>= 1.40.1),
+  ape (>= 3.4),
+  phangorn (>= 2.0.2),
+  stats (>= 3.2.2),
+  phytools (>= 0.5.22),
+  caper (>= 0.5.2),
+  scatterplot3d (>= 0.3.36),
+  Biostrings (>= 2.38.4)
 Suggests:
-  parallel
+  parallel (>= 3.2.2)
+RoxygenNote: 5.0.1
