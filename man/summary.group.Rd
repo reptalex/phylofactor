@@ -4,7 +4,7 @@
 \alias{summary.group}
 \title{Summarizes OTU IDs, taxonomic detail, data and phylofactor predictions of a given input group of taxa}
 \usage{
-\method{summary}{group}(PF, tree, taxonomy, factor, grp)
+summary.group(PF, tree, taxonomy, factor, grp)
 }
 \arguments{
 \item{PF}{PhyloFactor object}
