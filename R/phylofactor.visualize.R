@@ -44,7 +44,7 @@ phylofactor.visualize <- function(PF,dimension=2,default.colors=T,Legend=T,lx=NU
   if (exists('xlab')==F){xlab='PF 1'}
   if (exists('ylab')==F){ylab='PF 2'}
   if (exists('zlab')==F){zlab='PF 3'}
-  if (exists('pch')==F){pch=18}
+  if (exists('pch')==F){pch=19}
   if (exists('cex')==F){cex=2}
 
   par(mfrow=c(1,1))
