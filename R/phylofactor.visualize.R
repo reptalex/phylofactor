@@ -66,14 +66,13 @@ phylofactor.visualize <- function(PF,dimension=2,default.colors=T,Legend=T,lx=NU
           if (is.null(colorbar.name)){
             colorbar.name='Legend'
           }
-          if (is.null(colorbar.seq)){
+
             if (is.null(colorbar.ticks)){
               colorbar.ticks = 5
             }
             colorbar.seq=seq(min(PF$X),max(PF$X),l=colorbar.ticks)
-          }
 
-          plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'legend')
+          plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = colorbar.name)
           text(x=1.5, y = seq(0,1,l=colorbar.ticks), labels = colorbar.seq)
           rasterImage(legend_image, 0, 0, 1,1)
         }
@@ -91,14 +90,13 @@ phylofactor.visualize <- function(PF,dimension=2,default.colors=T,Legend=T,lx=NU
           if (is.null(colorbar.name)){
             colorbar.name='Legend'
           }
-          if (is.null(colorbar.seq)){
             if (is.null(colorbar.ticks)){
               colorbar.ticks = 5
             }
             colorbar.seq=seq(min(PF$X),max(PF$X),l=colorbar.ticks)
-          }
 
-          plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = 'legend')
+
+          plot(c(0,2),c(0,1),type = 'n', axes = F,xlab = '', ylab = '', main = colorbar.name)
           text(x=1.5, y = seq(0,1,l=colorbar.ticks), labels = colorbar.seq)
           rasterImage(legend_image, 0, 0, 1,1)
 
