@@ -94,6 +94,10 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
+   if (is.null(ncores)==F){
+     clusterEvalQ(cl,rm(list=ls()))
+     clusterEvalQ(cl,gc())
+   }
 
    age=age+1
 
