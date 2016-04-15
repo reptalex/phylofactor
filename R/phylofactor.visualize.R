@@ -1,5 +1,6 @@
 #' Phylofactor Ordination-Visualization
 #'
+#' @export
 #' @param PF Phylofactor object
 #' @param dimension Either 2 or 3 - the dimension of the ordination-visualization plot
 #' @param default.colors Logical indicating if samples should be colored using default settings. If default.colors=F, user must provide appropriate color arguments for plot or scatterplot3d, and no legend will be made.
