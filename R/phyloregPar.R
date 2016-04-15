@@ -36,7 +36,8 @@ m <- length(Grps)
 parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
 
 reg <- parLapply(cl,X=parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
-
+clusterEvalQ(cl,rm(list=ls()))
+clusterEvalQ(cl,gc())
   output <- NULL
   for (pp in 1:length(parG)){
     output$GLMs <- c(output$GLMs,reg[[pp]]$GLMs)
