@@ -21,7 +21,7 @@
 
 
 ################################### plot.sig.clades  ############################################
-plot.sig.clades <- function(tree,sigOTUs,Taxonomy,level='p',legend=FALSE,...){
+phyloplot.commonEdges <- function(tree,sigOTUs,Taxonomy,level='p',legend=FALSE,...){
   #this function plots the tree and highlights those edges unique to SigOTUs in the tree,
   # Significant taxa are overlayed on tree labelled by taxonomic level.
   #input tree, sigOTus, Taxonomy=taxonomy (mapping from OTU IDs to green genes taxonomy), taxonomic level, whether or not to include a legend, etc.)

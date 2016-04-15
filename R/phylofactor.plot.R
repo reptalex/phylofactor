@@ -30,7 +30,7 @@
 #' plot.phylofactor(PF,clades=c(1,2),compare=T)
 
 
-plot.phylofactor <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,compare=F,...){
+phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,compare=F,...){
   #returns phylo.heatmap highlighting our PFs.
   if(is.null(tree)){
     if(is.null(PF$tree)){stop('Input Phylofactor object does not contain tree - must input tree')}

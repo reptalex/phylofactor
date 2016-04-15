@@ -31,7 +31,7 @@
 #'
 #' phylo.heatmapAW(tree,clr(t(CommunityEst)))
 
-predict.phylofactor <- function(PF,factors=NULL,...){
+phylofactor.predict <- function(PF,factors=NULL,...){
   #outputs the predictions, using nfactors from PhyloFactor.
   #additional arguments '...' are for function predict()
 
