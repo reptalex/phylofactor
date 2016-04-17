@@ -108,7 +108,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
      age=0
    }
 
-   if (is.null(stop.early)==F){
+   if (is.null(stop.early)==T){
      if (is.null(stop.fcn)==F){
        if (stop.fcn=='KS'){
          ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
@@ -138,7 +138,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
    ############################## LATE STOP ######################################
    ############# Decide whether or not to stop based on PhyloReg #################
-   if (is.null(stop.early)==T){
+   if (is.null(stop.early)==F){
      if (is.null(stop.fcn)==F){
        if (stop.fcn=='KS'){
          ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value

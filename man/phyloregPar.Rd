@@ -2,7 +2,7 @@
 % Please edit documentation in R/phyloregPar.R
 \name{phyloregPar}
 \alias{phyloregPar}
-\title{Parallelized version of \code{\link{phyloreg}} for PhyloRegression}
+\title{Parallelized version of \code{\link{pglm}} for PhyloRegression}
 \usage{
 phyloregPar(Grps, Data, X, frmla, choice, method, Pbasis, cl, ...)
 }
@@ -27,7 +27,7 @@ phyloregPar(Grps, Data, X, frmla, choice, method, Pbasis, cl, ...)
 list of glm objects
 }
 \description{
-Parallelized version of \code{\link{phyloreg}} for PhyloRegression
+Parallelized version of \code{\link{pglm}} for PhyloRegression
 }
 \examples{
 set.seed(1)

@@ -2,7 +2,7 @@
 #' @export
 #' @param Data Compositional data matrix whose rows are parts and columns are samples.
 #' @param X independent variables for input into glm.
-#' @param frmla Formula for input into glm by lapply(Y,FUN = phyloreg,x=X,frmla=frmla,choice,...)
+#' @param frmla Formula for input into glm by lapply(Y,FUN = pglm,x=X,frmla=frmla,choice,...)
 #' @param Grps Groups - a list whose elements are two-element lists containing the groups and their compliments for log-ratio regression by "method"
 #' @param method Method for amalgamation and comparison of groups. Default is method='ILR'.
 #' @param choice Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.
@@ -50,19 +50,22 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   #these can both be parallelized
   if (is.null(cl)){
     Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
-    GLMs <- lapply(X=Y,FUN = phyloreg,x=X,frmla=frmla,...)
+    GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,...)
+    stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
+    rownames(stats) <- names(GLMs)
+    colnames(stats) <- c('Pval','F')
+    Yhat <- lapply(GLMs,predict)
   } else {
     ## the following includes paralellization of residual variance if choice=='var'
     dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
-    GLMs <- dum$GLMs
+    # GLMs <- dum$GLMs
     Y <- dum$Y
     clusterEvalQ(cl,rm(list=ls()))
     clusterEvalQ(cl,gc())
+
+    stats <- dum$stats #contains Pvalues and F statistics
+    Yhat <- dum$Yhat
   }
-  stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
-  rownames(stats) <- names(GLMs)
-  colnames(stats) <- c('Pval','F')
-  Yhat <- lapply(GLMs,predict)
 
   ############# CHOICE - EXTRACT "BEST" CLADE ##################
   if (choice=='F'){
@@ -96,12 +99,18 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   output$node <- as.numeric(node) #this helps us plot the group, nodelabels(text = 'here',node=node)
   if (method=='ILR'){
     output$basis <- ilrvec(Grps[[clade]],n) #this allows us to quickly project other data onto our partition
-  } else { ### need too build basis for method='add'
+  } else { ### need to build basis for method='add'
     output$basis <- .............
   }
-  output$glm <-GLMs[clade]         #this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
+  if (is.null(cl)){
+    output$glm <-GLMs[clade]         #this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
+  } else {
+    output$glm <- pglm(Y[[clade]],X,frmla,...)
+  }
+
   output$p.values <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
-  if (choice=='var'){
+
+ if (choice=='var'){
     if (is.null(cl)){
       output$explainedvar <- residualvar[clade]/totalvar
     } else {

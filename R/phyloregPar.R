@@ -1,4 +1,4 @@
-#' Parallelized version of \code{\link{phyloreg}} for PhyloRegression
+#' Parallelized version of \code{\link{pglm}} for PhyloRegression
 #'
 #' @param Grps Groups over which to amalgamate Data & regress
 #' @param Data Data matrix whose rows are parts and columns samples
@@ -35,13 +35,13 @@ n <- dim(Data)[1]
 m <- length(Grps)
 parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
 
-reg <- parLapply(cl,X=parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
-clusterEvalQ(cl,rm(list=ls()))
-clusterEvalQ(cl,gc())
-gc()
+reg <- parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
+
   output <- NULL
   for (pp in 1:length(parG)){
-    output$GLMs <- c(output$GLMs,reg[[pp]]$GLMs)
+    # output$GLMs <- c(output$GLMs,reg[[pp]]$GLMs)
+    output$stats <- rbind(output$stats,reg[[pp]]$stats)
+    output$Yhat <- c(output$Yhat,reg[[pp]]$Yhat)
     output$Y <- c(output$Y,reg[[pp]]$Y)
     output$residualvar <- c(output$residualvar,reg[[pp]]$residualvar)
   }

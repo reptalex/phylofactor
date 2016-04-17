@@ -13,17 +13,27 @@ phyreg <- function(Grps,Data,XX,frmla,n,choice,method,Pbasis,...){
   #internal function for phyloregPar
   #input list of Groups, will output Y,GLMs, and, if choice=='var', residual variance.
   Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
-  GLMs <- lapply(X=Y,FUN = phyloreg,x=XX,frmla=frmla,...)
-  Yhat <- lapply(GLMs,predict)
+  Yhat <- lapply(X=Y,FUN = pglm,x=XX,frmla=frmla,...) %>%
+               lapply(.,predict)
 
   reg <- NULL
   if(choice=='var'){
-    predictions <- mapply(PredictAmalgam,Yhat,Grps,n,method,Pbasis=Pbasis,SIMPLIFY=F)
-    residualvar <- sapply(predictions,FUN = residualVar,Data=Data)
-    reg$residualvar <- residualvar
+    # We need to predict the data matrix & calculate the residual variance.
+    reg$residualvar <- mapply(PredictAmalgam,Yhat,Grps,n,method,Pbasis=Pbasis,SIMPLIFY=F) %>%
+                           sapply(.,FUN = residualVar,Data=Data)
   }
 
   reg$Y <- Y
-  reg$GLMs <- GLMs
+  # reg$GLMs <- GLMs #the GLMs from lapply(X=Y,FUN = phyloreg,x=XX,frmla=frmla,...) take up a lot of memory and have been removed.
+
+
+  reg$stats <- lapply(X=Y,FUN = pglm,x=XX,frmla=frmla,...) %>% lapply(.,FUN=getStats) %>% unlist %>%
+                            matrix(.,,ncol=2,byrow=T) #contains Pvalues and F statistics
+    rownames(reg$stats) <- names(Y)
+    colnames(reg$stats) <- c('Pval','F')
+  reg$Yhat <- Yhat
+
+  gc()
+
   return(reg)
 }
