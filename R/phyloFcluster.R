@@ -33,7 +33,7 @@ phyloFcluster <- function(ncores=2,...){
 #   parallel::clusterEvalQ(cl,library(caper))
 #   parallel::clusterEvalQ(cl,library(ggtree))
 #   parallel::clusterEvalQ(cl,library(phangorn))
-  # parallel::clusterEvalQ(cl,library(compositions))
+  parallel::clusterEvalQ(cl,library(compositions))
   # parallel::clusterEvalQ(cl,library(magrittr))
   parallel::clusterEvalQ(cl,library(phylofactor))
   return(cl)

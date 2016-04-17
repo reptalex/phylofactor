@@ -187,7 +187,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  }
  output$Monophyletic.clades <- intersect(which(names(output$atoms)=='Monophyletic'),which(atomsize>1))
 
- if (is.null(ncores)==F){
+ if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
    stopCluster(cl)
    rm(cl)
    gc()
