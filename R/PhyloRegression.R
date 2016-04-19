@@ -50,7 +50,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   #these can both be parallelized
   if (is.null(cl)){
     Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
-    GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T...)
+    GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T,...)
     stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
     rownames(stats) <- names(GLMs)
     colnames(stats) <- c('Pval','F')
