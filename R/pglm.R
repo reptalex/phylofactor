@@ -19,6 +19,8 @@ pglm <- function(y,x,frmla,smallglm=F,...){
   if(smallglm){
     return(glm(frmla,data = data.frame('Data'=y,'X'=x),...))
   } else {
-    return(biglm::bigglm(frmla,data = data.frame('Data'=y,'X'=x),...))
+    gg <- biglm::bigglm(frmla,data = data.frame('Data'=y,'X'=x),...)
+    yhat <- predict(gg,newdata=data.frame('Data'=y,'X'=x))
+    return(list(gg,yhat))
   }
 }

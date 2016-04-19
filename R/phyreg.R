@@ -13,8 +13,9 @@ phyreg <- function(Grps,Data,XX,frmla,n,choice,method,Pbasis,...){
   #internal function for phyloregPar, using bigglm for memory-efficiency
   #input list of Groups, will output Y,GLMs, and, if choice=='var', residual variance.
   Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
-  GLMs <- lapply(X=Y,FUN = pglm,x=XX,frmla=frmla,...)
-  Yhat <-  lapply(GLMs,predict,newdata=NULL)
+      GLMss <- lapply(Y,FUN = pglm,x=XX,frmla=frmla,...)
+  GLMs <- lapply(GLMss,FUN=function(x){return(x[[1]])})
+  Yhat <-  lapply(GLMss,FUN=function(x){return(x[[2]])})
 
   reg <- NULL
   if(choice=='var'){
