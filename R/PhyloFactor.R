@@ -91,8 +91,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     cl <- phyloFcluster(ncores)
   }
    ############# Perform Regression on all of Groups, and implement choice function ##############
-   PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice,cl=NULL)
-   # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
+   # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice,cl=NULL)
+   PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
    if (is.null(ncores)==F){
