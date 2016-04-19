@@ -19,6 +19,6 @@ pglm <- function(y,x,frmla,smallglm=F,...){
   if(smallglm){
     return(glm(frmla,data = data.frame('Data'=y,'X'=x),...))
   } else {
-    return(bigglm(frmla,data = data.frame('Data'=y,'X'=x),...))
+    return(biglm::bigglm(frmla,data = data.frame('Data'=y,'X'=x),...))
   }
 }
