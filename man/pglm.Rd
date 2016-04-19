@@ -4,7 +4,7 @@
 \alias{pglm}
 \title{Returns regression of x on y according to frmla}
 \usage{
-pglm(y, x, frmla, ...)
+pglm(y, x, frmla, smallglm = F, ...)
 }
 \arguments{
 \item{y}{response variable}

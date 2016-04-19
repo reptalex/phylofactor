@@ -20,5 +20,6 @@ Imports:
   caper (>= 0.5.2),
   scatterplot3d (>= 0.3.36),
   Biostrings (>= 2.38.4),
+  biglm (>= 0.9.1),
   parallel (>= 3.2.2)
 RoxygenNote: 5.0.1

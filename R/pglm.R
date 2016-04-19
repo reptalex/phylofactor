@@ -10,11 +10,15 @@
 #' phyloreg(y,x,y~x)
 
 ################# phyloreg ############################
-pglm <- function(y,x,frmla,...){
+pglm <- function(y,x,frmla,smallglm=F,...){
   #input: dependent variable y, independent variable x, formula 'frmla' and 'choice' to be used to
   #compare different phylogenetic partitions
 #   ##performs individual regression.
 #   M <- data.frame(y,x)
 #   names(M) <- c('Data','X')
-  return(glm(frmla,data = data.frame('Data'=y,'X'=x),...))
+  if(smallglm){
+    return(glm(frmla,data = data.frame('Data'=y,'X'=x),...))
+  } else {
+    return(bigglm(frmla,data = data.frame('Data'=y,'X'=x),...))
+  }
 }

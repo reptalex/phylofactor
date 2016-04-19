@@ -10,11 +10,11 @@
 #' @param ... optional inputs for glm
 
 phyreg <- function(Grps,Data,XX,frmla,n,choice,method,Pbasis,...){
-  #internal function for phyloregPar
+  #internal function for phyloregPar, using bigglm for memory-efficiency
   #input list of Groups, will output Y,GLMs, and, if choice=='var', residual variance.
   Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
-  Yhat <- lapply(X=Y,FUN = pglm,x=XX,frmla=frmla,...) %>%
-               lapply(.,predict)
+  GLMs <- lapply(X=Y,FUN = pglm,x=XX,frmla=frmla,...)
+  Yhat <-  lapply(GLMs,predict,newdata=NULL)
 
   reg <- NULL
   if(choice=='var'){
@@ -27,8 +27,9 @@ phyreg <- function(Grps,Data,XX,frmla,n,choice,method,Pbasis,...){
   # reg$GLMs <- GLMs #the GLMs from lapply(X=Y,FUN = phyloreg,x=XX,frmla=frmla,...) take up a lot of memory and have been removed.
 
 
-  reg$stats <- lapply(X=Y,FUN = pglm,x=XX,frmla=frmla,...) %>% lapply(.,FUN=getStats) %>% unlist %>%
-                            matrix(.,,ncol=2,byrow=T) #contains Pvalues and F statistics
+  reg$stats <- mapply(GLMs,FUN=getStats,Y) %>%
+                  unlist %>%
+                  matrix(.,,ncol=2,byrow=T) #contains Pvalues and F statistics
     rownames(reg$stats) <- names(Y)
     colnames(reg$stats) <- c('Pval','F')
   reg$Yhat <- Yhat

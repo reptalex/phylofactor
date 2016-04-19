@@ -4,7 +4,7 @@
 \alias{getStats}
 \title{Grabs P value and F statistic from aov of glm object.}
 \usage{
-getStats(GLM)
+getStats(GLM, y = NULL)
 }
 \arguments{
 \item{GLM}{glm object}

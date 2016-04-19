@@ -32,7 +32,7 @@
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
 
   #### Housekeeping
-  if (all(colnames(Data) != X)){stop('column names of Data do not correspond to X')}
+  if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')
      } else {if (all(rownames(Data)!=tree$tip.label)){ #we need to re-arrange the data matrix to correspond to the tree tip labels
        Data <- Data[match(rownames(Data),tree$tip.label),]
@@ -65,6 +65,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  output$Data <- Data
  output$X <- X
  output$tree <- tree
+ output$glms <- list()
  n <- length(tree$tip.label)
 
  if (is.null(stop.early)==F && is.null(stop.fcn)==T){
@@ -90,8 +91,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     cl <- phyloFcluster(ncores)
   }
    ############# Perform Regression on all of Groups, and implement choice function ##############
-   # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice)
-   PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
+   PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice,cl=NULL)
+   # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
    if (is.null(ncores)==F){
@@ -125,7 +126,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    ############# update output ########################
    output$group <- c(output$group,PhyloReg$group)
    output$nodes <- c(output$nodes,PhyloReg$node)
-   output$glms <- c(output$glms,PhyloReg$glm)
+   output$glms[[length(output$glms)+1]] <- PhyloReg$glm
    if (choice=='var'){
      if (pfs==1){
        output$ExplainedVar <- PhyloReg$explainedvar
@@ -193,6 +194,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    gc()
  }
 
+ class(output) <- 'phylofactor'
  return(output)
 }
 
