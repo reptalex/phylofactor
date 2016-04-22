@@ -24,8 +24,16 @@ getLabelledGrp <- function(factor,tree,Groups){
   # is it a tip or a clade?
   Type <- lapply(grp,FUN=function(g) as.integer(length(g)==1)+1)
   typ <-  lapply(Type,FUN=function(a,nm) nm[a],nm=c('clade','tip'))
-
   names(grp) <- mapply(FUN=function(a,b) paste(a,b,sep=' '),a=nms,b=typ)
+
+  if (any(Type==1)){
+    clds <- which(Type==1) #which groups are clades
+    notus <- lapply(grp[clds],length)  #how many OTUs do they have
+    cldnams <- as.list(names(grp)[clds])  #let's get their names...
+    b <- lapply(notus, FUN=function(a,b) paste(toString(a),'member',sep=' '))
+    names(grp)[clds] <- mapply(FUN=function(b,cldnams) paste(b,cldnams,sep=' '),b=b,cldnams=cldnams)    #and update them to include no. OTUs
+  }
+
   if (any(names(grp)=='Monophyletic tip')){
     ix <- which(names(grp)=='Monophyletic tip')
     names(grp)[ix] <- 'tip'
