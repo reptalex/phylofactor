@@ -19,7 +19,7 @@ getLabelledGrp <- function(factor,tree,Groups){
 
   # is it monophyletic?
   MonoPhy <- lapply(grp,FUN=function(tips,tree) as.integer(ape::is.monophyletic(tree,tips))+1,tree=tree)
-  nms <- lapply(Type,FUN=function(a,nm) nm[a],nm=c('Paraphyletic','Monophyletic'))
+  nms <- lapply(MonoPhy,FUN=function(a,nm) nm[a],nm=c('Paraphyletic','Monophyletic'))
 
   # is it a tip or a clade?
   Type <- lapply(grp,FUN=function(g) as.integer(length(g)==1)+1)
