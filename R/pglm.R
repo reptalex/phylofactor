@@ -1,5 +1,5 @@
 #' Returns regression of x on y according to frmla
-
+#' @export
 #' @param y response variable
 #' @param x independent variable
 #' @param frmla Formula for dependence of y on x
@@ -16,11 +16,10 @@ pglm <- function(y,x,frmla,smallglm=F,...){
 #   ##performs individual regression.
 #   M <- data.frame(y,x)
 #   names(M) <- c('Data','X')
+  dataset <- model.frame(frmla,data = list('Data'=y,'X'=x))
   if(smallglm){
-    return(glm(frmla,data = data.frame('Data'=y,'X'=x),...))
+    return(glm(frmla,data = dataset,...))
   } else {
-    gg <- biglm::bigglm(frmla,data = data.frame('Data'=y,'X'=x),...)
-    yhat <- predict(gg,newdata=data.frame('Data'=y,'X'=x))
-    return(list(gg,yhat))
+    return(biglm::bigglm(frmla,data = dataset,...))
   }
 }

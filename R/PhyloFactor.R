@@ -1,7 +1,7 @@
 #' Performs phylofactorization of a compositional dataset
 #' @export
 #' @param Data Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1
-#' @param tree Phylogeny whose tip-labels are row-names in Data. Regardless if phylogeny input is rooted, the output nodes and  will correspond to an unrooted tree.
+#' @param tree Phylogeny whose tip-labels are row-names in Data.
 #' @param X independent variable.
 #' @param frmla Formula for input in GLM. Default formula is Data ~ X
 #' @param method Method for amalgamating groups and constructing basis. Default method = "ILR" uses the isometric log-ratio transform. Coming soon: method='add' which uses additive grouping with log-ratio regression.
@@ -12,7 +12,7 @@
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
 #' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=1.
-#' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "nodes","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "atoms", "atom.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which atoms are monophyletic and have atom.size>1
+#' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "atoms", "atom.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which atoms are monophyletic and have atom.size>1
 #' @examples
 #'  set.seed(1)
 #' tree <- unroot(rtree(7))
@@ -30,6 +30,16 @@
 
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
+  Data <- OTUTable
+  frmla=NULL
+  method='ILR'
+  choice='var'
+  Grps=NULL
+  nclades=4
+  stop.fcn=NULL
+  stop.early=NULL
+  ncores=2
+  clusterage=4
 
   #### Housekeeping
   if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
@@ -45,10 +55,10 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "F" or "var"')}
   if(is.null(nclades)){nclades=Inf}
   if(ape::is.rooted(tree)){
-    warning('Tree is rooted. Output nodes will correspond to unrooted, tree <- unroot(tree)')
     tree <- unroot(tree)}
 
-
+ treeList <- list(tree)
+ atomList <- list(1:Ntip(tree))
  #### Get list of groups from tree ####
   if(is.null(Grps)){ #inputting groups allows us to make wrappers around PhyloFactor for efficient parallelization.
     Grps <- getGroups(tree)
@@ -72,33 +82,32 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    stop.fcn='KS'
  }
 
- pfs=1
+ pfs=0
  age=0
  output$terminated=F
  cl=NULL
 
- while (pfs <= min(length(OTUs)-1,nclades)){
-
-
-
-   if (pfs>1){
-   Data <- t(compositions::clo(t(Data/PhyloReg$residualData)))
-   Grps <- removeGroup(Grps,PhyloReg$group) #removeGroup can be made more efficient if need be.
-   }
+ while (pfs < min(length(OTUs)-1,nclades)){
 
 
   if (is.null(ncores)==F && age==0){
     cl <- phyloFcluster(ncores)
   }
+
+
+   if (pfs>=1){
+     Data <- t(compositions::clo(t(Data/PhyloReg$residualData)))
+     treeList <- updateTreeList(treeList,atomList,grp,tree)
+     atomList <- updateAtomList(atomList,grp)
+     Grps <- getNewGroups(tree,treeList,atomList)
+   }
+
    ############# Perform Regression on all of Groups, and implement choice function ##############
-   # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method,choice,cl=NULL)
-   PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
+   clusterExport(cl,'pglm')
+   PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
+   # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
-   if (is.null(ncores)==F){
-     clusterEvalQ(cl,rm(list=ls()))
-     clusterEvalQ(cl,gc())
-   }
 
    age=age+1
 
@@ -124,17 +133,20 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    }
 
    ############# update output ########################
-   output$group <- c(output$group,PhyloReg$group)
-   output$nodes <- c(output$nodes,PhyloReg$node)
+   winner <- PhyloReg$winner
+   grp <- getLabelledGrp(winner,tree,Grps)
+   grpInfo <- matrix(c(names(grp)),nrow=2)
+   output$groups <- list(output$groups,Grps[[winner]])
+   output$factors <- cbind(output$factors,grpInfo)
    output$glms[[length(output$glms)+1]] <- PhyloReg$glm
+   output$basis <- output$basis %>% cbind(PhyloReg$basis)
    if (choice=='var'){
-     if (pfs==1){
+     if (pfs==0){
        output$ExplainedVar <- PhyloReg$explainedvar
      } else {
-       output$ExplainedVar <- c(output$ExplainedVar,(1-sum(output$ExplainedVar[1:(pfs-1)]))*PhyloReg$explainedvar)
+       output$ExplainedVar <- c(output$ExplainedVar,(1-sum(output$ExplainedVar[1:pfs]))*PhyloReg$explainedvar)
      }
    }
-   output$basis <- output$basis %>% c(PhyloReg$basis) %>% matrix(ncol=pfs,byrow=F)
 
 
    ############################## LATE STOP ######################################
@@ -148,17 +160,22 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
            break
          }
        } else {
-        stop.fcn(PhyloReg)
+        stop.fcn(.GlobalEnv)
        }
      }
    }
 
-   ### If we haven't stopped, let's update the key variables
    pfs=pfs+1
-   gc()
-
  }
 
+
+
+
+ ########### Clean up the Output ####################################
+ if (is.null(output$factors)==F){
+  colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
+  rownames(output$factors)=c('Group1','Group2')
+ }
  output$atoms <- atoms(output$basis)
  NewOTUs <- output$atoms
  Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
@@ -174,19 +191,12 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  output$atom.sizes <- data.frame('Atom Size'=unlist(sizes),'Number of Atoms'=nsizes)
 
  if (choice=='var'){
-  names(output$ExplainedVar) <- output$nodes
+  names(output$ExplainedVar) <- sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
  }
 
- if (length(output$nodes)>0){
-   if (sum(output$nodes>n)>0){
-   names(output$nodes)[output$nodes>n] <- "clade"
-   }
 
-   if (sum(output$nodes<=n)>0){
-     names(output$nodes)[output$nodes<=n] <- "tip"
-   }
- }
- output$Monophyletic.clades <- intersect(which(names(output$atoms)=='Monophyletic'),which(atomsize>1))
+
+  output$Monophyletic.clades <- intersect(which(names(output$atoms)=='Monophyletic'),which(atomsize>1))
 
  if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
    stopCluster(cl)
