@@ -30,16 +30,17 @@
 
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
-  Data <- OTUTable
-  frmla=NULL
-  method='ILR'
-  choice='var'
-  Grps=NULL
-  nclades=4
-  stop.fcn=NULL
-  stop.early=NULL
-  ncores=2
-  clusterage=4
+    # Debugging variables
+#   Data <- OTUTable
+#   frmla=NULL
+#   method='ILR'
+#   choice='var'
+#   Grps=NULL
+#   nclades=4
+#   stop.fcn=NULL
+#   stop.early=NULL
+#   ncores=2
+#   clusterage=4
 
   #### Housekeeping
   if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
