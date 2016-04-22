@@ -38,12 +38,12 @@ updateTreeList <- function(treeList,atomList,grp,tree){
   }
 
   if (tips==0){
-    treeList[[ix]] <- drop.tip(tr,setdiff(leaves,leaves[grp[[1]]]))
-    treeList[[length(treeList)+1]] <- drop.tip(tr,setdiff(leaves,leaves[grp[[2]]]))
+    treeList[[ix]] <- ape::drop.tip(tr,setdiff(leaves,leaves[grp[[1]]]))
+    treeList[[length(treeList)+1]] <- ape::drop.tip(tr,setdiff(leaves,leaves[grp[[2]]]))
   } else if (tips==1){
     cld <- setdiff(1:2,which(grepl('tip',names(grp))))
     #replace the split tree with the clade
-    treeList[[ix]] <- drop.tip(tr,setdiff(leaves,leaves[grp[[cld]]]))
+    treeList[[ix]] <- ape::drop.tip(tr,setdiff(leaves,leaves[grp[[cld]]]))
   } else {
     treeList[[ix]] <- NULL
   }
