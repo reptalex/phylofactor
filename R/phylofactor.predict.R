@@ -35,7 +35,7 @@ phylofactor.predict <- function(PF,factors=NULL,...){
   #outputs the predictions, using nfactors from PhyloFactor.
   #additional arguments '...' are for function predict()
 
-  if (is.null(factors)){factors=1:length(PF$nodes)}
+  if (is.null(factors)){factors=1: (PF$nfactors)}
 
     coefs <- NULL
     d=1

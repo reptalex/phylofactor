@@ -137,7 +137,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    winner <- PhyloReg$winner
    grp <- getLabelledGrp(winner,tree,Grps)
    grpInfo <- matrix(c(names(grp)),nrow=2)
-   output$groups <- list(output$groups,Grps[[winner]])
+   output$groups <- c(output$groups,list(Grps[[winner]]))
    output$factors <- cbind(output$factors,grpInfo)
    output$glms[[length(output$glms)+1]] <- PhyloReg$glm
    output$basis <- output$basis %>% cbind(PhyloReg$basis)
@@ -182,6 +182,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
  names(output$atoms)[Monophyletic] <- 'Monophyletic'
  names(output$atoms)[!Monophyletic] <- 'Paraphyletic'
+ output$nfactors <- pfs
 
 
  ### Make the atom size distribution data frame ###

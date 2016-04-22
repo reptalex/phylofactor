@@ -50,7 +50,7 @@ phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,co
     } else {
       phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))),...)
     }
-    ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
+    # ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
   } else {
 
 
@@ -66,9 +66,9 @@ phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,clades=1,co
     colnames(PData) <- colnames(Data)
 
     phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
-    ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
+    # ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
     phytools::phylo.heatmap(tree,t(compositions::clr(t(PData))))
-    ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
+    # ape::nodelabels(text = as.list(clades),node=PF$nodes[clades],bg = bg,cex=cex)
 
 
 
