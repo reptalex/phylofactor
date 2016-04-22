@@ -31,16 +31,16 @@
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
     # Debugging variables
-#   Data <- OTUTable
-#   frmla=NULL
-#   method='ILR'
-#   choice='var'
-#   Grps=NULL
-#   nclades=4
-#   stop.fcn=NULL
-#   stop.early=NULL
-#   ncores=2
-#   clusterage=4
+  Data <- OTUTable
+  frmla=NULL
+  method='ILR'
+  choice='var'
+  Grps=NULL
+  nclades=3
+  stop.fcn=NULL
+  stop.early=NULL
+  ncores=2
+  clusterage=3
 
   #### Housekeeping
   if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
@@ -104,9 +104,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    }
 
    ############# Perform Regression on all of Groups, and implement choice function ##############
-   clusterExport(cl,'pglm')
-   PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
-   # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
+   # clusterExport(cl,'pglm')
+   # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
+   PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
 

@@ -39,7 +39,7 @@
 #'
 #' NodeSummary$group$IDs
 #'
-phylofactor.summary <- function(PF,tree,taxonomy,factor=NULL,subtree=F,prediction=T,tipLabels=F,...){
+phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,subtree=F,prediction=T,tipLabels=F,...){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(factor)){stop('need to input a factor')}
   grp1 <- PF$groups[[factor]][[1]]

@@ -57,12 +57,10 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     Yhat <- lapply(GLMs,predict)
   } else {
     ## the following includes paralellization of residual variance if choice=='var'
-    dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
+    # dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
+    dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl)
     # GLMs <- dum$GLMs
     Y <- dum$Y
-    clusterEvalQ(cl,rm(list=ls()))
-    clusterEvalQ(cl,gc())
-
     stats <- dum$stats #contains Pvalues and F statistics
     Yhat <- dum$Yhat
   }
@@ -99,13 +97,15 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   ############ OUTPUT ##########################
   output <- NULL
   output$winner <- winner
+
   if (method=='ILR'){
     output$basis <- ilrvec(Grps[[winner]],n) #this allows us to quickly project other data onto our partition
   } else { ### need to build basis for method='add'
     output$basis <- .............
   }
+
   if (is.null(cl)){
-    output$glm <-GLMs[winner]         #this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
+    output$glm <- GLMs[[winner]]         #this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
   } else {
     output$glm <- pglm(Y[[winner]],X,frmla,smallglm=T,...)
   }
@@ -121,6 +121,5 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   }
   output$residualData <- PredictAmalgam(Yhat[[winner]],Grps[[winner]],n,method,Pbasis)
 
-  gc()
   return(output)
 }
