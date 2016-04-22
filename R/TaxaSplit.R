@@ -15,7 +15,7 @@ TaxaSplit <- function(Summary){
  taxC[,2] <- uniqueTaxa(taxC[,2],taxG[,2])
 
  output <- list(taxG,taxC)
- names(output) <- c('Group','Complement')
+ names(output) <- c('Group 1','Group 2')
  return(output)
 
 }
