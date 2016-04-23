@@ -15,6 +15,8 @@
 #' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "atoms", "atom.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which atoms are monophyletic and have atom.size>1
 #' @examples
 #'  set.seed(1)
+#'  library(ape)
+#'  library(phangorn)
 #' tree <- unroot(rtree(7))
 
 #' X <- as.factor(c(rep(0,5),rep(1,5)))
@@ -25,8 +27,11 @@
 #' Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*8
 #' Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 #' Data <- t(clo(t(Data)))
+#' Atoms <- atoms(G=sigClades,set=1:7)
 
 #' PF <- PhyloFactor(Data,tree,X,nclades=2)
+#' PF$atoms
+#' all(PF$atoms %in% Atoms)
 
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
