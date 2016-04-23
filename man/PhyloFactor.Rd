@@ -41,6 +41,8 @@ Performs phylofactorization of a compositional dataset
 }
 \examples{
  set.seed(1)
+ library(ape)
+ library(phangorn)
 tree <- unroot(rtree(7))
 X <- as.factor(c(rep(0,5),rep(1,5)))
 sigClades <- Descendants(tree,c(9,12),type='tips')
@@ -50,6 +52,9 @@ colnames(Data) <- X
 Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*8
 Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 Data <- t(clo(t(Data)))
+Atoms <- atoms(G=sigClades,set=1:7)
 PF <- PhyloFactor(Data,tree,X,nclades=2)
+PF$atoms
+all(PF$atoms \%in\% Atoms)
 }
 
