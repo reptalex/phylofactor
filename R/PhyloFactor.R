@@ -69,9 +69,17 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  output$glms <- list()
  n <- length(tree$tip.label)
 
+ if (is.null(stop.early) && is.null(stop.fcn)){
+   STOP=F
+ } else {
+   STOP=T
+ }
+
  if (is.null(stop.early)==F && is.null(stop.fcn)==T){
    stop.fcn='KS'
  }
+
+
 
  pfs=0
  age=0
@@ -95,8 +103,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
    ############# Perform Regression on all of Groups, and implement choice function ##############
    # clusterExport(cl,'pglm')
-   # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
-   PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
+   PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
+   # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
 
@@ -109,16 +117,18 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
      age=0
    }
 
-   if (is.null(stop.early)==T){
-     if (is.null(stop.fcn)==F){
-       if (stop.fcn=='KS'){
-         ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-         if (ks>0.01){
-           output$terminated=T
-           break
-           }
-       } else {
-         stop.fcn(PhyloReg)
+   if (STOP){
+     if (is.null(stop.early)==T){
+       if (is.null(stop.fcn)==F){
+         if (stop.fcn=='KS'){
+           ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+           if (ks>0.01){
+             output$terminated=T
+             break
+             }
+         } else {
+           stop.fcn(PhyloReg)
+         }
        }
      }
    }
@@ -142,16 +152,18 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
    ############################## LATE STOP ######################################
    ############# Decide whether or not to stop based on PhyloReg #################
-   if (is.null(stop.early)==F){
-     if (is.null(stop.fcn)==F){
-       if (stop.fcn=='KS'){
-         ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-         if (ks>0.01){
-           output$terminated=T
-           break
+   if (STOP){
+     if (is.null(stop.early)==F){
+       if (is.null(stop.fcn)==F){
+         if (stop.fcn=='KS'){
+           ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+           if (ks>0.01){
+             output$terminated=T
+             break
+           }
+         } else {
+          stop.fcn(.GlobalEnv)
          }
-       } else {
-        stop.fcn(.GlobalEnv)
        }
      }
    }

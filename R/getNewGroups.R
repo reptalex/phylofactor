@@ -11,5 +11,16 @@ getNewGroups <- function(tree,treeList,atomList){
   #Now we need to write g - which has indexes corresponding to its treeList tip-labels - to have indexes corresponding to the global tree tiplabels
   g <- mapply(FUN=function(g,tmap) lapply(g,function(g,tmap) lapply(g,function(g,tmap) tmap[g],tmap=tmap),tmap=tmap),tmap=tmap,g=g)
   names(g) <- NULL
-  return(unlist(g,recursive=F))
+  if (is.null(dim(g))){
+    G <- unlist(g,recursive=F)
+  } else {
+    m <- dim(g)[2]
+    G <- NULL
+    for (mm in 1:m){
+      G <- c(G,g[,mm])
+    }
+  }
+  ls <- sapply(G,length)
+  G <- G[ls>0]
+  return(G)
 }

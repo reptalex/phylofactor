@@ -23,8 +23,10 @@ getGroups <- function(tree){
     cml <- caper::clade.members.list(tree)
     cml <- cml[2:length(cml)]
     cml <- cml[which(sapply(cml,FUN= function(x,n) length(x)<(n-1),n=n,simplify=T))]
-    Grps[(n+1):(n+length(cml))] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
-    names(Grps)[(n+1):(n+length(cml))] <- names(cml)
+    if (length(cml)>1){
+      Grps[(n+1):(n+length(cml))] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
+      names(Grps)[(n+1):(n+length(cml))] <- names(cml)
+    }
   }
   lapply(Grps,FUN=function(x) lapply(x,sort))
   return(Grps)
