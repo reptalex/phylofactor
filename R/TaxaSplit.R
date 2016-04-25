@@ -6,8 +6,8 @@
 
 TaxaSplit <- function(Summary){
 
-  taxG <- Summary$group$IDs
-  taxC <- Summary$complement$IDs
+  taxG <- Summary$group1$IDs
+  taxC <- Summary$group2$IDs
 
   #### Grab the first unique taxonomic category for the Group and Complement ###
 
@@ -15,7 +15,7 @@ TaxaSplit <- function(Summary){
  taxC[,2] <- uniqueTaxa(taxC[,2],taxG[,2])
 
  output <- list(taxG,taxC)
- names(output) <- c('Group','Complement')
+ names(output) <- c('Group 1','Group 2')
  return(output)
 
 }

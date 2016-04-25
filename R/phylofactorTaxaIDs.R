@@ -8,7 +8,7 @@
 
 
 phylofactor.TaxaIDs <- function(PF,Taxonomy,tree,clades=NULL,common.name=F){
-  if (is.null(clades)){clades <- 1:length(PF$nodes)}
+  if (is.null(clades)){clades <- 1:PF$nfactors}
   #what are the atoms for a lower-dimensional factorization?
   atms <- atoms(PF$basis[,clades])
   #let's get the taxonomic IDs of all those atms

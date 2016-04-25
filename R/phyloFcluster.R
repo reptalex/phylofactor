@@ -28,13 +28,9 @@
 phyloFcluster <- function(ncores=2,...){
   #creates cluster with all the necessary packages and functions to use these functions in parallel
   cl <- parallel::makeCluster(ncores,...)
-  parallel::clusterEvalQ(cl,library(picante))
-  parallel::clusterEvalQ(cl,library(ape))
-  parallel::clusterEvalQ(cl,library(caper))
-  parallel::clusterEvalQ(cl,library(ggtree))
-  parallel::clusterEvalQ(cl,library(phangorn))
   parallel::clusterEvalQ(cl,library(compositions))
   parallel::clusterEvalQ(cl,library(magrittr))
   parallel::clusterEvalQ(cl,library(phylofactor))
+  parallel::clusterEvalQ(cl,library(biglm))
   return(cl)
 }

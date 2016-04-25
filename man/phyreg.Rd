@@ -4,7 +4,8 @@
 \alias{phyreg}
 \title{Internal function for phyloregPar}
 \usage{
-phyreg(Grps, Data, XX, frmla, n, choice, method, Pbasis, ...)
+phyreg(Grps, Data = NULL, Y = NULL, XX, frmla, n, choice, method, Pbasis,
+  ...)
 }
 \arguments{
 \item{Grps}{list of groups. see \code{\link{getGroups}}}

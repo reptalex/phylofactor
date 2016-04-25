@@ -4,25 +4,25 @@
 \alias{phylofactor.summary}
 \title{Summary of phylofactor object for a given node or factor number}
 \usage{
-phylofactor.summary(PF, tree, taxonomy, node = NULL, factor = NULL,
+phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
   subtree = F, prediction = T, tipLabels = F, ...)
 }
 \arguments{
 \item{PF}{PhyloFactor object}
 
-\item{tree}{phylogeny (ape class)}
-
 \item{taxonomy}{Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string}
 
-\item{node}{node number, must be in PF$nodes. Takes priority over "factor" for what is summarized}
-
 \item{factor}{Factor number to summarize.}
+
+\item{tree}{phylogeny (ape class)}
 
 \item{subtree}{Logical indicating whether or not to output the subtree partitioned when PF$node was split (i.e. sub-tree split by factor)}
 
 \item{prediction}{Logical. If subtree=T, prediction=T will produce a phylo.heatmap containing the predicted data. Otherwise, will output phylo.heatmap of real data}
 
 \item{tipLabels}{Logical indicating whether or not to include tip labels in plot of subtree.}
+
+\item{node}{node number, must be in PF$nodes. Takes priority over "factor" for what is summarized}
 }
 \value{
 summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction

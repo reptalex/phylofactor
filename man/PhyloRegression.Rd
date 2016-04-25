@@ -11,7 +11,7 @@ PhyloRegression(Data, X, frmla, Grps, method, choice, cl, Pbasis = 1, ...)
 
 \item{X}{independent variables for input into glm.}
 
-\item{frmla}{Formula for input into glm by lapply(Y,FUN = phyloreg,x=X,frmla=frmla,choice,...)}
+\item{frmla}{Formula for input into glm by lapply(Y,FUN = pglm,x=X,frmla=frmla,choice,...)}
 
 \item{Grps}{Groups - a list whose elements are two-element lists containing the groups and their compliments for log-ratio regression by "method"}
 

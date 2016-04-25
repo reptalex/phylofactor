@@ -19,10 +19,15 @@ getGroups <- function(tree){
   Grps[1:n] <- lapply(as.list(set[1:n]),FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
   names(Grps)[1:n] <- 1:n
 
-
-  cml <- caper::clade.members.list(tree)[2:(n-2)]
-  Grps[(n+1):(2*n-3)] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
-  names(Grps)[(n+1):(2*n-3)] <- names(cml)
-
+  if (n>3){
+    cml <- caper::clade.members.list(tree)
+    cml <- cml[2:length(cml)]
+    cml <- cml[which(sapply(cml,FUN= function(x,n) length(x)<(n-1),n=n,simplify=T))]
+    if (length(cml)>1){
+      Grps[(n+1):(n+length(cml))] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
+      names(Grps)[(n+1):(n+length(cml))] <- names(cml)
+    }
+  }
+  lapply(Grps,FUN=function(x) lapply(x,sort))
   return(Grps)
 }

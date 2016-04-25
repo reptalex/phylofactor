@@ -17,6 +17,7 @@ summary.group <- function(PF,tree,taxonomy,factor,grp){
 
   output$otuData <- PF$Data[grp, ,drop=F]
   output$PF.prediction <- phylofactor.predict(PF,factors=1:factor)[grp, ,drop=F]
+  output$is.monophyletic <- is.monophyletic(tree,grp)
   colnames(output$PF.prediction) <- colnames(PF$Data)
   rownames(output$PF.prediction) <- rownames(PF$Data[grp, ,drop=F])
   return(output)

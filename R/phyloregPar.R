@@ -1,4 +1,4 @@
-#' Parallelized version of \code{\link{phyloreg}} for PhyloRegression
+#' Parallelized version of \code{\link{pglm}} for PhyloRegression
 #'
 #' @param Grps Groups over which to amalgamate Data & regress
 #' @param Data Data matrix whose rows are parts and columns samples
@@ -34,17 +34,36 @@ phyloregPar <- function(Grps,Data,X,frmla,choice,method,Pbasis,cl,...){
 n <- dim(Data)[1]
 m <- length(Grps)
 parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
+if (choice=='var'){
+  reg <- parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
+} else {
+  # in this case, we can avoid passing the dataset to the cluster, and instead pass just the variables, Y
+  Y <- lapply(Grps,FUN=amalgamate,Data=Data,method)
+  parY <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Y)
 
-reg <- parLapply(cl,X=parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
-clusterEvalQ(cl,rm(list=ls()))
-clusterEvalQ(cl,gc())
-gc()
+  #X and frmlas need to be put into lists
+  frmlas <- vector('list',length(parY))
+  Xs <- frmlas
+  for (nn in 1:length(parY)){
+    frmlas[[nn]] <- frmla
+    Xs[[nn]] <- X
+  }
+  reg <- clusterMap(cl, fun=phyreg, XX=Xs,frmla=frmlas,n=n,choice=choice,method=method,Pbasis=Pbasis, Grps=parG, Y=parY,...)
+
+}
+
   output <- NULL
+  Ydum <- NULL
+  output$Y <- NULL
   for (pp in 1:length(parG)){
-    output$GLMs <- c(output$GLMs,reg[[pp]]$GLMs)
-    output$Y <- c(output$Y,reg[[pp]]$Y)
+    # output$GLMs <- c(output$GLMs,reg[[pp]]$GLMs)
+    output$stats <- rbind(output$stats,reg[[pp]]$stats)
+    output$Yhat <- c(output$Yhat,reg[[pp]]$Yhat)
+    Ydum <- c(Ydum,reg[[pp]]$Y)
     output$residualvar <- c(output$residualvar,reg[[pp]]$residualvar)
   }
-
+  output$Y <- Ydum
+  rm('Ydum')
+  gc()
   return(output)
 }
