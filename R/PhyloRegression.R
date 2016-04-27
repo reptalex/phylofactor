@@ -86,10 +86,24 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
       } else {
         winner <- which(dum$residualvar==min(dum$residualvar))
       }
-    if (length(winner)>1){
-      warning('minimizing residual variance produced  more than one group. Will choose only the first group')
-      winner <- winner[1]
+  }
+
+  if (length(winner)>1){
+
+    ## Check to see if they're equivalent groups, in which case don't display message.
+    NoWarning=T
+      for (nn in 1:(length(winner)-1)){
+        for (mm in 2:length(winner)){
+          NoWarning = NoWarning & all(Grps[nn][[1]] %in% Grps[mm][[1]]) & all(Grps[mm][[1]] %in% Grps[nn][[1]])
+        }
       }
+
+    if (NoWarning==F){
+      warning(paste(paste('minimizing residual variance produced',toString(length(winner)),sep=' '),' groups, some of which were not identical. Will choose only the first group',sep=''))
+    }
+
+
+    winner <- winner[1]
   }
 
 
