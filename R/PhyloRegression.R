@@ -57,7 +57,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     Yhat <- lapply(GLMs,predict)
   } else {
 
-    if (length(Grps)>(2*length(cl))){
+    if (length(Grps)>=(2*length(cl))){
       ## the following includes paralellization of residual variance if choice=='var'
       # dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
       dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl)
@@ -95,7 +95,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
         residualvar <- sapply(predictions,residualVar,Data=Data)
         winner <- which(residualvar == min(residualvar))
       } else {
-        if (length(Grps)>(2*length(cl))){
+        if (length(Grps)>=(2*length(cl))){
           winner <- which(dum$residualvar==min(dum$residualvar))
         } else {
           predictions <- mapply(PredictAmalgam,Yhat,Grps,n,method,Pbasis,SIMPLIFY=F)
@@ -147,9 +147,14 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     if (is.null(cl)){
       output$explainedvar <- residualvar[winner]/totalvar
     } else {
-      output$explainedvar <- dum$residualvar[winner]/totalvar
+      if (length(Grps)>=(2*length(cl))){
+        output$explainedvar <- dum$residualvar[winner]/totalvar
+      } else {
+        output$explainedvar <- residualvar[winner]/totalvar
+      }
     }
-  }
+ }
+
   output$residualData <- PredictAmalgam(Yhat[[winner]],Grps[[winner]],n,method,Pbasis)
 
   return(output)
