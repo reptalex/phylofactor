@@ -51,7 +51,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "F" or "var"')}
   if(is.null(nclades)){nclades=Inf}
   if(ape::is.rooted(tree)){
-    tree <- unroot(tree)}
+    tree <- ape::unroot(tree)}
 
  treeList <- list(tree)
  atomList <- list(1:ape::Ntip(tree))
