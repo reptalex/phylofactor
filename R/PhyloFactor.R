@@ -116,7 +116,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
    age=age+1
 
    if (is.null(ncores)==F && age>=clusterage){
-     stopCluster(cl)
+     parallel::stopCluster(cl)
      rm(cl)
      gc()
      age=0
