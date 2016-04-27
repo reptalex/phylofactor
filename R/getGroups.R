@@ -13,7 +13,8 @@
 
 getGroups <- function(tree){
   if (length(tree$tip.label)==2){
-    Grps <- list(1,2)
+    Grps <- vector(mode='list',length=1)
+    Grps[[1]] <- as.list(c(1,2))
   } else {
 
     set=1:length(tree$tip.label)
