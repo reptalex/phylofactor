@@ -65,5 +65,6 @@ if (choice=='var'){
   output$Y <- Ydum
   rm('Ydum')
   gc()
+
   return(output)
 }

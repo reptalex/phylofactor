@@ -56,13 +56,24 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     colnames(stats) <- c('Pval','F')
     Yhat <- lapply(GLMs,predict)
   } else {
-    ## the following includes paralellization of residual variance if choice=='var'
-    # dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
-    dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl)
-    # GLMs <- dum$GLMs
-    Y <- dum$Y
-    stats <- dum$stats #contains Pvalues and F statistics
-    Yhat <- dum$Yhat
+
+    if (length(Grps)>(2*length(cl))){
+      ## the following includes paralellization of residual variance if choice=='var'
+      # dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
+      dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl)
+      # GLMs <- dum$GLMs
+      Y <- dum$Y
+      stats <- dum$stats #contains Pvalues and F statistics
+      Yhat <- dum$Yhat
+    } else {
+      Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
+      GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T,...)
+      stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
+      rownames(stats) <- names(GLMs)
+      colnames(stats) <- c('Pval','F')
+      Yhat <- lapply(GLMs,predict)
+    }
+
   }
 
   ############# CHOICE - EXTRACT "BEST" CLADE ##################
@@ -84,7 +95,13 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
         residualvar <- sapply(predictions,residualVar,Data=Data)
         winner <- which(residualvar == min(residualvar))
       } else {
-        winner <- which(dum$residualvar==min(dum$residualvar))
+        if (length(Grps)>(2*length(cl))){
+          winner <- which(dum$residualvar==min(dum$residualvar))
+        } else {
+          predictions <- mapply(PredictAmalgam,Yhat,Grps,n,method,Pbasis,SIMPLIFY=F)
+          residualvar <- sapply(predictions,residualVar,Data=Data)
+          winner <- which(residualvar == min(residualvar))
+        }
       }
   }
 
