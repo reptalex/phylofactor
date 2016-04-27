@@ -54,7 +54,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     tree <- unroot(tree)}
 
  treeList <- list(tree)
- atomList <- list(1:Ntip(tree))
+ atomList <- list(1:ape::Ntip(tree))
  #### Get list of groups from tree ####
   if(is.null(Grps)){ #inputting groups allows us to make wrappers around PhyloFactor for efficient parallelization.
     Grps <- getGroups(tree)
