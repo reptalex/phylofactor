@@ -58,19 +58,19 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   if(ape::is.rooted(tree)){
     tree <- ape::unroot(tree)}
 
-  #### Default treatment of OTUTable ###
-  if (any(OTUTable==0)){
+  #### Default treatment of Data ###
+  if (any(Data==0)){
     if (delta==0.65){
-      warning('OTUTable has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(OTUTable[OTUTable>0]), default delta=0.65')
+      warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
     }
-    OTUTable[OTUTable==0]=min(OTUTable[OTUTable>0])*delta
+    Data[Data==0]=min(Data[Data>0])*delta
   }
-  if (any(abs(colSums(OTUTable)-1)>tolerance)){
-    warning('Column Sums of OTUTable are not sufficiently close to 1 - OTUTable will be re-normalized by column sums')
-    OTUTable <- t(compositions::clo(t(OTUTable)))
+  if (any(abs(colSums(Data)-1)>tolerance)){
+    warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
+    Data <- t(compositions::clo(t(Data)))
 
-    if (any(abs(colSums(OTUTable)-1)>tolerance)){
-      warning('Attempt to divide OTUTable by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+    if (any(abs(colSums(Data)-1)>tolerance)){
+      warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
     }
   }
 
