@@ -36,7 +36,7 @@ phylofactor.predict <- function(PF,factors=NULL,...){
   #additional arguments '...' are for function predict()
 
   if (is.null(factors)){factors=1: (PF$nfactors)}
-
+  if (max(factors)>1 && length(factors==1)){factors=1:factors}
     coefs <- NULL
     d=1
     for (nn in factors){
