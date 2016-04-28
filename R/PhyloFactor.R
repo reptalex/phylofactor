@@ -67,6 +67,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
     if (any(abs(colSums(OTUTable)-1)>tolerance)){
       warning('Attempt to divide OTUTable by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+    }
   }
 
  treeList <- list(tree)
