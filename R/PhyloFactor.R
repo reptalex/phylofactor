@@ -34,24 +34,40 @@
 #' all(PF$atoms %in% Atoms)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,tolerance=1e-14,delta=0.65,...){
 
 
   #### Housekeeping
   if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
-  if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')
-     } else {if (all(rownames(Data)!=tree$tip.label)){ #we need to re-arrange the data matrix to correspond to the tree tip labels
-       Data <- Data[match(rownames(Data),tree$tip.label),]
-     }}
+  if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
   if (all(tree$tip.label %in% rownames(Data))==F){
     warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
     tree <- ape::drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
+  if (all(rownames(Data)!=tree$tip.label)){
+    warning('rows of data are in different order of tree tip-labels - use output$data for downstream analysis, or set Data <- Data[tree$tip.label,]')
+    Data <- Data[tree$tip.label,]
+  }
   if (is.null(frmla)){frmla=Data ~ X}
   if (method %in% c('add','ILR')==F){stop('improper input method - must be either "add" or "multiply"')}
   if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "F" or "var"')}
   if(is.null(nclades)){nclades=Inf}
   if(ape::is.rooted(tree)){
     tree <- ape::unroot(tree)}
+
+  #### Default treatment of OTUTable ###
+  if (any(OTUTable==0)){
+    if (delta==0.65){
+      warning('OTUTable has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(OTUTable[OTUTable>0]), default delta=0.65')
+    }
+    OTUTable[OTUTable==0]=min(OTUTable[OTUTable>0])*delta
+  }
+  if (any(abs(colSums(OTUTable)-1)>tolerance)){
+    warning('Column Sums of OTUTable are not sufficiently close to 1 - OTUTable will be re-normalized by column sums')
+    OTUTable <- t(compositions::clo(t(OTUTable)))
+
+    if (any(abs(colSums(OTUTable)-1)>tolerance)){
+      warning('Attempt to divide OTUTable by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+  }
 
  treeList <- list(tree)
  atomList <- list(1:ape::Ntip(tree))

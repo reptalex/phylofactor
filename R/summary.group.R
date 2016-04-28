@@ -7,12 +7,12 @@
 #' @param grp input vector of taxa to be summarized
 #' @return summary object with $IDs, $otuData, $PF.prediction
 
-summary.group <- function(PF,tree,taxonomy,factor,grp){
+summary.group <- function(PF,tree,taxonomy,factor,grp,simplify=F){
   #summarizes the OTUids, taxonomic details, data and predictions for an input group of taxa up to a factor level factor.
 
   output <- NULL
   otuIDs <- tree$tip.label[grp]
-  TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name=F)
+  TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name=simplify)
   output$IDs <- data.frame(otuIDs,TaxaIDs)
 
   output$otuData <- PF$Data[grp, ,drop=F]
