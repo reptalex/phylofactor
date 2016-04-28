@@ -55,7 +55,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   #these can both be parallelized
   if (is.null(cl)){
     Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
-    GLMs <- lapply(X=Y,FUN = pglm::pglm,x=X,frmla=frmla,smallglm=T,...)
+    GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T,...)
     stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
     rownames(stats) <- names(GLMs)
     colnames(stats) <- c('Pval','F')
@@ -112,7 +112,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
   if (is.null(cl)){
     output$glm <- GLMs[[winner]]         #this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
   } else {
-    output$glm <- pglm::pglm(Y[[winner]],X,frmla,smallglm=T,...)
+    output$glm <- pglm(Y[[winner]],X,frmla,smallglm=T,...)
   }
 
   output$p.values <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
