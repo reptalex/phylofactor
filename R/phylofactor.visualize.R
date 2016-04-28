@@ -82,10 +82,10 @@ phylofactor.visualize <- function(PF,dimension=2,default.colors=T,Legend=T,lx=NU
     } else {
       if (default.colors){
         if (xfactor){
-        s3d <- scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,color = cols,pch=pch,cex.symbols = cex,...)
+        s3d <- scatterplot3d::scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,color = cols,pch=pch,cex.symbols = cex,...)
         } else {
           layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
-          s3d <- scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,color = cols,pch=pch,cex.symbols = cex)
+          s3d <- scatterplot3d::scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,color = cols,pch=pch,cex.symbols = cex)
           legend_image <- as.raster(matrix(colfunc, ncol=1))
           if (is.null(colorbar.name)){
             colorbar.name='Legend'
@@ -102,7 +102,7 @@ phylofactor.visualize <- function(PF,dimension=2,default.colors=T,Legend=T,lx=NU
 
         }
       } else {
-        s3d <- scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,pch=pch,cex.symbols = cex,...)
+        s3d <- scatterplot3d::scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,pch=pch,cex.symbols = cex,...)
       }
     }
   }
