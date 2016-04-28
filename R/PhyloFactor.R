@@ -17,6 +17,7 @@
 #'  set.seed(1)
 #'  library(ape)
 #'  library(phangorn)
+#'  library(compositions)
 #' tree <- unroot(rtree(7))
 
 #' X <- as.factor(c(rep(0,5),rep(1,5)))

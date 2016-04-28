@@ -35,7 +35,7 @@ n <- dim(Data)[1]
 m <- length(Grps)
 parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
 if (choice=='var'){
-  reg <- parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
+  reg <- parallel::parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
 } else {
   # in this case, we can avoid passing the dataset to the cluster, and instead pass just the variables, Y
   Y <- lapply(Grps,FUN=amalgamate,Data=Data,method)
