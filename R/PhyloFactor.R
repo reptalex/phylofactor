@@ -39,6 +39,10 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
   #### Housekeeping
   if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
+  if (typeof(Data) != 'double'){
+    warning(' typeof(Data) is not "double" - will coerce with as.matrix(), but recommend using output $data for downstream analysis')
+    Data <- as.matrix(Data)
+    }
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
   if (all(tree$tip.label %in% rownames(Data))==F){
     warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
