@@ -11,12 +11,16 @@
 #' @param stop.fcn Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
-#' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=1.
+#' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.
+#' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
+#' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
 #' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "atoms", "atom.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which atoms are monophyletic and have atom.size>1
 #' @examples
 #'  set.seed(1)
 #'  library(ape)
 #'  library(phangorn)
+#'  library(compositions)
+#'
 #' tree <- unroot(rtree(7))
 
 #' X <- as.factor(c(rep(0,5),rep(1,5)))
@@ -34,7 +38,7 @@
 #' all(PF$atoms %in% Atoms)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=1,tolerance=1e-14,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-12,delta=0.65,...){
 
 
   #### Housekeeping
@@ -129,8 +133,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
    ############# Perform Regression on all of Groups, and implement choice function ##############
    # clusterExport(cl,'pglm')
-   PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
-   # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
+   # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
+   PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
    ############################## EARLY STOP #####################################
    ###############################################################################
 
