@@ -217,6 +217,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  names(output$atoms)[Monophyletic] <- 'Monophyletic'
  names(output$atoms)[!Monophyletic] <- 'Paraphyletic'
  output$nfactors <- pfs
+ output$factors <- t(output$factors)
 
 
  ### Make the atom size distribution data frame ###
