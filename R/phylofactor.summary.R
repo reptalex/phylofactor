@@ -48,7 +48,9 @@ phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify=F,
 
   output <- NULL
   output$group1 <- summary.group(PF,tree,taxonomy,factor = factor,grp1,simplify=simplify)
-  output$group2 <- summary.group(PF,tree,taxonomy,factor=factor,grp2,simplify=simplify)
+  output$group2 <- summary.group(PF,tree,taxonomy,factor = factor,grp2,simplify=simplify)
+
+
 
   if (subtree==T){
     tr <- ape::drop.tip(tree,setdiff(unlist(atms),grp))
