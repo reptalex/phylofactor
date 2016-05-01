@@ -7,7 +7,7 @@
 #' @param method Method for amalgamating groups and constructing basis. Default method = "ILR" uses the isometric log-ratio transform. Coming soon: method='add' which uses additive grouping with log-ratio regression.
 #' @param choice Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance, whereas 'F' maximizes the F-statistic from an analysis of variance.
 #' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
-#' @param nclades Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
+#' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
 #' @param stop.fcn Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
@@ -33,12 +33,12 @@
 #' Data <- t(clo(t(Data)))
 #' Atoms <- atoms(G=sigClades,set=1:7)
 
-#' PF <- PhyloFactor(Data,tree,X,nclades=2)
+#' PF <- PhyloFactor(Data,tree,X,nfactors=2)
 #' PF$atoms
 #' all(PF$atoms %in% Atoms)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nclades=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-12,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-12,delta=0.65,...){
 
 
   #### Housekeeping
@@ -58,7 +58,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   if (is.null(frmla)){frmla=Data ~ X}
   if (method %in% c('add','ILR')==F){stop('improper input method - must be either "add" or "multiply"')}
   if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "F" or "var"')}
-  if(is.null(nclades)){nclades=Inf}
+  if(is.null(nfactors)){nfactors=Inf}
   if(ape::is.rooted(tree)){
     tree <- ape::unroot(tree)}
 
@@ -116,7 +116,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  output$terminated=F
  cl=NULL
 
- while (pfs < min(length(OTUs)-1,nclades)){
+ while (pfs < min(length(OTUs)-1,nfactors)){
 
 
   if (is.null(ncores)==F && age==0){
