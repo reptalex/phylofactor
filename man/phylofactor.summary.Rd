@@ -5,7 +5,7 @@
 \title{Summary of phylofactor object for a given node or factor number}
 \usage{
 phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
-  subtree = F, prediction = T, tipLabels = F, ...)
+  simplify = F, subtree = F, prediction = T, tipLabels = F, ...)
 }
 \arguments{
 \item{PF}{PhyloFactor object}
@@ -15,6 +15,8 @@ phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
 \item{factor}{Factor number to summarize.}
 
 \item{tree}{phylogeny (ape class)}
+
+\item{simplify}{Whether or not to simplify IDs of group taxonomy to their shorest unique prefix (taxonomy down to the coarsest taxonomic level unique to each group)}
 
 \item{subtree}{Logical indicating whether or not to output the subtree partitioned when PF$node was split (i.e. sub-tree split by factor)}
 
