@@ -4,7 +4,7 @@
 \alias{phylofactor.TaxaIDs}
 \title{Returns the taxonomic IDs for all the OTUs in the atoms formed by splits in a Phylofactor object.}
 \usage{
-phylofactor.TaxaIDs(PF, Taxonomy, tree, clades = NULL, common.name = F)
+phylofactor.TaxaIDs(PF, Taxonomy, tree, nfactors = NULL, common.name = F)
 }
 \arguments{
 \item{PF}{Phylofactor object}
@@ -13,9 +13,9 @@ phylofactor.TaxaIDs(PF, Taxonomy, tree, clades = NULL, common.name = F)
 
 \item{tree}{Phylogeny}
 
-\item{clades}{Clades, or factors, of phylofactor object to be inlcuded. Currently, this must be a sequence from 1:n, i.e. cannot be c(2,3,4...,n) or have any missing clades. The reason for this is the atom function currently requires input of a sequential partition.}
-
 \item{common.name}{Logical indicating whether or not to truncate the output to only one taxonomic assignment per atom, based on the finest, common name to all taxa in the atom.}
+
+\item{factors}{factors of phylofactor object to be inlcuded. Currently, this must be a sequence from 1:n, i.e. cannot be c(2,3,4...,n) or have any missing factors. The reason for this is the atom function currently requires input of a sequential partition.}
 }
 \description{
 Returns the taxonomic IDs for all the OTUs in the atoms formed by splits in a Phylofactor object.

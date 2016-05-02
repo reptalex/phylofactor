@@ -12,22 +12,28 @@
 ######################### getGroups ######################################
 
 getGroups <- function(tree){
-  set=1:length(tree$tip.label)
-  n=length(set)
-  Grps <- vector(mode='list',length=(2*n-3))
+  if (length(tree$tip.label)==2){
+    Grps <- vector(mode='list',length=1)
+    Grps[[1]] <- as.list(c(1,2))
+  } else {
 
-  Grps[1:n] <- lapply(as.list(set[1:n]),FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
-  names(Grps)[1:n] <- 1:n
+    set=1:length(tree$tip.label)
+    n=length(set)
+    Grps <- vector(mode='list',length=(2*n-3))
 
-  if (n>3){
-    cml <- caper::clade.members.list(tree)
-    cml <- cml[2:length(cml)]
-    cml <- cml[which(sapply(cml,FUN= function(x,n) length(x)<(n-1),n=n,simplify=T))]
-    if (length(cml)>1){
-      Grps[(n+1):(n+length(cml))] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
-      names(Grps)[(n+1):(n+length(cml))] <- names(cml)
+    Grps[1:n] <- lapply(as.list(set[1:n]),FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
+    names(Grps)[1:n] <- 1:n
+
+    if (n>3){
+      cml <- caper::clade.members.list(tree)
+      cml <- cml[2:length(cml)]
+      cml <- cml[which(sapply(cml,FUN= function(x,n) length(x)<(n-1),n=n,simplify=T))]
+      if (length(cml)>1){
+        Grps[(n+1):(n+length(cml))] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
+        names(Grps)[(n+1):(n+length(cml))] <- names(cml)
+      }
     }
+    lapply(Grps,FUN=function(x) lapply(x,sort))
   }
-  lapply(Grps,FUN=function(x) lapply(x,sort))
   return(Grps)
 }

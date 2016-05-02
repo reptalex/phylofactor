@@ -12,6 +12,8 @@
 #' library(compositions)
 #' library(ape)
 #' data("FTmicrobiome")
+#' library(ape)
+#' library(compositions)
 #' Y <- FTmicrobiome$OTUTable
 #' Y <- Y[which(rowSums(Y==0)<30),] #only include taxa present in at least 29 samples
 #' Y[Y==0]=.65
@@ -23,9 +25,11 @@
 #' method='ILR'
 #' choice='var'
 #' cl <- phyloFcluster(2)
-#' frmla <- Y ~ X
+#'
+#' frmla <- Y~X
 #' print(head(Y))
-#' Z = Y
+#' Z=Y
+#'
 #' pr <- PhyloRegression(Z,X,frmla,Grps,method,choice,cl)
 #'
 #' stopCluster(cl)
@@ -61,13 +65,24 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     colnames(stats) <- c('Pval','F')
     Yhat <- lapply(GLMs,predict)
   } else {
-    ## the following includes paralellization of residual variance if choice=='var'
-    # dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
-    dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl)
-    # GLMs <- dum$GLMs
-    Y <- dum$Y
-    stats <- dum$stats #contains Pvalues and F statistics
-    Yhat <- dum$Yhat
+
+    if (length(Grps)>=(2*length(cl))){
+      ## the following includes paralellization of residual variance if choice=='var'
+      # dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl,...)
+      dum <- phyloregPar(Grps,Data,X,frmla,choice,method,Pbasis,cl)
+      # GLMs <- dum$GLMs
+      Y <- dum$Y
+      stats <- dum$stats #contains Pvalues and F statistics
+      Yhat <- dum$Yhat
+    } else {
+      Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
+      GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T,...)
+      stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
+      rownames(stats) <- names(GLMs)
+      colnames(stats) <- c('Pval','F')
+      Yhat <- lapply(GLMs,predict)
+    }
+
   }
 
   ############# CHOICE - EXTRACT "BEST" CLADE ##################
@@ -89,12 +104,32 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
         residualvar <- sapply(predictions,residualVar,Data=Data)
         winner <- which(residualvar == min(residualvar))
       } else {
-        winner <- which(dum$residualvar==min(dum$residualvar))
+        if (length(Grps)>=(2*length(cl))){
+          winner <- which(dum$residualvar==min(dum$residualvar))
+        } else {
+          predictions <- mapply(PredictAmalgam,Yhat,Grps,n,method,Pbasis,SIMPLIFY=F)
+          residualvar <- sapply(predictions,residualVar,Data=Data)
+          winner <- which(residualvar == min(residualvar))
+        }
       }
-    if (length(winner)>1){
-      warning('minimizing residual variance produced  more than one group. Will choose only the first group')
-      winner <- winner[1]
+  }
+
+  if (length(winner)>1){
+
+    ## Check to see if they're equivalent groups, in which case don't display message.
+    NoWarning=T
+      for (nn in 1:(length(winner)-1)){
+        for (mm in 2:length(winner)){
+          NoWarning = NoWarning & all(Grps[nn][[1]] %in% Grps[mm][[1]]) & all(Grps[mm][[1]] %in% Grps[nn][[1]])
+        }
       }
+
+    if (NoWarning==F){
+      warning(paste(paste('minimizing residual variance produced',toString(length(winner)),sep=' '),' groups, some of which were not identical. Will choose only the first group',sep=''))
+    }
+
+
+    winner <- winner[1]
   }
 
 
@@ -121,9 +156,14 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,...){
     if (is.null(cl)){
       output$explainedvar <- residualvar[winner]/totalvar
     } else {
-      output$explainedvar <- dum$residualvar[winner]/totalvar
+      if (length(Grps)>=(2*length(cl))){
+        output$explainedvar <- dum$residualvar[winner]/totalvar
+      } else {
+        output$explainedvar <- residualvar[winner]/totalvar
+      }
     }
-  }
+ }
+
   output$residualData <- PredictAmalgam(Yhat[[winner]],Grps[[winner]],n,method,Pbasis)
 
   return(output)

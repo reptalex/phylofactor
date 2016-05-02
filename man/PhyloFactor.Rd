@@ -5,8 +5,8 @@
 \title{Performs phylofactorization of a compositional dataset}
 \usage{
 PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
-  Grps = NULL, nclades = NULL, stop.fcn = NULL, stop.early = NULL,
-  ncores = NULL, clusterage = 1, ...)
+  Grps = NULL, nfactors = NULL, stop.fcn = NULL, stop.early = NULL,
+  ncores = NULL, clusterage = Inf, tolerance = 1e-12, delta = 0.65, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -23,7 +23,7 @@ PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
 
 \item{Grps}{Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups}
 
-\item{nclades}{Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T}
+\item{nfactors}{Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T}
 
 \item{stop.fcn}{Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.}
 
@@ -31,7 +31,11 @@ PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
 
 \item{ncores}{Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.}
 
-\item{clusterage}{Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=1.}
+\item{clusterage}{Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.}
+
+\item{tolerance}{Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.}
+
+\item{delta}{Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])}
 }
 \value{
 Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "atoms", "atom.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which atoms are monophyletic and have atom.size>1
@@ -43,6 +47,8 @@ Performs phylofactorization of a compositional dataset
  set.seed(1)
  library(ape)
  library(phangorn)
+ library(compositions)
+
 tree <- unroot(rtree(7))
 X <- as.factor(c(rep(0,5),rep(1,5)))
 sigClades <- Descendants(tree,c(9,12),type='tips')
@@ -53,7 +59,7 @@ Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*8
 Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 Data <- t(clo(t(Data)))
 Atoms <- atoms(G=sigClades,set=1:7)
-PF <- PhyloFactor(Data,tree,X,nclades=2)
+PF <- PhyloFactor(Data,tree,X,nfactors=2)
 PF$atoms
 all(PF$atoms \%in\% Atoms)
 }

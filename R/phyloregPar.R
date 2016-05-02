@@ -48,7 +48,7 @@ if (choice=='var'){
     frmlas[[nn]] <- frmla
     Xs[[nn]] <- X
   }
-  reg <- clusterMap(cl, fun=phyreg, XX=Xs,frmla=frmlas,n=n,choice=choice,method=method,Pbasis=Pbasis, Grps=parG, Y=parY,...)
+  reg <- parallel::clusterMap(cl, fun=phyreg, XX=Xs,frmla=frmlas,n=n,choice=choice,method=method,Pbasis=Pbasis, Grps=parG, Y=parY,...)
 
 }
 
@@ -65,5 +65,6 @@ if (choice=='var'){
   output$Y <- Ydum
   rm('Ydum')
   gc()
+
   return(output)
 }

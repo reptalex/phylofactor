@@ -5,7 +5,7 @@
 \title{Summary of phylofactor object for a given node or factor number}
 \usage{
 phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
-  subtree = F, prediction = T, tipLabels = F, ...)
+  simplify.TaxaIDs = F, subtree = F, prediction = T, tipLabels = F, ...)
 }
 \arguments{
 \item{PF}{PhyloFactor object}
@@ -23,6 +23,8 @@ phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
 \item{tipLabels}{Logical indicating whether or not to include tip labels in plot of subtree.}
 
 \item{node}{node number, must be in PF$nodes. Takes priority over "factor" for what is summarized}
+
+\item{simplify}{Whether or not to simplify IDs of group taxonomy to their shorest unique prefix (taxonomy down to the coarsest taxonomic level unique to each group)}
 }
 \value{
 summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction

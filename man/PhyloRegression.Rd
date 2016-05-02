@@ -28,18 +28,25 @@ Performs regression of groups of Data against X for an input list of groups, and
 }
 \examples{
 data("FTmicrobiome")
+library(ape)
+library(compositions)
 Y <- FTmicrobiome$OTUTable
 Y <- Y[which(rowSums(Y==0)<30),] #only include taxa present in at least 29 samples
 Y[Y==0]=.65
 
 Y <- t(clo(t(Y)))
-tree <- drop.tip(FTmicrobiome$tree, setdiff(tree$tip.label,rownames(Y)))
+tree <- drop.tip(FTmicrobiome$tree, setdiff(FTmicrobiome$tree$tip.label,rownames(Y)))
 X <- FTmicrobiome$X
 Grps <- getGroups(tree)
 method='ILR'
 choice='var'
 cl <- phyloFcluster(2)
-pr <- PhyloRegression(Y,X,frmla,Grps,method,choice,cl)
+
+frmla <- Y~X
+print(head(Y))
+Z=Y
+
+pr <- PhyloRegression(Z,X,frmla,Grps,method,choice,cl)
 
 stopCluster(cl)
 gc()
