@@ -40,15 +40,15 @@
 #'
 #' NodeSummary$group$IDs
 #'
-phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify=F,subtree=F,prediction=T,tipLabels=F,...){
+phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.TaxaIDs=F,subtree=F,prediction=T,tipLabels=F,...){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(factor)){stop('need to input a factor')}
   grp1 <- PF$groups[[factor]][[1]]
   grp2 <- PF$groups[[factor]][[2]]
 
   output <- NULL
-  output$group1 <- summary.group(PF,tree,taxonomy,factor = factor,grp1,simplify=simplify)
-  output$group2 <- summary.group(PF,tree,taxonomy,factor = factor,grp2,simplify=simplify)
+  output$group1 <- summary.group(PF,tree,taxonomy,factor = factor,grp1,simplify=simplify.TaxaIDs)
+  output$group2 <- summary.group(PF,tree,taxonomy,factor = factor,grp2,simplify=simplify.TaxaIDs)
 
 
 
@@ -66,6 +66,10 @@ phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify=F,
     phylo.heatmapAW(tree=tr,Y=dta,tipLabels = tipLabels,edge.width=edgs,edge.color=cols,...)
     output$subtree <- tr
   }
+
+  output$TaxaSplit <- TaxaSplit(output)
+  output$glm <- PF$glms[[factor]]
+
 
   return(output)
 

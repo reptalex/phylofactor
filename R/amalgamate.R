@@ -23,23 +23,28 @@
 amalgamate <- function(Grp,Data,method,collapse=F){
   clo <- compositions::clo
 
+  gMean <- function(Y,MARGIN=2){
+    g <- apply(Y,MARGIN=MARGIN,FUN=function(y) exp(mean(log(y))))
+    return(g)
+  }
+
   if (collapse==T){
 
       n <- length(Grp) #this is the number of rows in our new OTU table
-      m <- dim(OTUTable)[2]
+      m <- dim(Data)[2]
       output <- matrix(0,n,m)
 
       for (nn in 1:n){
         grp <- Grp[[nn]]
           if (method=='ILR'){
             if (length(grp)>1){
-              output[nn,] <- compositions::geometricmeanCol(Data[grp,])
+              output[nn,] <- gMean(Data[grp, ,drop=F])
             } else {
               output[nn,] <- Data[grp,]
             }
           } else {
             if (length(grp)>1){
-              output[nn,] <- colSums(Data[grp,])
+              output[nn,] <- colSums(Data[grp, ,drop=F])
             } else {
               output[nn,] <- Data[grp,]
             }

@@ -42,8 +42,7 @@ phylofactor.predict <- function(PF,factors=NULL,...){
     coefs <- NULL
     d=1
     for (nn in factors){
-      gg <- PF$glms[[nn]]
-      pp <- predict(gg,...)
+      pp <- predict(PF$glms[[nn]],...)
       coefs <- matrix(c(coefs,pp),ncol=d,byrow=F)
       d=d+1
     }

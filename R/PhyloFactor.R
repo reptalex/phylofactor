@@ -208,6 +208,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
  ########### Clean up the Output ####################################
  if (is.null(output$factors)==F){
+  pfs <- dim(output$factors)[2]
   colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
   rownames(output$factors)=c('Group1','Group2')
  }
