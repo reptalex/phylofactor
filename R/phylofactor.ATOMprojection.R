@@ -4,7 +4,7 @@
 phylofactor.ATOMprojection <- function(PF,Data=NULL,nfactors=2,clr.transform=F){
 
   factors=1:nfactors
-  atms <- atoms(PF$basis[,1:nfactors])
+  atms <- atoms(-PF$basis[,1:nfactors,drop=F])
 
   if (is.null(Data)){
     output <- amalgamate(atms,PF$Data,method=PF$method,collapse=T)

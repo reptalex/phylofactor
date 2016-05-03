@@ -35,7 +35,7 @@ phylofactor.predict <- function(PF,factors=NULL,...){
   #outputs the predictions, using nfactors from PhyloFactor.
   #additional arguments '...' are for function predict()
 
-  if (is.null(factors)){factors=1: (PF$nfactors)}
+  if (is.null(factors)){factors=1:(PF$nfactors)}
 
   if (max(factors)>1 && length(factors)==1){factors=1:factors}
 

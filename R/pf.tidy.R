@@ -1,0 +1,34 @@
+#' Concise summarization of phylofactor summary
+#'
+#' @export
+#' @param smry PF summary class object. see \code{\link{phylofactor.summary}}
+#' @return list containing concise taxa IDs of groups split, as well as their predicted ratios of abundances in different conditions
+#' @examples
+#' library(phylofactor)
+#' data('FTmicrobiome')
+#'
+#' smry <- phylofactor.summary(FTmicrobiome$PF,FTmicrobiome$taxonomy,factor=1)
+#'
+#' beConcise(smry)
+
+pf.tidy <- function(smry){
+
+    ### Be concise about taxa split
+    l <- list(unique(smry$TaxaSplit[[1]][,2]),unique(smry$TaxaSplit[[2]][,2]))
+    Monophy <- c(smry$group1$is.monophyletic,smry$group2$is.monophyletic)+1
+    names(l) <- mapply(list('group1','group2'),FUN=function(y,ix) paste(y,c(', Paraphyletic',', Monophyletic')[ix],sep=''),ix=Monophy)
+
+
+    ### Be concise about their predicted effects ##
+    xs <- smry$glm$xlevels
+    pp <- predict(smry$glm,newdata=data.frame(X=xs))
+    r <- dim(smry$group1$IDs)[1]
+    s <- dim(smry$group2$IDs)[1]
+    ratios <- exp(sqrt((r+s)/(r*s))*pp)
+    names(ratios) <- xs$X
+
+    l <- c(l,list(ratios))
+    names(l)[3] <- 'Predicted ratio of group1/group2'
+
+    return(l)
+}

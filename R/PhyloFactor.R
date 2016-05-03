@@ -219,7 +219,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  names(output$atoms)[!Monophyletic] <- 'Paraphyletic'
  output$nfactors <- pfs
  output$factors <- t(output$factors)
-
+ pvalues <- sapply(output$glms,FUN=function(gg) summary(aov(gg))[[1]][1,'Pr(>F)'])
+ output$factors <- cbind(output$factors,pvalues)
 
  ### Make the atom size distribution data frame ###
  atomsize <- unlist(lapply(NewOTUs,FUN = length))
