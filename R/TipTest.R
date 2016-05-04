@@ -1,5 +1,5 @@
 #' Test of whether tips are over/under-represented in phylofactorization
-#'
+#' @export
 #' @param PF phylofactor object. See \code{\link{PhyloFactor}}
 #' @param factors Set of factors to test. Default is all the factors in PF input.
 #' @param two.tailed Logical indicating if test is to be two-tailed.
