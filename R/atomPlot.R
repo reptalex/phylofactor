@@ -33,10 +33,10 @@ atomPlot <- function(atms,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unroote
   Edgs <- lapply(otus,FUN=function(x,tree) extractEdges(tree,x,type=3),tree=tree)
 
   for (nn in 1:length(atms)){
-    EdgCols[Edgs[[nn]]] <- Cols[nn]
+    EdgeCols[Edgs[[nn]]] <- Cols[nn]
   }
 
-  plot.phylo(tree,edge.color=EdgCols,type=type,show.tip.label = show.tip.label,...)
+  plot.phylo(tree,edge.color=EdgeCols,type=type,show.tip.label = show.tip.label,...)
 
   l <- list(atms,sapply(as.list(1:length(atms)),FUN=function(x) paste('Atom',x)),Cols)
   names(l) <- c('Atoms','Legend','Colors')
