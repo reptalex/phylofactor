@@ -10,16 +10,25 @@
 #' TipTest(Ftmicrobiome$PF)
 
 TipTest <- function(PF,factors=1:(PF$nfactors),lower.tail=FALSE){
-  n <- dim(PF.F$Data)[1]   ## number of tips
-  N <- 2*n-3               ## total number of edges
-  m <- N-n                 ## number of basal edges
+  nn <- dim(PF$Data)[1]   ## number of tips
+  N <- 2*nn-3               ## total number of edges
+  mm <- N-nn                 ## number of basal edges
   nf <- length(factors)
-  obs <- sum(PF.F$factors[factors,1]=='tip')
+  obs <- sum(PF$factors[factors,1]=='tip')
 
-  p <- phyper(obs,n,m,length(factors),lower.tail=lower.tail)
+  if (nf==1){
+
+      p <- obs*(mm/N)+(1-obs)*(nn/N)
+      if (lower.tail){
+        p <- 1-p
+      }
+
+  } else {
+    p <- phyper(q=obs,m=nn,n=mm,k=nf,lower.tail=lower.tail)
+  }
 
   tst <- c('upper tail hypergeometric test','lower tail hypergeometric test')[lower.tail+1]
-  tbl <- matrix(c(N,n,m,obs,length(factors),p),nrow=1)
+  tbl <- matrix(c(N,nn,mm,length(factors),obs,p),nrow=1)
   colnames(tbl) <- c('Nedges','Ntips','Nbasaledgs','Nfactors','ObsTips','P value')
   rownames(tbl) <- ''
 
