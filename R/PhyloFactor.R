@@ -5,7 +5,7 @@
 #' @param X independent variable.
 #' @param frmla Formula for input in GLM. Default formula is Data ~ X
 #' @param method Method for amalgamating groups and constructing basis. Default method = "ILR" uses the isometric log-ratio transform. Coming soon: method='add' which uses additive grouping with log-ratio regression.
-#' @param choice Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance, whereas 'F' maximizes the F-statistic from an analysis of variance.
+#' @param choice Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
 #' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
 #' @param stop.fcn Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.
@@ -219,7 +219,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
  names(output$atoms)[!Monophyletic] <- 'Paraphyletic'
  output$nfactors <- pfs
  output$factors <- t(output$factors)
-
+ pvalues <- sapply(output$glms,FUN=function(gg) summary(aov(gg))[[1]][1,'Pr(>F)'])
+ output$factors <- cbind(output$factors,pvalues)
 
  ### Make the atom size distribution data frame ###
  atomsize <- unlist(lapply(NewOTUs,FUN = length))

@@ -16,6 +16,8 @@ phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
 
 \item{tree}{phylogeny (ape class)}
 
+\item{simplify.TaxaIDs}{Whether or not to simplify IDs of group taxonomy to their shorest unique prefix (for each OTU in each group, this is taxonomy down to the coarsest taxonomic level unique to the OTU's group)}
+
 \item{subtree}{Logical indicating whether or not to output the subtree partitioned when PF$node was split (i.e. sub-tree split by factor)}
 
 \item{prediction}{Logical. If subtree=T, prediction=T will produce a phylo.heatmap containing the predicted data. Otherwise, will output phylo.heatmap of real data}
@@ -23,8 +25,6 @@ phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
 \item{tipLabels}{Logical indicating whether or not to include tip labels in plot of subtree.}
 
 \item{node}{node number, must be in PF$nodes. Takes priority over "factor" for what is summarized}
-
-\item{simplify}{Whether or not to simplify IDs of group taxonomy to their shorest unique prefix (taxonomy down to the coarsest taxonomic level unique to each group)}
 }
 \value{
 summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction
@@ -46,21 +46,22 @@ ix <- which(rowSums(OTUTable==0)<30)
 OTUTable <- OTUTable[ix,]
 OTUs <- rownames(OTUTable)
 tree <- drop.tip(tree,which(!(tree$tip.label \%in\% OTUs)))
-delta=0.65
-OTUTable[OTUTable==0]=delta
-OTUTable <- OTUTable \%>\% t \%>\% clo \%>\% t
-OTUTable <- OTUTable[tree$tip.label,]
 
 par(mfrow=c(1,1))
 phylo.heatmap(tree,t(clr(t(OTUTable))))
-PF <- PhyloFactor(OTUTable,tree,X,nclades=2,choice='var')
+PF <- PhyloFactor(OTUTable,tree,X,nfactors=2,choice='var')
 
-FactorSummary <- summary.phylofactor(PF,tree,Taxonomy,factor=1)
-NodeSummary <- summary.phylofactor(PF,tree,Taxonomy, node=PF$nodes[2])
+FactorSummary <- phylofactor.summary(PF,Taxonomy,factor=1)
 
 str(FactorSummary)
 
-NodeSummary$group$IDs
+par(mfrow=c(1,2))
+plot(FactorSummary$ilr,ylab='ILR coordinate',main='ILR coordinate of factor',xlab='sample no.',pch=16)
+lines(FactorSummary$fitted.values,lwd=2,col='blue')
+legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
 
+plot(FactorSummary$MeanRatio,ylab='ILR coordinate',main='Mean Ratio of Grp1/Grp2',xlab='sample no.',pch=16)
+lines(FactorSummary$fittedMeanRatio,lwd=2,col='blue')
+legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
 }
 

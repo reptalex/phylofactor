@@ -5,7 +5,7 @@
 #' @param taxonomy Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string
 #' @param node node number, must be in PF$nodes. Takes priority over "factor" for what is summarized
 #' @param factor Factor number to summarize.
-#' @param simplify Whether or not to simplify IDs of group taxonomy to their shorest unique prefix (taxonomy down to the coarsest taxonomic level unique to each group)
+#' @param simplify.TaxaIDs Whether or not to simplify IDs of group taxonomy to their shorest unique prefix (for each OTU in each group, this is taxonomy down to the coarsest taxonomic level unique to the OTU's group)
 #' @param subtree Logical indicating whether or not to output the subtree partitioned when PF$node was split (i.e. sub-tree split by factor)
 #' @param prediction Logical. If subtree=T, prediction=T will produce a phylo.heatmap containing the predicted data. Otherwise, will output phylo.heatmap of real data
 #' @param tipLabels Logical indicating whether or not to include tip labels in plot of subtree.
@@ -24,22 +24,23 @@
 #' OTUTable <- OTUTable[ix,]
 #' OTUs <- rownames(OTUTable)
 #' tree <- drop.tip(tree,which(!(tree$tip.label %in% OTUs)))
-#' delta=0.65
-#' OTUTable[OTUTable==0]=delta
-#' OTUTable <- OTUTable %>% t %>% clo %>% t
-#' OTUTable <- OTUTable[tree$tip.label,]
 #'
 #' par(mfrow=c(1,1))
 #' phylo.heatmap(tree,t(clr(t(OTUTable))))
-#' PF <- PhyloFactor(OTUTable,tree,X,nclades=2,choice='var')
+#' PF <- PhyloFactor(OTUTable,tree,X,nfactors=2,choice='var')
 #'
-#' FactorSummary <- summary.phylofactor(PF,tree,Taxonomy,factor=1)
-#' NodeSummary <- summary.phylofactor(PF,tree,Taxonomy, node=PF$nodes[2])
+#' FactorSummary <- phylofactor.summary(PF,Taxonomy,factor=1)
 #'
 #' str(FactorSummary)
 #'
-#' NodeSummary$group$IDs
+#' par(mfrow=c(1,2))
+#' plot(FactorSummary$ilr,ylab='ILR coordinate',main='ILR coordinate of factor',xlab='sample no.',pch=16)
+#' lines(FactorSummary$fitted.values,lwd=2,col='blue')
+#' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
 #'
+#' plot(FactorSummary$MeanRatio,ylab='ILR coordinate',main='Mean Ratio of Grp1/Grp2',xlab='sample no.',pch=16)
+#' lines(FactorSummary$fittedMeanRatio,lwd=2,col='blue')
+#' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
 phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.TaxaIDs=F,subtree=F,prediction=T,tipLabels=F,...){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(factor)){stop('need to input a factor')}
@@ -69,8 +70,16 @@ phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.Ta
 
   output$TaxaSplit <- TaxaSplit(output)
   output$glm <- PF$glms[[factor]]
+  output$ilr <- PF$glms[[factor]]$y
+  output$fitted.values <- PF$glms[[factor]]$fitted.values
+
+  r <- length(grp1)
+  s <- length(grp2)
+  output$MeanRatio <- exp(output$ilr/(sqrt(r*s/(r+s))))
+  output$fittedMeanRatio <- exp(output$fitted.values/(sqrt(r*s/(r+s))))
 
 
+  class(output) <- 'PF summary'
   return(output)
 
 }
