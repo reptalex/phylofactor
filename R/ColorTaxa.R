@@ -46,7 +46,7 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,legend=FALSE,...){
   edge_widths <- rep(2,Nedge(tree))
 
   # plot the tree
-  plot.phylo(tree,edge.color = edge_colors, edge.width = edge_widths,...)
+  ape::plot.phylo(tree,edge.color = edge_colors, edge.width = edge_widths,...)
 
   if (legend==TRUE){
     lims <- par('usr')
