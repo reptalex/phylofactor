@@ -23,7 +23,7 @@ phylofactor.visualize <- function(PF,dimension=2,default.colors=T,Legend=T,lx=NU
 
   if (!(dimension %in% c(2,3))){stop('dimension must be either 2 or 3')}
 
-  PROJ <- phylofactor.projection(PF,nfactors=dimension)
+  PROJ <- phylofactor.ILRprojection(PF,nfactors=dimension)
 
   if (default.colors){
     if (is.factor(PF$X)){

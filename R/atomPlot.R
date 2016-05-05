@@ -14,8 +14,8 @@
 #' library(phylofactor)
 #' data('FTmicrobiome')
 #'
-#' atomPlot(FTmicrobiome$PF,factor=3)
-atomPlot <- function(atms,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unrooted',show.tip.label=F,legend.return=F,...){
+#' atomPhyloPlot(FTmicrobiome$PF,factor=3)
+atomPhyloPlot <- function(atms,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unrooted',show.tip.label=F,legend.return=F,...){
 
   if (class(atms)=='phylofactor'){
     tree <- atms$tree

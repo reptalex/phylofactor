@@ -23,11 +23,6 @@
 amalgamate <- function(Grp,Data,method,collapse=F){
   clo <- compositions::clo
 
-  gMean <- function(Y,MARGIN=2){
-    g <- apply(Y,MARGIN=MARGIN,FUN=function(y) exp(mean(log(y))))
-    return(g)
-  }
-
   if (collapse==T){
 
       n <- length(Grp) #this is the number of rows in our new OTU table

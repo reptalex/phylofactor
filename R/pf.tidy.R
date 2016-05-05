@@ -30,5 +30,10 @@ pf.tidy <- function(smry){
     l <- c(l,list(ratios))
     names(l)[3] <- 'Predicted ratio of group1/group2'
 
+    g
+
+    g1 <-
+    obsRatios
+
     return(l)
 }

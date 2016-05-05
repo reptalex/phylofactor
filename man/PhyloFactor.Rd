@@ -19,7 +19,7 @@ PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
 
 \item{method}{Method for amalgamating groups and constructing basis. Default method = "ILR" uses the isometric log-ratio transform. Coming soon: method='add' which uses additive grouping with log-ratio regression.}
 
-\item{choice}{Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance, whereas 'F' maximizes the F-statistic from an analysis of variance.}
+\item{choice}{Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.}
 
 \item{Grps}{Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups}
 
