@@ -38,7 +38,7 @@
 #' all(PF$atoms %in% Atoms)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-12,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
 
 
   #### Housekeeping
@@ -67,6 +67,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     if (delta==0.65){
       warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
     }
+
+    apply(Data,MARGIN=2,FUN=function(x,delta) x[x==0]=min(x[x>0]*delta),delta=delta)
+
     Data[Data==0]=min(Data[Data>0])*delta
   }
   if (any(abs(colSums(Data)-1)>tolerance)){
