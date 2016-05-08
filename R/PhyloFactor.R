@@ -67,10 +67,13 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     if (delta==0.65){
       warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
     }
+    rplc <- function(x,delta){
+      x[x==0]=min(x[x>0])*delta
+      return(x)
+    }
 
-    apply(Data,MARGIN=2,FUN=function(x,delta) x[x==0]=min(x[x>0]*delta),delta=delta)
+    Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
 
-    Data[Data==0]=min(Data[Data>0])*delta
   }
   if (any(abs(colSums(Data)-1)>tolerance)){
     warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
