@@ -9,6 +9,8 @@
 #' @param cl phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.
 #' @param Pbasis Coming soon - input Pbasis for amalgamation method "add".
 #' @examples
+#' library(compositions)
+#' library(ape)
 #' data("FTmicrobiome")
 #' library(ape)
 #' library(compositions)
