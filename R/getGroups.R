@@ -2,38 +2,27 @@
 #' @export
 #' @param tree Phylogeny
 #' @return list of groups and their complements, i.e. lists of groups split by each edge of the unrooted phylogeny
+#' @useDynLib phylofactor
+#' @useDynLib phylofactor bifurcations
 #' @examples
 #' tr <- rtree(8)
 #' tr$tip.label <- 1:8
 #' par(mfrow=c(1,1))
-#' plot.phylo(tr,use.edge.length=F)
+#' plot.phylo(tr,use.edge.length=F);edgelabels()
 #' Grps <- getGroups(tr)
 
 ######################### getGroups ######################################
 
-getGroups <- function(tree){
-  if (length(tree$tip.label)==2){
-    Grps <- vector(mode='list',length=1)
-    Grps[[1]] <- as.list(c(1,2))
-  } else {
-
-    set=1:length(tree$tip.label)
-    n=length(set)
-    Grps <- vector(mode='list',length=(2*n-3))
-
-    Grps[1:n] <- lapply(as.list(set[1:n]),FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
-    names(Grps)[1:n] <- 1:n
-
-    if (n>3){
-      cml <- caper::clade.members.list(tree)
-      cml <- cml[2:length(cml)]
-      cml <- cml[which(sapply(cml,FUN= function(x,n) length(x)<(n-1),n=n,simplify=T))]
-      if (length(cml)>1){
-        Grps[(n+1):(n+length(cml))] <- lapply(cml,FUN = function(x,set){return(list(x,setdiff(set,x)))},set=set)
-        names(Grps)[(n+1):(n+length(cml))] <- names(cml)
-      }
-    }
-    lapply(Grps,FUN=function(x) lapply(x,sort))
+getGroups <- function(tree) {
+  .fillInRes <- function(i) {
+    res <- vector('list', length=2)
+    res[[1]] <- which(edge.tips[i, ] == 1)
+    res[[2]] <- which(edge.tips[i, ] == 0)
+    res
   }
-  return(Grps)
+  edge.tips <- .Call("bifurcations", PACKAGE="phylofactor",
+                     as.integer(tree$edge[, 1]),
+                     as.integer(tree$edge[, 2]),
+                     as.integer(length(tree$tip.label)))
+  lapply(1:nrow(edge.tips), .fillInRes)
 }
