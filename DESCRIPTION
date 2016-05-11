@@ -10,13 +10,13 @@ Description:
 License: GPL-3
 LazyData: TRUE
 Depends:
-  magrittr (>= 1.5)
+  magrittr (>= 1.5),
+  ape (>= 3.4)
 Imports:
   compositions (>= 1.40.1),
-  ape (>= 3.4),
   phangorn (>= 2.0.2),
   stats (>= 3.2.2),
-  phytools (>= 0.5.22),
+  phytools (>= 0.5.2),
   caper (>= 0.5.2),
   scatterplot3d (>= 0.3.36),
   Biostrings (>= 2.38.4),
