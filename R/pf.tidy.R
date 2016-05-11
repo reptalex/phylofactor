@@ -30,10 +30,12 @@ pf.tidy <- function(smry){
     l <- c(l,list(ratios))
     names(l)[3] <- 'Predicted ratio of group1/group2'
 
-    g
 
-    g1 <-
-    obsRatios
+    obsRatios <- gMean(smry$group1$otuData)/gMean(smry$group2$otuData)
+    names(obsRatios) <- names(smry$glm$linear.predictors)
+
+    l <- c(l,list(obsRatios))
+    names(l)[4] <- 'Observed Ratio of group1/group2 geometric means'
 
     return(l)
 }
