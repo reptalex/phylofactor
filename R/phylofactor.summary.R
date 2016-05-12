@@ -66,7 +66,7 @@ phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.Ta
     } else { 
       dta <- t(compositions::clr(t(rbind(output$group1$otuData,output$group2$otuData))))
       }
-    phylo.heatmapAW(tree=tr,Y=dta,tipLabels = tipLabels,edge.width=edgs,edge.color=cols,...)
+    phylo.heatmapAW(tree=tr,Y=atan(dta),tipLabels = tipLabels,edge.width=edgs,edge.color=cols,...)
     output$subtree <- tr
   }
 

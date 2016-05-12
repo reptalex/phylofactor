@@ -33,8 +33,7 @@ phylo.heatmapAW <- function(tree,Y,tipLabels=TRUE,...){
       Y <- t(Y)
       } else {
     stop('cannot match rows or columns of Y to tiplabels of tree')}}
-
-  Y <- Y[tree$tip.label,]
+  ord <- match(tree$tip.label,rownames(Y))
 
   layout(matrix(c(1,1,2),1,3))
   ### image of data ###
