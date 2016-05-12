@@ -54,7 +54,7 @@ phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.Ta
 
 
   if (subtree==T){
-    tr <- ape::drop.tip(tree,setdiff(unlist(atms),grp))
+    tr <- ape::drop.tip(tree,setdiff(tree$tip.label,tree$tip.label[c(grp1,grp2)]))
     edgs <- rep(2,ape::Nedge(tr))
     cols <- rep('black',ape::Nedge(tr))
 
@@ -62,8 +62,10 @@ phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.Ta
     edgs[edgG]=8
     cols[edgG]='red'
     if (prediction==T){
-    dta <- rbind(output$group$PF.prediction,output$complement$PF.prediction)
-    } else { dta <- t(compositions::clr(t(rbind(output$group$otuData,output$complement$otuData))))}
+      dta <- rbind(output$group1$PF.prediction,output$group2$PF.prediction)
+    } else { 
+      dta <- t(compositions::clr(t(rbind(output$group1$otuData,output$group2$otuData))))
+      }
     phylo.heatmapAW(tree=tr,Y=dta,tipLabels = tipLabels,edge.width=edgs,edge.color=cols,...)
     output$subtree <- tr
   }

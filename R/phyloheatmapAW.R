@@ -34,8 +34,7 @@ phylo.heatmapAW <- function(tree,Y,tipLabels=TRUE,...){
       } else {
     stop('cannot match rows or columns of Y to tiplabels of tree')}}
 
-  ord <- match(tree$tip.label,rownames(Y))
-  m <- dim(Y)[1]
+  Y <- Y[tree$tip.label,]
 
   layout(matrix(c(1,1,2),1,3))
   ### image of data ###
@@ -43,7 +42,7 @@ phylo.heatmapAW <- function(tree,Y,tipLabels=TRUE,...){
 
   ### left-facing phylogeny with colored tip-labels corresponding to stacked plot above ###
   par(mar=c(5,4,4,1)+1)
-  pp <- ape::plot.phylo(tree,type='p', use.edge.length=F,direction='l',main='Community Phylogeny',show.tip.label=FALSE,...)
+  ape::plot.phylo(tree,type='p', use.edge.length=F,direction='l',main='Community Phylogeny',show.tip.label=FALSE,...)
   if (tipLabels==TRUE){
     ape::tiplabels(text= tree$tip.label,bg='white',col = 'black',cex=3)
   }

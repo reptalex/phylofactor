@@ -6,7 +6,7 @@
 \usage{
 PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
   Grps = NULL, nfactors = NULL, stop.fcn = NULL, stop.early = NULL,
-  ncores = NULL, clusterage = Inf, tolerance = 1e-12, delta = 0.65, ...)
+  ncores = NULL, clusterage = Inf, tolerance = 1e-10, delta = 0.65, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
