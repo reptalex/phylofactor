@@ -4,8 +4,8 @@
 \alias{ColorTaxa}
 \title{Colors tree edges based on taxanomic ID}
 \usage{
-ColorTaxa(tree, taxonomy, level = "p", outputlegend = F, legend = FALSE,
-  ...)
+ColorTaxa(tree, taxonomy, level = "p", outputlegend = F, colorfcn = NULL,
+  legend = FALSE, ...)
 }
 \arguments{
 \item{tree}{phylogenetic tree}
@@ -13,6 +13,12 @@ ColorTaxa(tree, taxonomy, level = "p", outputlegend = F, legend = FALSE,
 \item{taxonomy}{list whose first column is OTUs and second column is green-genes style taxonomy, e.g. k__Bacteria; p__Bacteroidetes}
 
 \item{level}{String indicating taxonomic level for coloring. Must be in set {k,p,c,o,f,g,s}}
+
+\item{outputlegend}{Logical indicating whether or not to output the list of taxa and their corresponding colors for manual generation of a legend}
+
+\item{colorfcn}{Color Palette for taxa. Default is rainbow.}
+
+\item{legend}{Logical whether or not to include legend. Most trees produce pretty ugly legends due to large numbers of taxa, so default is \code{FALSE}}
 
 \item{...}{additional arguments for plot.phylo}
 }

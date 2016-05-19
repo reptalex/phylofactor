@@ -4,6 +4,9 @@
 #' @param tree phylogenetic tree
 #' @param taxonomy list whose first column is OTUs and second column is green-genes style taxonomy, e.g. k__Bacteria; p__Bacteroidetes
 #' @param level String indicating taxonomic level for coloring. Must be in set {k,p,c,o,f,g,s}
+#' @param outputlegend Logical indicating whether or not to output the list of taxa and their corresponding colors for manual generation of a legend
+#' @param colorfcn Color Palette for taxa. Default is rainbow.
+#' @param legend Logical whether or not to include legend. Most trees produce pretty ugly legends due to large numbers of taxa, so default is \code{FALSE}
 #' @param ... additional arguments for plot.phylo
 #' @examples
 #' data(FTmicrobiome)
