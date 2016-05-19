@@ -18,7 +18,7 @@
 #'
 #' lims <- par('usr')
 #' legend(lims[1],lims[4],legend=L$Taxa,fill=L$colors,cex=.6)
-ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,legend=FALSE,...){
+ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legend=FALSE,...){
   if (!level %in% c('k','p','c','o','f','g','s')){stop('unknown level - must be a string in the set {k,p,c,o,f,g,s}')}
   #This function produces a tree of the entire community in which the taxa at level "p" are
   #labelled by color.
@@ -37,7 +37,10 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,legend=FALSE,...){
   }
 
   #Then we assign colors to each taxon
-  colors <- rainbow(nT)
+  if (is.null(colorfcn)){
+    colorfcn <- rainbow
+  }
+  colors <- colorfcn(nT)
   edge_colors <- rep('black',Nedge(tree))
 
   for (n in 1:nT){
