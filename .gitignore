@@ -4,3 +4,4 @@
 .RData
 *.so
 *.o
+src/phylofactor.dll
