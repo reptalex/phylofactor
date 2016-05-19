@@ -5,7 +5,7 @@
 \title{Colors tree edges based on taxanomic ID}
 \usage{
 ColorTaxa(tree, taxonomy, level = "p", outputlegend = F, colorfcn = NULL,
-  legend = FALSE, ...)
+  legend = FALSE, scramble = T, ...)
 }
 \arguments{
 \item{tree}{phylogenetic tree}
@@ -19,6 +19,8 @@ ColorTaxa(tree, taxonomy, level = "p", outputlegend = F, colorfcn = NULL,
 \item{colorfcn}{Color Palette for taxa. Default is rainbow.}
 
 \item{legend}{Logical whether or not to include legend. Most trees produce pretty ugly legends due to large numbers of taxa, so default is \code{FALSE}}
+
+\item{scramble}{Logical - whether or not to scramble the order of taxa-color associations by a random draw. Useful for re-drawing colors in case closely related taxa are difficult to distinguish because of adjacent colors in colorfcn.}
 
 \item{...}{additional arguments for plot.phylo}
 }

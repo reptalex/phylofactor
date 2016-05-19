@@ -7,6 +7,7 @@
 #' @param outputlegend Logical indicating whether or not to output the list of taxa and their corresponding colors for manual generation of a legend
 #' @param colorfcn Color Palette for taxa. Default is rainbow.
 #' @param legend Logical whether or not to include legend. Most trees produce pretty ugly legends due to large numbers of taxa, so default is \code{FALSE}
+#' @param scramble Logical - whether or not to scramble the order of taxa-color associations by a random draw. Useful for re-drawing colors in case closely related taxa are difficult to distinguish because of adjacent colors in colorfcn.
 #' @param ... additional arguments for plot.phylo
 #' @examples
 #' data(FTmicrobiome)
@@ -21,7 +22,7 @@
 #'
 #' lims <- par('usr')
 #' legend(lims[1],lims[4],legend=L$Taxa,fill=L$colors,cex=.6)
-ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legend=FALSE,...){
+ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legend=FALSE,scramble=T,...){
   if (!level %in% c('k','p','c','o','f','g','s')){stop('unknown level - must be a string in the set {k,p,c,o,f,g,s}')}
   #This function produces a tree of the entire community in which the taxa at level "p" are
   #labelled by color.
@@ -44,6 +45,9 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legen
     colorfcn <- rainbow
   }
   colors <- colorfcn(nT)
+  if (scramble){
+    colors <- colors[sample(nT)]
+  }
   edge_colors <- rep('black',Nedge(tree))
 
   for (n in 1:nT){
