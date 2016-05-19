@@ -20,7 +20,5 @@ Performs hypergeometric test on the number of tips in a phylofactorization
 data('FTmicrobiome')
 
 TipTest(Ftmicrobiome$PF)
-
-
 }
 

@@ -9,6 +9,8 @@
 #' @param subtree Logical indicating whether or not to output the subtree partitioned when PF$node was split (i.e. sub-tree split by factor)
 #' @param prediction Logical. If subtree=T, prediction=T will produce a phylo.heatmap containing the predicted data. Otherwise, will output phylo.heatmap of real data
 #' @param tipLabels Logical indicating whether or not to include tip labels in plot of subtree.
+#' @param Transform String, method for transforming data for easier visualization of sub-tree phylo.heatmaps. Options include "atan" to flatten extreme values, "tan" to amplify extreme values, and "clr" for centered log-ratio transform. 
+#' @param ... additional arguments for phylo.Heatmap. If phyloHeatmap='AW', these are additional arguments for \code{plot.phylo}. Otherwise, see description for \code{phylo.heatmap} in phytools package for list of additional arguments.
 #' @return summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction
 #' @examples
 #' data("FTmicrobiome")
@@ -41,7 +43,7 @@
 #' plot(FactorSummary$MeanRatio,ylab='ILR coordinate',main='Mean Ratio of Grp1/Grp2',xlab='sample no.',pch=16)
 #' lines(FactorSummary$fittedMeanRatio,lwd=2,col='blue')
 #' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
-phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.TaxaIDs=F,subtree=F,prediction=T,tipLabels=F,...){
+phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.TaxaIDs=F,subtree=F,prediction=T,tipLabels=F,Transform="atan",...){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(factor)){stop('need to input a factor')}
   grp1 <- PF$groups[[factor]][[1]]
@@ -54,20 +56,29 @@ phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.Ta
 
 
   if (subtree==T){
-    tr <- ape::drop.tip(tree,setdiff(tree$tip.label,tree$tip.label[c(grp1,grp2)]))
-    edgs <- rep(2,ape::Nedge(tr))
-    cols <- rep('black',ape::Nedge(tr))
+    if (factor>1){
+      atms <- atoms(PF$basis[,1:(factor-1),drop=F])
+      grp <- c(grp1,grp2)
+      tree <- ape::drop.tip(tree,setdiff(unlist(atms),grp))
+    }
+    edgs <- rep(2,ape::Nedge(tree))
+    cols <- rep('black',ape::Nedge(tree))
 
-    edgG <- extractEdges(tr,taxa=tree$tip.label[grp1],type=3)
+    edgG <- extractEdges(tree,taxa=tree$tip.label[grp1],type=3)
     edgs[edgG]=8
     cols[edgG]='red'
-    if (prediction==T){
-      dta <- rbind(output$group1$PF.prediction,output$group2$PF.prediction)
-    } else { 
-      dta <- t(compositions::clr(t(rbind(output$group1$otuData,output$group2$otuData))))
+      if (prediction==T){
+        dta <- rbind(output$group1$PF.prediction,output$group2$PF.prediction)
+      } else { 
+        dta <- t(compositions::clr(t(rbind(output$group1$otuData,output$group2$otuData))))
       }
-    phylo.heatmapAW(tree=tr,Y=atan(dta),tipLabels = tipLabels,edge.width=edgs,edge.color=cols,...)
-    output$subtree <- tr
+    if (Transform=='atan'){
+      dta <- atan(dta)
+    } else {
+      dta <- t(compositions::clr(t(dta)))
+    }
+    phylo.heatmapAW(tree=tree,Y=dta,tipLabels = tipLabels,edge.width=edgs,edge.color=cols,...)
+    output$subtree <- tree
   }
 
   output$TaxaSplit <- TaxaSplit(output)

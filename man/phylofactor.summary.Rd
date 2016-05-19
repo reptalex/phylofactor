@@ -5,7 +5,8 @@
 \title{Summary of phylofactor object for a given node or factor number}
 \usage{
 phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
-  simplify.TaxaIDs = F, subtree = F, prediction = T, tipLabels = F, ...)
+  simplify.TaxaIDs = F, subtree = F, prediction = T, tipLabels = F,
+  Transform = "atan", ...)
 }
 \arguments{
 \item{PF}{PhyloFactor object}
@@ -23,6 +24,10 @@ phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
 \item{prediction}{Logical. If subtree=T, prediction=T will produce a phylo.heatmap containing the predicted data. Otherwise, will output phylo.heatmap of real data}
 
 \item{tipLabels}{Logical indicating whether or not to include tip labels in plot of subtree.}
+
+\item{Transform}{String, method for transforming data for easier visualization of sub-tree phylo.heatmaps. Options include "atan" to flatten extreme values, "tan" to amplify extreme values, and "clr" for centered log-ratio transform.}
+
+\item{...}{additional arguments for phylo.Heatmap. If phyloHeatmap='AW', these are additional arguments for \code{plot.phylo}. Otherwise, see description for \code{phylo.heatmap} in phytools package for list of additional arguments.}
 
 \item{node}{node number, must be in PF$nodes. Takes priority over "factor" for what is summarized}
 }
