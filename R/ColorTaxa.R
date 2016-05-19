@@ -22,7 +22,7 @@
 #'
 #' lims <- par('usr')
 #' legend(lims[1],lims[4],legend=L$Taxa,fill=L$colors,cex=.6)
-ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legend=FALSE,scramble=T,...){
+ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legend=FALSE,scramble=F,...){
   if (!level %in% c('k','p','c','o','f','g','s')){stop('unknown level - must be a string in the set {k,p,c,o,f,g,s}')}
   #This function produces a tree of the entire community in which the taxa at level "p" are
   #labelled by color.
