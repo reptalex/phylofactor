@@ -12,7 +12,7 @@
 #' pf.tidy(smry)
 
 pf.tidy <- function(smry){
-
+    
     ### Be concise about taxa split
     l <- list(unique(smry$TaxaSplit[[1]][,2]),unique(smry$TaxaSplit[[2]][,2]))
     Monophy <- c(smry$group1$is.monophyletic,smry$group2$is.monophyletic)+1

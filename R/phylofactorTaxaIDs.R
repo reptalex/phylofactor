@@ -7,13 +7,13 @@
 #' @param common.name Logical indicating whether or not to truncate the output to only one taxonomic assignment per atom, based on the finest, common name to all taxa in the atom.
 
 
-phylofactor.TaxaIDs <- function(PF,Taxonomy,tree,nfactors=NULL,common.name=F){
+phylofactor.TaxaIDs <- function(PF,Taxonomy,tree,nfactors=NULL,common.name=F,uniques=F){
   if (is.null(nfactors)){factors <- 1:PF$nfactors}
   #what are the atoms for a lower-dimensional factorization?
-  atms <- atoms(PF$basis[,factors])
+  atms <- atoms(PF$basis[,1:nfactors])
   #let's get the taxonomic IDs of all those atms
   atom.otus <- lapply(atms,FUN=function(x,tree){return(tree$tip.label[x])},tree)
-  taxatoms <- lapply(atom.otus,FUN=OTUtoTaxa,Taxonomy=Taxonomy,common.name=common.name)
+  taxatoms <- lapply(atom.otus,FUN=OTUtoTaxa,Taxonomy=Taxonomy,common.name=common.name,uniques=uniques)
 
   names(taxatoms) <- lapply(atms,FUN=function(x,tree,nms) nms[1+as.numeric(ape::is.monophyletic(tree,x))],tree=tree,nms=c('Paraphyletic','Monophyletic'))
 

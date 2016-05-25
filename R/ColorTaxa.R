@@ -39,6 +39,16 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legen
     Otus[[n]] <- as.character((taxn[Otus[[n]],1]))
     Edgelist[[n]] <- extractEdges(tree,Otus[[n]],type=3)
   }
+  
+  # Now we clean up the Edgelist a bit to remove redundant edges. 
+  atms <- atoms(G=Edgelist,set=1:Nedge(tree))
+  keepers <- which(Edgelist %in% atms)
+  fixers <- setdiff(1:nT,keepers)
+  if (length(keepers)==0){stop('Consult Alex Washburne on a funky plot - you encountered No-Mans land')}
+  # For each element of "fixers", we need to 
+  for (nn in 1:length(fixers)){
+    Edgelist[[fixers[nn]]] <- setdiff(Edgelist[[fixers[nn]]],unlist(Edgelist[setdiff(1:nT,fixers[nn])]))
+  }
 
   #Then we assign colors to each taxon
   if (is.null(colorfcn)){
@@ -48,8 +58,8 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legen
   if (scramble){
     colors <- colors[sample(nT)]
   }
+  
   edge_colors <- rep('black',Nedge(tree))
-
   for (n in 1:nT){
     edge_colors[Edgelist[[n]]] <- colors[n]
   }
