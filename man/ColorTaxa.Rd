@@ -5,7 +5,7 @@
 \title{Colors tree edges based on taxanomic ID}
 \usage{
 ColorTaxa(tree, taxonomy, level = "p", outputlegend = F, colorfcn = NULL,
-  legend = FALSE, scramble = T, ...)
+  legend = FALSE, scramble = F, ...)
 }
 \arguments{
 \item{tree}{phylogenetic tree}

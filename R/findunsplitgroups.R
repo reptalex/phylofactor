@@ -11,7 +11,7 @@
 find.unsplit.Grps <- function(V){ #function to find out the groups which still need to be partitioned
   #input ilr sub-basis, V. output a list of unsplit groups.
   S <- sign(V)
-  if (sum(S[,1]==0)>0){stop('obtaining atoms for sub-trees without the initial partition are currently unavailable. Try inputting the whole basis up to your desired clade')}
+  if (sum(S[,1]==0)>0){stop('obtaining bins for sub-trees without the initial partition are currently unavailable. Try inputting the whole basis up to your desired clade')}
   if (is.null(dim(S))){
     ix <- 1:length(S)
     m <- 1

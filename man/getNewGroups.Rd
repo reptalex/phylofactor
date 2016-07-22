@@ -2,21 +2,21 @@
 % Please edit documentation in R/getNewGroups.R
 \name{getNewGroups}
 \alias{getNewGroups}
-\title{Internal phylofactor function - get new grouplist corresponding to atomlist & treelist}
+\title{Internal phylofactor function - get new grouplist corresponding to binlist & treelist}
 \usage{
-getNewGroups(tree, treeList, atomList)
+getNewGroups(tree, treeList, binList)
 }
 \arguments{
 \item{tree}{phylo object - global tree}
 
-\item{treeList}{list of subtrees for each atom in \code{atomList}}
+\item{treeList}{list of subtrees for each bin in \code{binList}}
 
-\item{atomList}{list of atoms corresponding to current factorization}
+\item{binList}{list of bins corresponding to current factorization}
 }
 \value{
-List of groups for amalgamation. For example, see \code{updateAtomList}
+List of groups for amalgamation. For example, see \code{updateBinList}
 }
 \description{
-Internal phylofactor function - get new grouplist corresponding to atomlist & treelist
+Internal phylofactor function - get new grouplist corresponding to binlist & treelist
 }
 

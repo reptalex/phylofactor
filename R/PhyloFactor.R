@@ -14,7 +14,7 @@
 #' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
-#' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "atoms", "atom.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which atoms are monophyletic and have atom.size>1
+#' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1
 #' @examples
 #'  set.seed(1)
 #'  library(ape)
@@ -31,11 +31,11 @@
 #' Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*8
 #' Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 #' Data <- t(clo(t(Data)))
-#' Atoms <- atoms(G=sigClades,set=1:7)
+#' Bins <- bins(G=sigClades,set=1:7)
 
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
-#' PF$atoms
-#' all(PF$atoms %in% Atoms)
+#' PF$bins
+#' all(PF$bins %in% Bins)
 
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
@@ -85,7 +85,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   }
 
  treeList <- list(tree)
- atomList <- list(1:ape::Ntip(tree))
+ binList <- list(1:ape::Ntip(tree))
  #### Get list of groups from tree ####
   if(is.null(Grps)){ #inputting groups allows us to make wrappers around PhyloFactor for efficient parallelization.
     Grps <- getGroups(tree)
@@ -132,9 +132,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
    if (pfs>=1){
      Data <- t(compositions::clo(t(Data/PhyloReg$residualData)))
-     treeList <- updateTreeList(treeList,atomList,grp,tree)
-     atomList <- updateAtomList(atomList,grp)
-     Grps <- getNewGroups(tree,treeList,atomList)
+     treeList <- updateTreeList(treeList,binList,grp,tree)
+     binList <- updateBinList(binList,grp)
+     Grps <- getNewGroups(tree,treeList,binList)
    }
 
    ############# Perform Regression on all of Groups, and implement choice function ##############
@@ -218,22 +218,22 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
   rownames(output$factors)=c('Group1','Group2')
  }
- output$atoms <- atoms(output$basis)
- NewOTUs <- output$atoms
+ output$bins <- bins(output$basis)
+ NewOTUs <- output$bins
  Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
- names(output$atoms)[Monophyletic] <- 'Monophyletic'
- names(output$atoms)[!Monophyletic] <- 'Paraphyletic'
+ names(output$bins)[Monophyletic] <- 'Monophyletic'
+ names(output$bins)[!Monophyletic] <- 'Paraphyletic'
  output$nfactors <- pfs
  output$factors <- t(output$factors)
  pvalues <- sapply(output$glms,FUN=function(gg) summary(aov(gg))[[1]][1,'Pr(>F)'])
  output$factors <- cbind(output$factors,pvalues)
 
- ### Make the atom size distribution data frame ###
- atomsize <- unlist(lapply(NewOTUs,FUN = length))
- ### The atoms are not all OTUs, but vary in size:
- sizes <- as.list(sort(unique(atomsize)))
- nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=atomsize))
- output$atom.sizes <- data.frame('Atom Size'=unlist(sizes),'Number of Atoms'=nsizes)
+ ### Make the bin size distribution data frame ###
+ binsize <- unlist(lapply(NewOTUs,FUN = length))
+ ### The bins are not all OTUs, but vary in size:
+ sizes <- as.list(sort(unique(binsize)))
+ nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=binsize))
+ output$bin.sizes <- data.frame('Bin Size'=unlist(sizes),'Number of Bins'=nsizes)
 
  if (choice=='var'){
   names(output$ExplainedVar) <- sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
@@ -241,7 +241,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
 
 
 
-  output$Monophyletic.clades <- intersect(which(names(output$atoms)=='Monophyletic'),which(atomsize>1))
+  output$Monophyletic.clades <- intersect(which(names(output$bins)=='Monophyletic'),which(binsize>1))
 
  if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
    parallel::stopCluster(cl)

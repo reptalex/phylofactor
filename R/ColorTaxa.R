@@ -41,7 +41,7 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legen
   }
   
   # Now we clean up the Edgelist a bit to remove redundant edges. 
-  atms <- atoms(G=Edgelist,set=1:Nedge(tree))
+  atms <- bins(G=Edgelist,set=1:Nedge(tree))
   keepers <- which(Edgelist %in% atms)
   fixers <- setdiff(1:nT,keepers)
   if (length(keepers)==0){stop('Consult Alex Washburne on a funky plot - you encountered No-Mans land')}

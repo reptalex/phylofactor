@@ -1,10 +1,10 @@
-#' Internal phylofactor function - get new grouplist corresponding to atomlist & treelist
+#' Internal phylofactor function - get new grouplist corresponding to binlist & treelist
 #' @export
 #' @param tree phylo object - global tree
-#' @param treeList list of subtrees for each atom in \code{atomList}
-#' @param atomList list of atoms corresponding to current factorization
-#' @return List of groups for amalgamation. For example, see \code{updateAtomList}
-getNewGroups <- function(tree,treeList,atomList){
+#' @param treeList list of subtrees for each bin in \code{binList}
+#' @param binList list of bins corresponding to current factorization
+#' @return List of groups for amalgamation. For example, see \code{updateBinList}
+getNewGroups <- function(tree,treeList,binList){
 
   g = lapply(treeList,FUN=getGroups)
 

@@ -2,9 +2,10 @@
 % Please edit documentation in R/phylofactorTaxaIDs.R
 \name{phylofactor.TaxaIDs}
 \alias{phylofactor.TaxaIDs}
-\title{Returns the taxonomic IDs for all the OTUs in the atoms formed by splits in a Phylofactor object.}
+\title{Returns the taxonomic IDs for all the OTUs in the bins formed by splits in a Phylofactor object.}
 \usage{
-phylofactor.TaxaIDs(PF, Taxonomy, tree, nfactors = NULL, common.name = F)
+phylofactor.TaxaIDs(PF, Taxonomy, tree, nfactors = NULL, common.name = F,
+  uniques = F)
 }
 \arguments{
 \item{PF}{Phylofactor object}
@@ -13,11 +14,11 @@ phylofactor.TaxaIDs(PF, Taxonomy, tree, nfactors = NULL, common.name = F)
 
 \item{tree}{Phylogeny}
 
-\item{common.name}{Logical indicating whether or not to truncate the output to only one taxonomic assignment per atom, based on the finest, common name to all taxa in the atom.}
+\item{common.name}{Logical indicating whether or not to truncate the output to only one taxonomic assignment per bin, based on the finest, common name to all taxa in the bin.}
 
-\item{factors}{factors of phylofactor object to be inlcuded. Currently, this must be a sequence from 1:n, i.e. cannot be c(2,3,4...,n) or have any missing factors. The reason for this is the atom function currently requires input of a sequential partition.}
+\item{factors}{factors of phylofactor object to be inlcuded. Currently, this must be a sequence from 1:n, i.e. cannot be c(2,3,4...,n) or have any missing factors. The reason for this is the bin function currently requires input of a sequential partition.}
 }
 \description{
-Returns the taxonomic IDs for all the OTUs in the atoms formed by splits in a Phylofactor object.
+Returns the taxonomic IDs for all the OTUs in the bins formed by splits in a Phylofactor object.
 }
 

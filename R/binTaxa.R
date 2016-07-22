@@ -1,7 +1,7 @@
 
 
-atomTaxa <- function(PF,nfactors,taxonomy,common.name=F,uniques=T){
-  atms <- atoms(PF$basis[,1:nfactors,drop=F])
+binTaxa <- function(PF,nfactors,taxonomy,common.name=F,uniques=T){
+  atms <- bins(PF$basis[,1:nfactors,drop=F])
   otus <- lapply(atms,FUN = function(x,names) names[x],names=PF$tree$tip.label)
   taxa <- lapply(otus,FUN=OTUtoTaxa,Taxonomy=taxonomy,common.name=common.name,uniques=uniques)
   taxa2 <- taxa

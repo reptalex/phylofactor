@@ -1,16 +1,16 @@
-#' internal Phylofactor function - splits the tree corresponding to the split atom
+#' internal Phylofactor function - splits the tree corresponding to the split bin
 #'
 #' @export
 #' @param treeList list of trees
-#' @param atomList list of atoms corresponding to treeList
-#' @param grp two-element list corresponding to the splitting of an atom
+#' @param binList list of bins corresponding to treeList
+#' @param grp two-element list corresponding to the splitting of an bin
 #' @examples
 #' library(ape)
 #' set.seed(6)
 #' tree <- rtree(10)
 #' Groups <- getGroups(tree)
 #' treeList <- list(tree)
-#' atomList <- list(1:10)
+#' binList <- list(1:10)
 #' factor <- 16
 #' grp <- getLabelledGrp(factor,tree,Groups)
 #' grp
@@ -18,17 +18,17 @@
 #'
 #' node=17
 #'
-#' treeList <- updateTreeList(treeList,atomList,grp,tree)
+#' treeList <- updateTreeList(treeList,binList,grp,tree)
 #' par(mfrow=c(1,3))
 #' plot.phylo(tree,main='Original Tree',cex=2)
 #' edgelabels('SPLIT',12,bg='red',cex=2)
 #'
-#' plot.phylo(treeList[[1]],main='First Atom Tree',cex=2)
-#' plot.phylo(treeList[[2]],main='Second Atom Tree',cex=2)
+#' plot.phylo(treeList[[1]],main='First Bin Tree',cex=2)
+#' plot.phylo(treeList[[2]],main='Second Bin Tree',cex=2)
 
-updateTreeList <- function(treeList,atomList,grp,tree){
-  ix <- whichAtomSplit(grp,atomList)
-  tips=sum(grepl('tip',names(grp))) ## How many tips are there? They will be removed from AtomList and recalculated later.
+updateTreeList <- function(treeList,binList,grp,tree){
+  ix <- whichBinSplit(grp,binList)
+  tips=sum(grepl('tip',names(grp))) ## How many tips are there? They will be removed from BinList and recalculated later.
   tr <- treeList[[ix]]  #this is the sub-tree being split
   leaves <- tr$tip.label
 

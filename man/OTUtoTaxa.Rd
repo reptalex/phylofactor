@@ -4,7 +4,7 @@
 \alias{OTUtoTaxa}
 \title{Input OTUs and outputs their taxonomic detail, optinally trimmed to their common taxonomic levels.}
 \usage{
-OTUtoTaxa(otus, Taxonomy, common.name = T)
+OTUtoTaxa(otus, Taxonomy, common.name = T, uniques = F)
 }
 \arguments{
 \item{otus}{Species IDs found in first column of Taxonomy}
@@ -12,6 +12,8 @@ OTUtoTaxa(otus, Taxonomy, common.name = T)
 \item{Taxonomy}{Taxonomy whose first column has OTUs/species IDs and whose second column has greengenes-compatible taxonomic strings}
 
 \item{common.name}{Logical indicating whether or not to trim the output to the longest common prefix in the taxonomic strings of all otus}
+
+\item{uniques}{Logical whether or not to trim list to only unique entries}
 }
 \description{
 Input OTUs and outputs their taxonomic detail, optinally trimmed to their common taxonomic levels.

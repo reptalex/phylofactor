@@ -2,14 +2,14 @@
 #' @export
 #' @param factor integer indicating the element of \code{Groups} to be labelled
 #' @param tree phylo object - global phylogeny used to indicate whether the elements of \code{Groups[factor]} are monophyletic
-#' @param Groups list of group/complement pairs corresponding to atom splits
+#' @param Groups list of group/complement pairs corresponding to the split bin
 #' @examples
 #' library(ape)
 #' set.seed(6)
 #' tree <- rtree(10)
 #' Groups <- getGroups(tree)
 #' treeList <- list(tree)
-#' atomList <- list(1:10)
+#' binList <- list(1:10)
 #' factor <- 16
 #' grp <- getLabelledGrp(factor,tree,Groups)
 #' grp
