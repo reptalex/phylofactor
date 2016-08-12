@@ -62,7 +62,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,Pval.Cut
     GLMs <- Y
     stats <- matrix(NA,ncol=2,nrow=ngrps)
     
-    Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
+    Y <- lapply(X=Grps,FUN=amalg.ILR,Log.Data=log(Data))
     # GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T)
     GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T,...)
     stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
@@ -80,7 +80,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,method,choice,cl,Pbasis=1,Pval.Cut
       stats <- dum$stats #contains Pvalues and F statistics
       Yhat <- dum$Yhat
     } else {
-      Y <- lapply(X=Grps,FUN=amalgamate,Data=Data,method)
+      Y <- lapply(X=Grps,FUN=amalg.ILR,Log.Data=log(Data))
       GLMs <- lapply(X=Y,FUN = pglm,x=X,frmla=frmla,smallglm=T,...)
       stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
       rownames(stats) <- names(GLMs)

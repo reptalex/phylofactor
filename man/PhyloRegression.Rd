@@ -4,7 +4,8 @@
 \alias{PhyloRegression}
 \title{Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.}
 \usage{
-PhyloRegression(Data, X, frmla, Grps, method, choice, cl, Pbasis = 1, ...)
+PhyloRegression(Data, X, frmla, Grps, method, choice, cl, Pbasis = 1,
+  Pval.Cutoff, ...)
 }
 \arguments{
 \item{Data}{Compositional data matrix whose rows are parts and columns are samples.}

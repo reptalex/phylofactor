@@ -4,7 +4,7 @@
 \alias{phyloregPar}
 \title{Parallelized version of \code{\link{pglm}} for PhyloRegression}
 \usage{
-phyloregPar(Grps, Data, X, frmla, choice, method, Pbasis, cl, ...)
+phyloregPar(Grps, Data, X, frmla, choice, method, Pbasis, cl, Pval.Cutoff, ...)
 }
 \arguments{
 \item{Grps}{Groups over which to amalgamate Data & regress}

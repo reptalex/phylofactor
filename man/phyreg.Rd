@@ -5,7 +5,7 @@
 \title{Internal function for phyloregPar}
 \usage{
 phyreg(Grps, Data = NULL, Y = NULL, XX, frmla, n, choice, method, Pbasis,
-  ...)
+  Pval.Cutoff, ...)
 }
 \arguments{
 \item{Grps}{list of groups. see \code{\link{getGroups}}}

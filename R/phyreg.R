@@ -21,7 +21,7 @@ phyreg <- function(Grps,Data=NULL,Y=NULL,XX,frmla,n,choice,method,Pbasis,Pval.Cu
   reg$Yhat <- vector(mode='list',length=ngrps)
   
   if (is.null(Y)){
-    reg$Y <- Grps %>% lapply(FUN=amalgamate,Data=Data,method)
+    reg$Y <- Grps %>% lapply(FUN=amalg.ILR,Log.Data=log(Data))
   } else {
     reg$Y <- Y
   }
