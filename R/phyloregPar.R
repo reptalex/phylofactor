@@ -29,13 +29,13 @@
 #' stopCluster(cl)
 #' gc()
 
-phyloregPar <- function(Grps,Data,X,frmla,choice,method,Pbasis,cl,...){
+phyloregPar <- function(Grps,Data,X,frmla,choice,method,Pbasis,cl,Pval.Cutoff,...){
 
 n <- dim(Data)[1]
 m <- length(Grps)
 parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
 if (choice=='var'){
-  reg <- parallel::parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,...)
+  reg <- parallel::parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,Pval.Cutoff=Pval.Cutoff,...)
 } else {
   # in this case, we can avoid passing the dataset to the cluster, and instead pass just the variables, Y
   Y <- lapply(Grps,FUN=amalgamate,Data=Data,method)
@@ -48,23 +48,27 @@ if (choice=='var'){
     frmlas[[nn]] <- frmla
     Xs[[nn]] <- X
   }
-  reg <- parallel::clusterMap(cl, fun=phyreg, XX=Xs,frmla=frmlas,n=n,choice=choice,method=method,Pbasis=Pbasis, Grps=parG, Y=parY,...)
+  reg <- parallel::clusterMap(cl, fun=phyreg, XX=Xs,frmla=frmlas,n=n,choice=choice,method=method,Pbasis=Pbasis, Grps=parG, Y=parY,Pval.Cutoff=Pval.Cutoff,...)
 
 }
 
   output <- NULL
-  Ydum <- NULL
-  output$Y <- NULL
+  Ydum <- vector(mode='list',length=m)
+  output$stats <- matrix(NA,ncol=2,nrow=m)
+  output$Yhat <- vector(mode='list',length=m)
+  output$residualvar <- numeric(m)
+  inds=0
   for (pp in 1:length(parG)){
     # output$GLMs <- c(output$GLMs,reg[[pp]]$GLMs)
-    output$stats <- rbind(output$stats,reg[[pp]]$stats)
-    output$Yhat <- c(output$Yhat,reg[[pp]]$Yhat)
-    Ydum <- c(Ydum,reg[[pp]]$Y)
-    output$residualvar <- c(output$residualvar,reg[[pp]]$residualvar)
+    inds <- (max(inds)+1):(max(inds)+length(parG[[pp]]))
+    output$stats[inds,] <-reg[[pp]]$stats
+    output$Yhat[inds] <- reg[[pp]]$Yhat
+    Ydum[inds] <- reg[[pp]]$Y
+    output$residualvar[inds] <- reg[[pp]]$residualvar
   }
   output$Y <- Ydum
   rm('Ydum')
   gc()
-
+  colnames(output$stats) <- c('Pval','F')
   return(output)
 }

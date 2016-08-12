@@ -38,15 +38,15 @@
 #' all(PF$bins %in% Bins)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
-
-
+PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nfactors=NULL,Pval.Cutoff=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
+  
+  
   #### Housekeeping
   if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
   if (typeof(Data) != 'double'){
     warning(' typeof(Data) is not "double" - will coerce with as.matrix(), but recommend using output $data for downstream analysis')
     Data <- as.matrix(Data)
-    }
+  }
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
   if (all(tree$tip.label %in% rownames(Data))==F){
     warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
@@ -61,7 +61,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   if(is.null(nfactors)){nfactors=Inf}
   if(ape::is.rooted(tree)){
     tree <- ape::unroot(tree)}
-
+  
   #### Default treatment of Data ###
   if (any(Data==0)){
     if (delta==0.65){
@@ -71,186 +71,192 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
       x[x==0]=min(x[x>0])*delta
       return(x)
     }
-
+    
     Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
-
+    
   }
   if (any(abs(colSums(Data)-1)>tolerance)){
     warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
     Data <- t(compositions::clo(t(Data)))
-
+    
     if (any(abs(colSums(Data)-1)>tolerance)){
       warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
     }
   }
-
- treeList <- list(tree)
- binList <- list(1:ape::Ntip(tree))
- #### Get list of groups from tree ####
+  
+  treeList <- list(tree)
+  binList <- list(1:ape::Ntip(tree))
+  #### Get list of groups from tree ####
   if(is.null(Grps)){ #inputting groups allows us to make wrappers around PhyloFactor for efficient parallelization.
     Grps <- getGroups(tree)
   }
- # This is a list of 2-element lists containing the partitioning of tips
- # in our tree according to the edges. The groups can be mapped to the tree
- # via the node given names(Grps)[i]. The OTUs corresponding to the Groups can be found with:
- ### Get OTUs from tree
- OTUs <- tree$tip.label
-
- ################ OUTPUT ###################
- output <- NULL
- output$method <- method
- output$Data <- Data
- output$X <- X
- output$tree <- tree
- output$glms <- list()
- n <- length(tree$tip.label)
-
- if (is.null(stop.early) && is.null(stop.fcn)){
-   STOP=F
- } else {
-   STOP=T
- }
-
- if (is.null(stop.early)==F && is.null(stop.fcn)==T){
-   stop.fcn='KS'
- }
-
-
-
- pfs=0
- age=0
- output$terminated=F
- cl=NULL
-
- while (pfs < min(length(OTUs)-1,nfactors)){
-
-
-  if (is.null(ncores)==F && age==0){
-    cl <- phyloFcluster(ncores)
+  # This is a list of 2-element lists containing the partitioning of tips
+  # in our tree according to the edges. The groups can be mapped to the tree
+  # via the node given names(Grps)[i]. The OTUs corresponding to the Groups can be found with:
+  ### Get OTUs from tree
+  OTUs <- tree$tip.label
+  
+  ################ OUTPUT ###################
+  output <- NULL
+  output$method <- method
+  output$Data <- Data
+  output$X <- X
+  output$tree <- tree
+  output$glms <- list()
+  n <- length(tree$tip.label)
+  
+  if (is.null(stop.early) && is.null(stop.fcn)){
+    STOP=F
+  } else {
+    STOP=T
   }
-
-
-   if (pfs>=1){
-     Data <- t(compositions::clo(t(Data/PhyloReg$residualData)))
-     treeList <- updateTreeList(treeList,binList,grp,tree)
-     binList <- updateBinList(binList,grp)
-     Grps <- getNewGroups(tree,treeList,binList)
-   }
-
-   ############# Perform Regression on all of Groups, and implement choice function ##############
-   # clusterExport(cl,'pglm')
-   # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl)
-   PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,...)
-   ############################## EARLY STOP #####################################
-   ###############################################################################
-
-   age=age+1
-
-   if (is.null(ncores)==F && age>=clusterage){
-     parallel::stopCluster(cl)
-     if (exists('cl') && is.null(cl)==F){
-      rm(cl)
-     }
-     gc()
-     age=0
-   }
-
-   if (STOP){
-     if (is.null(stop.early)==T){
-       if (is.null(stop.fcn)==F){
-         if (stop.fcn=='KS'){
-           ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-           if (ks>0.01){
-             output$terminated=T
-             break
-             }
-         } else {
-           stop.fcn(PhyloReg)
-         }
-       }
-     }
-   }
-
-   ############# update output ########################
-   winner <- PhyloReg$winner
-   grp <- getLabelledGrp(winner,tree,Grps)
-   grpInfo <- matrix(c(names(grp)),nrow=2)
-   output$groups <- c(output$groups,list(Grps[[winner]]))
-   output$factors <- cbind(output$factors,grpInfo)
-   output$glms[[length(output$glms)+1]] <- PhyloReg$glm
-   output$basis <- output$basis %>% cbind(PhyloReg$basis)
-   if (choice=='var'){
-     if (pfs==0){
-       output$ExplainedVar <- PhyloReg$explainedvar
-     } else {
-       output$ExplainedVar <- c(output$ExplainedVar,(1-sum(output$ExplainedVar[1:pfs]))*PhyloReg$explainedvar)
-     }
-   }
-
-
-   ############################## LATE STOP ######################################
-   ############# Decide whether or not to stop based on PhyloReg #################
-   if (STOP){
-     if (is.null(stop.early)==F){
-       if (is.null(stop.fcn)==F){
-         if (stop.fcn=='KS'){
-           ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-           if (ks>0.01){
-             output$terminated=T
-             break
-           }
-         } else {
-          stop.fcn(.GlobalEnv)
-         }
-       }
-     }
-   }
-
-   pfs=pfs+1
- }
-
-
-
-
- ########### Clean up the Output ####################################
- if (is.null(output$factors)==F){
-  pfs <- dim(output$factors)[2]
-  colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
-  rownames(output$factors)=c('Group1','Group2')
- }
- output$bins <- bins(output$basis)
- NewOTUs <- output$bins
- Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
- names(output$bins)[Monophyletic] <- 'Monophyletic'
- names(output$bins)[!Monophyletic] <- 'Paraphyletic'
- output$nfactors <- pfs
- output$factors <- t(output$factors)
- pvalues <- sapply(output$glms,FUN=function(gg) summary(aov(gg))[[1]][1,'Pr(>F)'])
- output$factors <- cbind(output$factors,pvalues)
-
- ### Make the bin size distribution data frame ###
- binsize <- unlist(lapply(NewOTUs,FUN = length))
- ### The bins are not all OTUs, but vary in size:
- sizes <- as.list(sort(unique(binsize)))
- nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=binsize))
- output$bin.sizes <- data.frame('Bin Size'=unlist(sizes),'Number of Bins'=nsizes)
-
- if (choice=='var'){
-  names(output$ExplainedVar) <- sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
- }
-
-
-
+  
+  if (is.null(stop.early)==F && is.null(stop.fcn)==T){
+    stop.fcn='KS'
+  }
+  
+  
+  
+  pfs=0
+  age=0
+  output$terminated=F
+  cl=NULL
+  
+  while (pfs < min(length(OTUs)-1,nfactors)){
+    
+    
+    if (is.null(ncores)==F && age==0){
+      cl <- phyloFcluster(ncores)
+    }
+    
+    
+    if (pfs>=1){
+      Data <- t(compositions::clo(t(Data/PhyloReg$residualData)))
+      treeList <- updateTreeList(treeList,binList,grp,tree)
+      binList <- updateBinList(binList,grp)
+      Grps <- getNewGroups(tree,treeList,binList)
+      # newGroups <- UNFINISHED (need to construct a vector indicating which groups need to be analyzed - we will also need to pass the GLMs and residualvars)
+    }
+    
+    ############# Perform Regression on all of Groups, and implement choice function ##############
+    # clusterExport(cl,'pglm')
+    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl,Pval.Cutoff=Pval.Cutoff)
+    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,Pval.Cutoff=Pval.Cutoff,...)
+    ############################## EARLY STOP #####################################
+    ###############################################################################
+    
+    age=age+1
+    
+    if (is.null(ncores)==F && age>=clusterage){
+      parallel::stopCluster(cl)
+      if (exists('cl') && is.null(cl)==F){
+        rm(cl)
+      }
+      gc()
+      age=0
+    }
+    
+    if (PhyloReg$STOP){
+      output$terminated='Pval.Cutoff'
+      warning('PhyloFactorization Terminated - no edges met Pvalue Cutoff')
+      break
+    }
+    
+    if (STOP){
+      if (is.null(stop.early)==T){
+        if (is.null(stop.fcn)==F){
+          if (stop.fcn=='KS'){
+            ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+            if (ks>0.01){
+              output$terminated=T
+              break
+            }
+          } else {
+            stop.fcn(PhyloReg)
+          }
+        }
+      }
+    }
+    
+    ############# update output ########################
+    winner <- PhyloReg$winner
+    grp <- getLabelledGrp(winner,tree,Grps)
+    grpInfo <- matrix(c(names(grp)),nrow=2)
+    output$groups <- c(output$groups,list(Grps[[winner]]))
+    output$factors <- cbind(output$factors,grpInfo)
+    output$glms[[length(output$glms)+1]] <- PhyloReg$glm
+    output$basis <- output$basis %>% cbind(PhyloReg$basis)
+    if (choice=='var'){
+      if (pfs==0){
+        output$ExplainedVar <- PhyloReg$explainedvar
+      } else {
+        output$ExplainedVar <- c(output$ExplainedVar,(1-sum(output$ExplainedVar[1:pfs]))*PhyloReg$explainedvar)
+      }
+    }
+    
+    
+    ############################## LATE STOP ######################################
+    ############# Decide whether or not to stop based on PhyloReg #################
+    if (STOP){
+      
+      if (is.null(stop.early)==F){
+        if (is.null(stop.fcn)==F){
+          if (stop.fcn=='KS'){
+            ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+            if (ks>0.01){
+              output$terminated=T
+              break
+            }
+          } else {
+            stop.fcn(.GlobalEnv)
+          }
+        }
+      }
+    }
+    
+    pfs=pfs+1
+  }
+  
+  
+  
+  
+  ########### Clean up the Output ####################################
+  if (is.null(output$factors)==F){
+    pfs <- dim(output$factors)[2]
+    colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
+    rownames(output$factors)=c('Group1','Group2')
+  }
+  output$bins <- bins(output$basis)
+  NewOTUs <- output$bins
+  Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
+  names(output$bins)[Monophyletic] <- 'Monophyletic'
+  names(output$bins)[!Monophyletic] <- 'Paraphyletic'
+  output$nfactors <- pfs
+  output$factors <- t(output$factors)
+  pvalues <- sapply(output$glms,FUN=function(gg) summary(aov(gg))[[1]][1,'Pr(>F)'])
+  output$factors <- cbind(output$factors,pvalues)
+  
+  ### Make the bin size distribution data frame ###
+  binsize <- unlist(lapply(NewOTUs,FUN = length))
+  ### The bins are not all OTUs, but vary in size:
+  sizes <- as.list(sort(unique(binsize)))
+  nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=binsize))
+  output$bin.sizes <- data.frame('Bin Size'=unlist(sizes),'Number of Bins'=nsizes)
+  
+  if (choice=='var'){
+    names(output$ExplainedVar) <- sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
+  }
+  
+  
+  
   output$Monophyletic.clades <- intersect(which(names(output$bins)=='Monophyletic'),which(binsize>1))
-
- if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
-   parallel::stopCluster(cl)
-   rm(cl)
-   gc()
- }
-
- class(output) <- 'phylofactor'
- return(output)
+  
+  if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
+    parallel::stopCluster(cl)
+    rm(cl)
+    gc()
+  }
+  
+  class(output) <- 'phylofactor'
+  return(output)
 }
-
-
