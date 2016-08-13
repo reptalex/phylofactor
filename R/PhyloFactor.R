@@ -4,7 +4,6 @@
 #' @param tree Phylogeny whose tip-labels are row-names in Data.
 #' @param X independent variable.
 #' @param frmla Formula for input in GLM. Default formula is Data ~ X
-#' @param method Method for amalgamating groups and constructing basis. Default method = "ILR" uses the isometric log-ratio transform. Coming soon: method='add' which uses additive grouping with log-ratio regression.
 #' @param choice Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
 #' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
@@ -14,7 +13,7 @@
 #' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
-#' @return Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1
+#' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1
 #' @examples
 #'  set.seed(1)
 #'  library(ape)
@@ -38,7 +37,7 @@
 #' all(PF$bins %in% Bins)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=NULL,nfactors=NULL,Pval.Cutoff=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,Pval.Cutoff=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
   
   
   #### Housekeeping
@@ -56,7 +55,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     Data <- Data[tree$tip.label,]
   }
   if (is.null(frmla)){frmla=Data ~ X}
-  if (method %in% c('add','ILR')==F){stop('improper input method - must be either "add" or "multiply"')}
   if (choice %in% c('F','var')==F){stop('improper input "choice" - must be either "F" or "var"')}
   if(is.null(nfactors)){nfactors=Inf}
   if(ape::is.rooted(tree)){
@@ -98,7 +96,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
   
   ################ OUTPUT ###################
   output <- NULL
-  output$method <- method
   output$Data <- Data
   output$X <- X
   output$tree <- tree
@@ -140,8 +137,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,method='ILR',choice='var',Grps=
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
     # clusterExport(cl,'pglm')
-    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,method=method,choice=choice,cl=cl,Pval.Cutoff=Pval.Cutoff)
-    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,method,choice,cl,Pval.Cutoff=Pval.Cutoff,...)
+    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,cl=cl,Pval.Cutoff=Pval.Cutoff)
+    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     

@@ -5,19 +5,17 @@
 #' @param frmla formula for glm
 #' @param n total number of taxa in Data
 #' @param choice objective function allowing parallelization of residual variance calculations
-#' @param method method for amalgamating groups
-#' @param Pbasis coming soon
 #' @param ... optional inputs for glm
 
-phyreg <- function(Grps,Data=NULL,Y=NULL,XX,frmla,n,choice,method,Pbasis,Pval.Cutoff,...){
+phyreg <- function(Grps,Data=NULL,Y=NULL,XX,frmla,n,choice,Pval.Cutoff,...){
   #internal function for phyloregPar, using bigglm for memory-efficiency
   #input list of Groups, will output Y,GLMs, and, if choice=='var', residual variance.
   reg <- NULL
   
   #Pre-allocation
   ngrps <- length(Grps)
-  reg$Y <- rep(NA,ngrps)
-  reg$GLMs <- reg$Y
+  reg$Y <- vector(mode='list',length=ngrps)
+  GLMs <- numeric(ngrps)
   reg$Yhat <- vector(mode='list',length=ngrps)
   
   if (is.null(Y)){
@@ -26,7 +24,7 @@ phyreg <- function(Grps,Data=NULL,Y=NULL,XX,frmla,n,choice,method,Pbasis,Pval.Cu
     reg$Y <- Y
   }
 
-  GLMs <- reg$Y %>% lapply(FUN = pglm,x=XX,frmla=frmla,...)
+  GLMs <- reg$Y %>% lapply(FUN = pglm,xx=XX,frmla=frmla,...)
   dataset <- model.frame(frmla,data=list('Data'=rep(0,length(XX)),'X'=XX))
   reg$Yhat <- lapply(GLMs,predict,newdata=dataset)
   
@@ -55,7 +53,7 @@ phyreg <- function(Grps,Data=NULL,Y=NULL,XX,frmla,n,choice,method,Pbasis,Pval.Cu
     reg$residualvar <- rep(Inf,ngrps)
     if (any.sigs){
       for (nn in Ps){
-        prediction <- PredictAmalgam(reg$Yhat[[nn]],Grp=Grps[[nn]],n,method,Pbasis)
+        prediction <- PredictAmalgam(reg$Yhat[[nn]],Grp=Grps[[nn]],n)
         reg$residualvar[nn] <- var(c(compositions::clr(t(Data))-compositions::clr(t(prediction))))
       }
     }

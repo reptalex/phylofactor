@@ -29,33 +29,31 @@
 #' stopCluster(cl)
 #' gc()
 
-phyloregPar <- function(Grps,Data,X,frmla,choice,method,Pbasis,cl,Pval.Cutoff,...){
 
+phyloregPar <- function(Grps,Data,X,frmla,cl,choice,Pval.Cutoff,...){
+
+  #There are up to four tasks here that are parallelizable:
+  #1) Computing ILR coordinates (amalg.ilr)
+  #2) GLMs of ILR coordinates against independent variables (pglm)
+  #3) calculation of Pvalues and F-statistics (getStats)
+  #4) Calculation of residual variance.  (residualVar)
+  # The crux here, however, is that the dataset in Data may be large, so application of parLapply, which repeatedly passes Data back and forth to clusters, will be slow.
+  # For choice='F', this is not a concern: the clusters only need the full Data when calculating the residual variance.
+  #Consequently, parallelization for choice='F' is done simply with parLapply in-line in PhyloRegression
+
+  
 n <- dim(Data)[1]
 m <- length(Grps)
-parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps)
-if (choice=='var'){
-  reg <- parallel::parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,method=method,Pbasis=Pbasis,Pval.Cutoff=Pval.Cutoff,...)
-} else {
-  # in this case, we can avoid passing the dataset to the cluster, and instead pass just the variables, Y
-  Y <- lapply(X=Grps,FUN=amalg.ILR,Log.Data=log(Data))
-  parY <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Y)
+output <- NULL
+output$stats <- matrix(NA,ncol=2,nrow=m)
+output$Yhat <- vector(mode='list',length=m)
 
-  #X and frmlas need to be put into lists
-  frmlas <- vector('list',length(parY))
-  Xs <- frmlas
-  for (nn in 1:length(parY)){
-    frmlas[[nn]] <- frmla
-    Xs[[nn]] <- X
-  }
-  reg <- parallel::clusterMap(cl, fun=phyreg, XX=Xs,frmla=frmlas,n=n,choice=choice,method=method,Pbasis=Pbasis, Grps=parG, Y=parY,Pval.Cutoff=Pval.Cutoff,...)
 
-}
+  parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps) #this splits our list of groups across the clusters 
+  reg <- parallel::parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,Pval.Cutoff=Pval.Cutoff,...)
 
-  output <- NULL
+  
   Ydum <- vector(mode='list',length=m)
-  output$stats <- matrix(NA,ncol=2,nrow=m)
-  output$Yhat <- vector(mode='list',length=m)
   output$residualvar <- numeric(m)
   inds=0
   for (pp in 1:length(parG)){
@@ -64,11 +62,15 @@ if (choice=='var'){
     output$stats[inds,] <-reg[[pp]]$stats
     output$Yhat[inds] <- reg[[pp]]$Yhat
     Ydum[inds] <- reg[[pp]]$Y
+    if (choice=='var'){
     output$residualvar[inds] <- reg[[pp]]$residualvar
+    }
   }
+  colnames(output$stats) <- c('Pval','F')
   output$Y <- Ydum
   rm('Ydum')
   gc()
-  colnames(output$stats) <- c('Pval','F')
+  
+
   return(output)
 }
