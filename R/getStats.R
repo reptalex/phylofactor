@@ -22,9 +22,9 @@ getStats <- function(GLM,y=NULL){
     names(stats) <- c('Pval','F')
   } else {
     if (is.null(y)){stop('if inputting bigglm, need to input data, y')}
-    dfx <- (GLM$n-GLM$df.resid)
     dfr <- GLM$df.resid
-    ssq <- sum(y^2)-GLM$rss
+    dfx <- (GLM$n-1-dfr)
+    ssq <- sum((y-mean(y))^2)-GLM$rss
     msq <- ssq/dfx
     rss <- GLM$rss
     mrss <- rss/GLM$df.resid

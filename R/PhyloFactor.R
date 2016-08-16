@@ -137,8 +137,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
     # clusterExport(cl,'pglm')
-    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,cl=cl,Pval.Cutoff=Pval.Cutoff)
-    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...)
+    PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,cl=cl,Pval.Cutoff=Pval.Cutoff)
+    # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     

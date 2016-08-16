@@ -58,8 +58,8 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...){
   if (is.null(cl)){
     
     Y <- lapply(X=Grps,FUN=amalg.ILR,Log.Data=log(Data))
-    # GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T)
-    GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+    GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T)
+    # GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
     stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
     rownames(stats) <- names(GLMs)
     colnames(stats) <- c('Pval','F')
@@ -67,7 +67,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...){
   } else {  ##### PARALLEL #####
     
       if (length(Grps)>=(2*length(cl))){
-        # dum <- phyloregPar(Grps,Data,X,frmla,cl,Pval.Cutoff)
+        # dum <- phyloregPar(Grps,Data,X,frmla,cl,choice,Pval.Cutoff)
         dum <- phyloregPar(Grps,Data,X,frmla,cl,choice,Pval.Cutoff,...)
         # GLMs <- dum$GLMs
         Y <- dum$Y
