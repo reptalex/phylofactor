@@ -8,6 +8,8 @@ getStats(GLM, y = NULL)
 }
 \arguments{
 \item{GLM}{glm object}
+
+\item{y}{dependent variable - used when inputting bigglm object.}
 }
 \value{
 vector containing P value and F statistic from aov(GLM)

@@ -33,19 +33,8 @@
 #' image(clr(t(Y)),main="Original Data")
 #' image(clr(t(pr$residualData)),main="residual Data")
 
-PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...){
-  #Groups taxa by "Grps" and regresses independent variable X on Data according to formula.
-  #Regression is done for a set of groups, "Grps", out of a total possible set of taxa, "set" (e.g. can perform regression on log-ratio (1,2) over (3,4) out of (1,2,3,4,5))
-  #Data - data matrix - rows are otus and columns correspond to X.
-  #X - independent variable
-  #frmla - object of class "formula" indicating the regression of variable "Data" in terms of variable "X".
-  #Grps - set of groups (must be list of 2-element lists containing taxa within 'set')
-     #'add' looks at the log-ratio of relative abundances of the taxa in the two groups of Grps[]
-     #'ILR' uses geometric means as centers of groups, and regression is performed on balances of groups according to the ILR method of Egozcue et al. (2003)
-  #choice - method for choosing the dominant partition in tree, either 't' or 'var'.
-     #'t' will choose dominant partition based on the Grps whose regression maximized the test-statistic
-     #'var' will choose based on Grps which maximized the percent explained variance in the clr-transformed dataset.
-  #cl - optional phyloCluster input for parallelization of regression across multiple groups.
+PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,totalvar=NULL,...){
+   #cl - optional phyloCluster input for parallelization of regression across multiple groups.
   n <- dim(Data)[1]
   ngrps <- length(Grps)
   #pre-allocate
@@ -56,99 +45,40 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...){
   ############# REGRESSION ################
   ##### SERIAL #####
   if (is.null(cl)){
-    
     Y <- lapply(X=Grps,FUN=amalg.ILR,Log.Data=log(Data))
-    GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T)
-    # GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
-    stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
+    # GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T)
+    GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+    stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=3,byrow=T) #contains Pvalues and F statistics
     rownames(stats) <- names(GLMs)
-    colnames(stats) <- c('Pval','F')
+    colnames(stats) <- c('Pval','F','ExplainedVar')
     Yhat <- lapply(GLMs,predict)
   } else {  ##### PARALLEL #####
     
       if (length(Grps)>=(2*length(cl))){
-        # dum <- phyloregPar(Grps,Data,X,frmla,cl,choice,Pval.Cutoff)
-        dum <- phyloregPar(Grps,Data,X,frmla,cl,choice,Pval.Cutoff,...)
-        # GLMs <- dum$GLMs
+        # dum <- phyloregPar(Grps,Data,X,frmla,cl,choice)
+        dum <- phyloregPar(Grps,Data,X,frmla,cl,choice,...)
         Y <- dum$Y
         stats <- dum$stats #contains Pvalues and F statistics
         Yhat <- dum$Yhat #Contains predicted ilr coordintes, unless choice='F' - in that case, we only calculate prediction for the winner
       } else { #If we don't have many groups, there's no major need to parallelize. To avoid the hassle, I just serialize the computation for few groups.
         Y <- lapply(X=Grps,FUN=amalg.ILR,Log.Data=log(Data))
         GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
-        stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=2,byrow=T) #contains Pvalues and F statistics
+        stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=3,byrow=T) #contains Pvalues and F statistics
         rownames(stats) <- names(GLMs)
-        colnames(stats) <- c('Pval','F')
+        colnames(stats) <- c('Pval','F','ExplainedVar')
         Yhat <- lapply(GLMs,predict)
       }
+    
   }
   
 
   ############# CHOICE - EXTRACT "BEST" CLADE ##################
-  any.sigs=T  #This is used to track the P-value cutoff. If there are no Pvalues < Pval.Cutoff, any.sigs=F below.
-  if (choice=='F'){
-    #in this case, the GLM outputs was an F-statistic.
-    winner <- which(stats[,'F']==max(stats[,'F']))
-  } else { #we pick the clade that best reduces the residual variance. Since all have the same total variance
-           #this means we pick the clade with the minimum residual variance.
-           #To be clear, here for total variance of a data matrix, X, I'm using var(c(X)).
-
-      #the  GLM.outputs above are predictions on log-ratios based on the "amalgamation" function.
-      #The computation of percent variance explained by each
-      #partition can also be parallelized. A function such as
-      #phyloregPar and phyloregParV will be useful to parellelize
-      # Y, GLM.outputs, and PercVar
-      totalvar <- var(c(compositions::clr(t(Data))))
-      
-      #calculate only the residual vars for those Pvals <= Pval.Cutoff
-      if (is.null(Pval.Cutoff)==F){
-        Ps <- which(stats[,'Pval']<=Pval.Cutoff)
-        if (length(Ps)==0){
-          any.sigs = F
-        }
-      } else {
-        Ps <- 1:ngrps
-      }
-      
-      if (is.null(cl)){
-        
-        #Pre-allocate - in the future, we're going to remember the residual variance for groups from previous, un-split trees/bins.
-        if (!exists('residualvar')){
-          residualvar <- rep(Inf,ngrps)
-        }
-        if (!exists('predictions') && length(Ps)>0){
-          predictions <- vector(mode='list',length=length(Ps))
-
-        }
-        
-        
-        #### Calculate predicted dataset and residual variance 
-        if (length(Ps)>0){
-        predictions <- mapply(PredictAmalgam,Yhat[Ps],Grps[Ps],n,SIMPLIFY=F)
-        residualvar[Ps] <- sapply(predictions,residualVar,Data=Data)
-        }
-        winner <- which(residualvar == min(residualvar))
-      } else {
-        if (length(Grps)>=(2*length(cl))){
-          winner <- which(dum$residualvar==min(dum$residualvar))
-        } else {
-          
-          if (!exists(residualvar)){
-            residualvar <- rep(Inf,ngrps)
-          }
-          if (!exists(predictions)){
-            predictions <- vector(mode='list',length=length(Ps))
-          }
-          
-          predictions <- mapply(PredictAmalgam,Yhat[Ps],Grps[Ps],n,SIMPLIFY=F)
-          residualvar[Ps] <- sapply(predictions,residualVar,Data=Data)
-          winner <- which(residualvar == min(residualvar))
-        }
-      }
+  if (choice=='F'){ #in this case, the GLM outputs was an F-statistic.
+      winner <- which(stats[,'F']==max(stats[,'F']))
+  } else { #we pick the clade that best reduces the residual variance.
+      winner=which(stats[,'ExplainedVar']==max(stats[,'ExplainedVar']))
   }
-
   if (length(winner)>1){
-
     ## Check to see if they're equivalent groups, in which case don't display message.
     NoWarning=T
       for (nn in 1:(length(winner)-1)){
@@ -156,12 +86,9 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...){
           NoWarning = NoWarning & all(Grps[nn][[1]] %in% Grps[mm][[1]]) & all(Grps[mm][[1]] %in% Grps[nn][[1]])
         }
       }
-
     if (NoWarning==F){
       warning(paste(paste('minimizing residual variance produced',toString(length(winner)),sep=' '),' groups, some of which were not identical. Will choose only the first group',sep=''))
     }
-
-
     winner <- winner[1]
   }
   
@@ -171,16 +98,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...){
   ############ OUTPUT ##########################
   output <- NULL
   output$winner <- winner
-  
-  if (!any.sigs){
-    output$STOP=T
-  } else {
-    output$STOP=F
-  }
-  
- 
-    output$basis <- ilrvec(Grps[[winner]],n) #this allows us to quickly project other data onto our partition
-
+  output$basis <- ilrvec(Grps[[winner]],n) #this allows us to quickly project other data onto our partition
 
   if (is.null(cl)){
     output$glm <- GLMs[[winner]]         #this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
@@ -191,15 +109,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...){
   output$p.values <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
 
  if (choice=='var'){
-    if (is.null(cl)){
-      output$explainedvar <- residualvar[winner]/totalvar
-    } else {
-      if (length(Grps)>=(2*length(cl))){
-        output$explainedvar <- dum$residualvar[winner]/totalvar
-      } else {
-        output$explainedvar <- residualvar[winner]/totalvar
-      }
-    }
+      output$explainedvar <- stats[winner,'ExplainedVar']/totalvar
  }
 
   output$residualData <- PredictAmalgam(predict(pglm(Y[[winner]],xx=X,frmla=frmla,smallglm=T)),Grps[[winner]],n)

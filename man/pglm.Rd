@@ -4,14 +4,14 @@
 \alias{pglm}
 \title{Returns regression of x on y according to frmla}
 \usage{
-pglm(y, x, frmla, smallglm = F, ...)
+pglm(y, xx, frmla, smallglm = F, ...)
 }
 \arguments{
 \item{y}{response variable}
 
-\item{x}{independent variable}
-
 \item{frmla}{Formula for dependence of y on x}
+
+\item{x}{independent variable}
 }
 \value{
 glm object

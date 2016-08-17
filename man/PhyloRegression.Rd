@@ -4,8 +4,7 @@
 \alias{PhyloRegression}
 \title{Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.}
 \usage{
-PhyloRegression(Data, X, frmla, Grps, method, choice, cl, Pbasis = 1,
-  Pval.Cutoff, ...)
+PhyloRegression(Data, X, frmla, Grps, choice, cl, totalvar = NULL, ...)
 }
 \arguments{
 \item{Data}{Compositional data matrix whose rows are parts and columns are samples.}
@@ -14,15 +13,11 @@ PhyloRegression(Data, X, frmla, Grps, method, choice, cl, Pbasis = 1,
 
 \item{frmla}{Formula for input into glm by lapply(Y,FUN = pglm,x=X,frmla=frmla,choice,...)}
 
-\item{Grps}{Groups - a list whose elements are two-element lists containing the groups and their compliments for log-ratio regression by "method"}
-
-\item{method}{Method for amalgamation and comparison of groups. Default is method='ILR'.}
+\item{Grps}{Groups - a list whose elements are two-element lists containing the groups and their compliments for amalgamation into ILR coordinates}
 
 \item{choice}{Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.}
 
 \item{cl}{phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.}
-
-\item{Pbasis}{Coming soon - input Pbasis for amalgamation method "add".}
 }
 \description{
 Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.
@@ -39,7 +34,6 @@ Y <- t(clo(t(Y)))
 tree <- drop.tip(FTmicrobiome$tree, setdiff(FTmicrobiome$tree$tip.label,rownames(Y)))
 X <- FTmicrobiome$X
 Grps <- getGroups(tree)
-method='ILR'
 choice='var'
 cl <- phyloFcluster(2)
 
@@ -47,16 +41,12 @@ frmla <- Y~X
 print(head(Y))
 Z=Y
 
-pr <- PhyloRegression(Z,X,frmla,Grps,method,choice,cl)
+pr <- PhyloRegression(Z,X,frmla,Grps,choice,cl)
 
 stopCluster(cl)
 gc()
 par(mfrow=c(1,2))
 image(clr(t(Y)),main="Original Data")
 image(clr(t(pr$residualData)),main="residual Data")
-add' looks at the log-ratio of relative abundances of the taxa in the two groups of Grps[]
-ILR' uses geometric means as centers of groups, and regression is performed on balances of groups according to the ILR method of Egozcue et al. (2003)
-t' will choose dominant partition based on the Grps whose regression maximized the test-statistic
-var' will choose based on Grps which maximized the percent explained variance in the clr-transformed dataset.
 }
 

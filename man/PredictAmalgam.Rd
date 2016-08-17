@@ -4,7 +4,7 @@
 \alias{PredictAmalgam}
 \title{Internal function for prediction of data matrix given a method of amalgamation and its expectation}
 \usage{
-PredictAmalgam(yhat, Grp, n, method, Pbasis = 1)
+PredictAmalgam(yhat, Grp, n)
 }
 \arguments{
 \item{yhat}{Estimated coordinate (expected value of coordinate) from regression on the amalgamation of Grp}

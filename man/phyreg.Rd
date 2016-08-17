@@ -4,8 +4,7 @@
 \alias{phyreg}
 \title{Internal function for phyloregPar}
 \usage{
-phyreg(Grps, Data = NULL, Y = NULL, XX, frmla, n, choice, method, Pbasis,
-  Pval.Cutoff, ...)
+phyreg(Grps, Data = NULL, Y = NULL, XX, frmla, n, choice, ...)
 }
 \arguments{
 \item{Grps}{list of groups. see \code{\link{getGroups}}}
@@ -19,10 +18,6 @@ phyreg(Grps, Data = NULL, Y = NULL, XX, frmla, n, choice, method, Pbasis,
 \item{n}{total number of taxa in Data}
 
 \item{choice}{objective function allowing parallelization of residual variance calculations}
-
-\item{method}{method for amalgamating groups}
-
-\item{Pbasis}{coming soon}
 
 \item{...}{optional inputs for glm}
 }

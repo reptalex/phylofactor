@@ -30,7 +30,7 @@
 #' gc()
 
 
-phyloregPar <- function(Grps,Data,X,frmla,cl,choice,Pval.Cutoff,...){
+phyloregPar <- function(Grps,Data,X,frmla,cl,choice,...){
 
   #There are up to four tasks here that are parallelizable:
   #1) Computing ILR coordinates (amalg.ilr)
@@ -45,12 +45,12 @@ phyloregPar <- function(Grps,Data,X,frmla,cl,choice,Pval.Cutoff,...){
 n <- dim(Data)[1]
 m <- length(Grps)
 output <- NULL
-output$stats <- matrix(NA,ncol=2,nrow=m)
+output$stats <- matrix(NA,ncol=3,nrow=m)
 output$Yhat <- vector(mode='list',length=m)
 
 
   parG <- lapply(parallel::clusterSplit(cl,1:m),FUN <- function(ind,g){return(g[ind])},g=Grps) #this splits our list of groups across the clusters 
-  reg <- parallel::parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,Pval.Cutoff=Pval.Cutoff,...)
+  reg <- parallel::parLapply(cl,parG,fun=phyreg,Data=Data,XX=X,frmla=frmla,n=n,choice=choice,...)
 
   
   Ydum <- vector(mode='list',length=m)
@@ -66,7 +66,7 @@ output$Yhat <- vector(mode='list',length=m)
     output$residualvar[inds] <- reg[[pp]]$residualvar
     }
   }
-  colnames(output$stats) <- c('Pval','F')
+  colnames(output$stats) <- c('Pval','F','ExplainedVar')
   output$Y <- Ydum
   rm('Ydum')
   gc()

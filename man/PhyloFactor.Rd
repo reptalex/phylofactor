@@ -4,10 +4,9 @@
 \alias{PhyloFactor}
 \title{Performs phylofactorization of a compositional dataset}
 \usage{
-PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
-  Grps = NULL, nfactors = NULL, Pval.Cutoff = NULL, stop.fcn = NULL,
-  stop.early = NULL, ncores = NULL, clusterage = Inf, tolerance = 1e-10,
-  delta = 0.65, ...)
+PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
+  nfactors = NULL, stop.fcn = NULL, stop.early = NULL, ncores = NULL,
+  clusterage = Inf, tolerance = 1e-10, delta = 0.65, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -17,8 +16,6 @@ PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
 \item{X}{independent variable.}
 
 \item{frmla}{Formula for input in GLM. Default formula is Data ~ X}
-
-\item{method}{Method for amalgamating groups and constructing basis. Default method = "ILR" uses the isometric log-ratio transform. Coming soon: method='add' which uses additive grouping with log-ratio regression.}
 
 \item{choice}{Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.}
 
@@ -39,7 +36,7 @@ PhyloFactor(Data, tree, X, frmla = NULL, method = "ILR", choice = "var",
 \item{delta}{Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])}
 }
 \value{
-Phylofactor object, a list containing: "method", "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis from "method" for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1
+Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1
 }
 \description{
 Performs phylofactorization of a compositional dataset

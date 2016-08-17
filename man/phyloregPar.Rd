@@ -4,7 +4,7 @@
 \alias{phyloregPar}
 \title{Parallelized version of \code{\link{pglm}} for PhyloRegression}
 \usage{
-phyloregPar(Grps, Data, X, frmla, choice, method, Pbasis, cl, Pval.Cutoff, ...)
+phyloregPar(Grps, Data, X, frmla, cl, choice, ...)
 }
 \arguments{
 \item{Grps}{Groups over which to amalgamate Data & regress}
@@ -15,13 +15,13 @@ phyloregPar(Grps, Data, X, frmla, choice, method, Pbasis, cl, Pval.Cutoff, ...)
 
 \item{frmla}{Formula for dependence of y on x}
 
+\item{cl}{phyloFcluster object. See \code{\link{phyloFcluster}}}
+
 \item{choice}{Method for choosing best group. choice='var' parallelizes computation of residual variance.}
 
 \item{method}{method for amalgamating}
 
 \item{Pbasis}{Coming soon...}
-
-\item{cl}{phyloFcluster object. See \code{\link{phyloFcluster}}}
 }
 \value{
 list of glm objects

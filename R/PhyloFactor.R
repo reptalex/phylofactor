@@ -37,7 +37,7 @@
 #' all(PF$bins %in% Bins)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,Pval.Cutoff=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
   
   
   #### Housekeeping
@@ -93,6 +93,11 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   # via the node given names(Grps)[i]. The OTUs corresponding to the Groups can be found with:
   ### Get OTUs from tree
   OTUs <- tree$tip.label
+  if (choice=='var'){
+    totalvar= Data %>% apply(.,MARGIN=2,function(x) log(x)-mean(log(x))) %>% apply(.,MARGIN=1,var) %>% sum
+  } else {
+    totalvar=NULL
+  }
   
   ################ OUTPUT ###################
   output <- NULL
@@ -137,8 +142,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
     # clusterExport(cl,'pglm')
-    PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,cl=cl,Pval.Cutoff=Pval.Cutoff)
-    # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,cl,Pval.Cutoff,...)
+    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,cl=cl,totalvar=totalvar)
+    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,cl,totalvar,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     
@@ -151,12 +156,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       }
       gc()
       age=0
-    }
-    
-    if (PhyloReg$STOP){
-      output$terminated='Pval.Cutoff'
-      warning('PhyloFactorization Terminated - no edges met Pvalue Cutoff')
-      break
     }
     
     if (STOP){
@@ -187,7 +186,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       if (pfs==0){
         output$ExplainedVar <- PhyloReg$explainedvar
       } else {
-        output$ExplainedVar <- c(output$ExplainedVar,(1-sum(output$ExplainedVar[1:pfs]))*PhyloReg$explainedvar)
+        output$ExplainedVar <- c(output$ExplainedVar,PhyloReg$explainedvar)
       }
     }
     

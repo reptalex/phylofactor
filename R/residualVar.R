@@ -22,5 +22,6 @@
 #' residualVar(prediction,Data)
 
 residualVar <- function(prediction,Data){
-  return(var(c(compositions::clr(t(Data))-compositions::clr(t(prediction)))))
+  return(sum(apply(compositions::clr(t(Data))-compositions::clr(t(prediction)),MARGIN=2,var)))
+  # return(var(c(compositions::clr(t(Data))-compositions::clr(t(prediction)))))
 }
