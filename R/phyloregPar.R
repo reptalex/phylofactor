@@ -62,9 +62,6 @@ output$Yhat <- vector(mode='list',length=m)
     output$stats[inds,] <-reg[[pp]]$stats
     output$Yhat[inds] <- reg[[pp]]$Yhat
     Ydum[inds] <- reg[[pp]]$Y
-    if (choice=='var'){
-    output$residualvar[inds] <- reg[[pp]]$residualvar
-    }
   }
   colnames(output$stats) <- c('Pval','F','ExplainedVar')
   output$Y <- Ydum
