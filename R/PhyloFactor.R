@@ -35,6 +35,14 @@
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
 #' PF$bins
 #' all(PF$bins %in% Bins)
+#' 
+#' 
+#' #PhyloFactor can also be used for multiple regression
+#' 
+#' b <- rlnorm(10)
+#' X <- data.frame('a'=X,'b'=b)
+#' frmla <- Data~a+b
+#' PF.M <- PhyloFactor(Data,tree,X,nfactors=2)
 
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){

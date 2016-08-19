@@ -60,5 +60,13 @@ Bins <- bins(G=sigClades,set=1:7)
 PF <- PhyloFactor(Data,tree,X,nfactors=2)
 PF$bins
 all(PF$bins \%in\% Bins)
+
+
+#PhyloFactor can also be used for multiple regression
+
+b <- rlnorm(10)
+X <- data.frame('a'=X,'b'=b)
+frmla <- Data~a+b
+PF.M <- PhyloFactor(Data,tree,X,nfactors=2)
 }
 
