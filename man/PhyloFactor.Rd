@@ -13,9 +13,9 @@ PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
 
 \item{tree}{Phylogeny whose tip-labels are row-names in Data.}
 
-\item{X}{independent variable.}
+\item{X}{independent variable. If performing multiple regression, X must be a data frame whose columns contain all the independent variables used in \code{frmla}}
 
-\item{frmla}{Formula for input in GLM. Default formula is Data ~ X}
+\item{frmla}{Formula for input in GLM. Default formula is Data ~ X.}
 
 \item{choice}{Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.}
 

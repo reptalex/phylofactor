@@ -2,8 +2,8 @@
 #' @export
 #' @param Data Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1
 #' @param tree Phylogeny whose tip-labels are row-names in Data.
-#' @param X independent variable.
-#' @param frmla Formula for input in GLM. Default formula is Data ~ X
+#' @param X independent variable. If performing multiple regression, X must be a data frame whose columns contain all the independent variables used in \code{frmla}
+#' @param frmla Formula for input in GLM. Default formula is Data ~ X. 
 #' @param choice Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
 #' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
@@ -41,7 +41,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   
   
   #### Housekeeping
-  if (ncol(Data)!=length(X)){stop('number of columns of Data and length of X do not match')}
   if (typeof(Data) != 'double'){
     warning(' typeof(Data) is not "double" - will coerce with as.matrix(), but recommend using output $data for downstream analysis')
     Data <- as.matrix(Data)

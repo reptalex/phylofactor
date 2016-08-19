@@ -11,7 +11,6 @@ phyreg <- function(Grps,Data=NULL,Y=NULL,XX,frmla,n,choice,...){
   #internal function for phyloregPar, using bigglm for memory-efficiency
   #input list of Groups, will output Y,GLMs, and, if choice=='var', residual variance.
   reg <- NULL
-  
   #Pre-allocation
   ngrps <- length(Grps)
   reg$Y <- vector(mode='list',length=ngrps)
@@ -23,9 +22,12 @@ phyreg <- function(Grps,Data=NULL,Y=NULL,XX,frmla,n,choice,...){
   } else {
     reg$Y <- Y
   }
-
-  GLMs <- reg$Y %>% lapply(FUN = pglm,xx=XX,frmla=frmla,...)
-  dataset <- model.frame(frmla,data=list('Data'=rep(0,length(XX)),'X'=XX))
+  
+  GLMs <- lapply(reg$Y,FUN = pglm,xx=XX,frmla=frmla,...)
+  
+  dataset <- c(list(rep(0,dim(Data)[2])),as.list(XX))
+  names(dataset) <- c('Data',names(XX))
+  dataset <- model.frame(frmla,data = dataset)
   reg$Yhat <- lapply(GLMs,predict,newdata=dataset)
   
   reg$stats <- mapply(GLMs,FUN=getStats,reg$Y) %>%

@@ -11,12 +11,11 @@
 
 ################# phyloreg ############################
 pglm <- function(y,xx,frmla,smallglm=F,...){
-  #input: dependent variable y, independent variable x, formula 'frmla' and 'choice' to be used to
-  #compare different phylogenetic partitions
-#   ##performs individual regression.
-#   M <- data.frame(y,x)
-#   names(M) <- c('Data','X')
-  dataset <- model.frame(frmla,data = list('Data'=y,'X'=xx))
+  ##performs individual regression.
+  dataset <- c(list(y),as.list(xx))
+  names(dataset) <- c('Data',names(xx))
+  dataset <- model.frame(frmla,data = dataset)
+  
   if(smallglm){
     return(glm(frmla,data = dataset,...))
   } else {
