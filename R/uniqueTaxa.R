@@ -1,6 +1,7 @@
 #' Find shortest taxonomic prefix
 #' @param x list of taxonomic strings whose unique taxonomies we want to know
 #' @param y list of taxonomic strings for "subtraction" from x
+#' @export
 #' @return list of taxonomic strings unique to x, i.e. the shortest taxonomic prefix of x that is unique to x
 
 uniqueTaxa <- function(x,y){

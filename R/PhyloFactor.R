@@ -45,7 +45,7 @@
 #' PF.M <- PhyloFactor(Data,tree,X,nfactors=2)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
   
   
   #### Housekeeping
@@ -140,7 +140,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     
     if (pfs>=1){
-      Data <- t(compositions::clo(t(Data/PhyloReg$residualData)))
       treeList <- updateTreeList(treeList,binList,grp,tree)
       binList <- updateBinList(binList,grp)
       Grps <- getNewGroups(tree,treeList,binList)
@@ -170,7 +169,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
         if (is.null(stop.fcn)==F){
           if (stop.fcn=='KS'){
             ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-            if (ks>0.01){
+            if (ks>KS.Pthreshold){
               output$terminated=T
               break
             }
@@ -206,7 +205,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
         if (is.null(stop.fcn)==F){
           if (stop.fcn=='KS'){
             ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
-            if (ks>0.01){
+            if (ks>KS.Pthreshold){
               output$terminated=T
               break
             }

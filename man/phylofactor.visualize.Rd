@@ -4,11 +4,14 @@
 \alias{phylofactor.visualize}
 \title{Phylofactor Ordination-Visualization}
 \usage{
-phylofactor.visualize(PF, dimension = 2, default.colors = T, Legend = T,
-  lx = NULL, ly = NULL, colorbar.name = NULL, colorbar.ticks = 5, ...)
+phylofactor.visualize(PF, X = NULL, dimension = 2, default.colors = T,
+  Legend = T, lx = NULL, ly = NULL, colorbar.name = NULL,
+  colorbar.ticks = 5, ...)
 }
 \arguments{
 \item{PF}{Phylofactor object}
+
+\item{X}{independent variable for colormap - must be the same length as dim(PF$Data)[2]}
 
 \item{dimension}{Either 2 or 3 - the dimension of the ordination-visualization plot}
 
@@ -20,7 +23,7 @@ phylofactor.visualize(PF, dimension = 2, default.colors = T, Legend = T,
 
 \item{ly}{y location for legend, only applicable if \code{dimension}=2}
 
-\item{colorbar.name}{The name of the colorbar for quantitative independent variable, \code{PF$X}. If independent variable is not a factor, \code{phylofactor.visualization} assumes they are quantitative and will make a colorbar on the sorted independent variable.}
+\item{colorbar.name}{The name of the colorbar for quantitative independent variable, \code{X}. If independent variable is not a factor, \code{phylofactor.visualization} assumes they are quantitative and will make a colorbar on the sorted independent variable.}
 
 \item{colorbar.ticks}{Number of ticks in colorbar}
 
@@ -35,7 +38,7 @@ phylofactor.visualize(FTmicrobiome$PF)
 phylofactor.visualize(FTmicrobiome$PF,dimension=3)
 
 pf <- FTmicrobiome$PF
-pf$X <- 1:40
+X <- 1:40
 phylofactor.visualize(pf,dimension=3,colorbar.name='sample number')
 }
 

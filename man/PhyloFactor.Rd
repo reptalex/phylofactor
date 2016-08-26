@@ -5,8 +5,9 @@
 \title{Performs phylofactorization of a compositional dataset}
 \usage{
 PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
-  nfactors = NULL, stop.fcn = NULL, stop.early = NULL, ncores = NULL,
-  clusterage = Inf, tolerance = 1e-10, delta = 0.65, ...)
+  nfactors = NULL, stop.fcn = NULL, stop.early = NULL,
+  KS.Pthreshold = 0.01, ncores = NULL, clusterage = Inf,
+  tolerance = 1e-10, delta = 0.65, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}

@@ -1,0 +1,32 @@
+#' Projects phylofactored data onto bins defined by the factors 1:f
+#' 
+#' @export
+#' @param PF phylofactor object. See \link{PhyloFactor}
+#' @param f integer between 0 and \code{PF$nfactors}
+#' @param taxonomy Optional taxonomy. If input, the list of OTUs in each bin will be the taxonomic names, not the OTU IDs.
+#' @param common.name Logical. If input taxonomy, will indicate whether to trim taxonomic list to the longest common prefix of each bin.
+#' @param uniques Logical. If input taxonomy, will indicate whether to trim the taxonomic list to the unique names.
+#' @return Returns list containing the compositional dataset formed by the bins and the list of OTUs in each bin.
+
+
+binProjection <- function(PF,f,taxonomy=NULL,common.name=F,uniques=T,prediction=F){
+  
+  Bins <- bins(PF$basis[,1:f])
+  if (prediction){
+    binned_Data <- lapply(Bins,FUN=function(ix,Y) compositions::geometricmeanCol(Y[ix,,drop=F]),Y=phylofactor.predict(PF,factors=f))
+  } else {
+    binned_Data <- lapply(Bins,FUN=function(ix,Y) compositions::geometricmeanCol(Y[ix,,drop=F]),Y=PF$Data)
+    
+  }
+  output <- NULL
+  output$Data <- matrix(unlist(binned_Data),nrow=f+1,byrow=T)
+  output$Data <- t(t(output$Data)/colSums(output$Data))
+  output$otus <- lapply(Bins,FUN=function(ix,Data) rownames(Data[ix,,drop=F]),Data=PF$Data)
+  names(output$otus) <- sapply(as.list(1:(f+1)),FUN = function(x) paste('Bin',x))
+  if (!is.null(taxonomy)){
+    output$otus <- lapply(output$otus,FUN = function(otu,taxonomy,common.name,uniques) OTUtoTaxa(otu,taxonomy,common.name,uniques),taxonomy=taxonomy,common.name=common.name,uniques=uniques)
+  }
+  rownames(output$Data) <- names(output$otus)
+  colnames(output$Data) <- colnames(PF$Data)
+  return(output)
+}
