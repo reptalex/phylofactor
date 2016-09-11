@@ -47,10 +47,12 @@ phylofactor.predict <- function(PF,factors=NULL,...){
       d=d+1
     }
 
-    Dat <- coefs %>% apply(MARGIN=1,compositions::ilrInv,V=PF$basis[,factors])
+    Dat <- coefs %>% apply(.,MARGIN=1,compositions::ilrInv,V=PF$basis[,factors])
     
     rownames(Dat) <- rownames(PF$Data)
-    colnames(Dat) <- colnames(PF$Data)
+#     if (!is.null(newdata)){
+#       colnames(Dat) <- colnames(PF$Data)
+#     }
 
   return(Dat)
 }
