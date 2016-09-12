@@ -11,7 +11,7 @@ summary.group <- function(PF,tree,taxonomy,factor,grp,simplify=F){
   #summarizes the OTUids, taxonomic details, data and predictions for an input group of taxa up to a factor level factor.
 
   output <- NULL
-  otuIDs <- tree$tip.label[grp]
+  otuIDs <- rownames(PF$Data)[grp]
   TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name=simplify)
   output$IDs <- data.frame(otuIDs,TaxaIDs)
 

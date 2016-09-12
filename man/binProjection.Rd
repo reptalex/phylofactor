@@ -2,15 +2,15 @@
 % Please edit documentation in R/binProjection.R
 \name{binProjection}
 \alias{binProjection}
-\title{Projects phylofactored data onto bins defined by the factors 1:f}
+\title{Projects phylofactored data onto bins defined by the factors 1:factor}
 \usage{
-binProjection(PF, f, taxonomy = NULL, common.name = F, uniques = T,
-  prediction = F)
+binProjection(PF, factor = PF$nfactors, taxonomy = NULL, common.name = F,
+  uniques = T, prediction = F)
 }
 \arguments{
 \item{PF}{phylofactor object. See \link{PhyloFactor}}
 
-\item{f}{integer between 0 and \code{PF$nfactors}}
+\item{factor}{integer between 0 and \code{PF$nfactors}}
 
 \item{taxonomy}{Optional taxonomy. If input, the list of OTUs in each bin will be the taxonomic names, not the OTU IDs.}
 
@@ -22,6 +22,6 @@ binProjection(PF, f, taxonomy = NULL, common.name = F, uniques = T,
 Returns list containing the compositional dataset formed by the bins and the list of OTUs in each bin.
 }
 \description{
-Projects phylofactored data onto bins defined by the factors 1:f
+Projects phylofactored data onto bins defined by the factors 1:factor
 }
 

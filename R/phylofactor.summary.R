@@ -1,7 +1,6 @@
 #' Summary of phylofactor object for a given node or factor number
 #' @export
 #' @param PF PhyloFactor object
-#' @param tree phylogeny (ape class)
 #' @param taxonomy Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string
 #' @param node node number, must be in PF$nodes. Takes priority over "factor" for what is summarized
 #' @param factor Factor number to summarize.
@@ -38,15 +37,15 @@
 #' plot(FactorSummary$MeanRatio,ylab='ILR coordinate',main='Mean Ratio of Grp1/Grp2',xlab='sample no.',pch=16)
 #' lines(FactorSummary$fittedMeanRatio,lwd=2,col='blue')
 #' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
-phylofactor.summary <- function(PF,taxonomy,factor=NULL,tree=PF$tree,simplify.TaxaIDs=F){
+phylofactor.summary <- function(PF,taxonomy,factor=NULL,simplify.TaxaIDs=F){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(factor)){stop('need to input a factor')}
   grp1 <- PF$groups[[factor]][[1]]
   grp2 <- PF$groups[[factor]][[2]]
 
   output <- NULL
-  output$group1 <- summary.group(PF,tree,taxonomy,factor = factor,grp1,simplify=simplify.TaxaIDs)
-  output$group2 <- summary.group(PF,tree,taxonomy,factor = factor,grp2,simplify=simplify.TaxaIDs)
+  output$group1 <- summary.group(PF,PF$tree,taxonomy,factor = factor,grp1,simplify=simplify.TaxaIDs)
+  output$group2 <- summary.group(PF,PF$tree,taxonomy,factor = factor,grp2,simplify=simplify.TaxaIDs)
 
 
   output$TaxaSplit <- TaxaSplit(output)

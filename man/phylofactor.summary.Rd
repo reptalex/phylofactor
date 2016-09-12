@@ -4,8 +4,7 @@
 \alias{phylofactor.summary}
 \title{Summary of phylofactor object for a given node or factor number}
 \usage{
-phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
-  simplify.TaxaIDs = F)
+phylofactor.summary(PF, taxonomy, factor = NULL, simplify.TaxaIDs = F)
 }
 \arguments{
 \item{PF}{PhyloFactor object}
@@ -13,8 +12,6 @@ phylofactor.summary(PF, taxonomy, factor = NULL, tree = PF$tree,
 \item{taxonomy}{Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string}
 
 \item{factor}{Factor number to summarize.}
-
-\item{tree}{phylogeny (ape class)}
 
 \item{simplify.TaxaIDs}{Logical, whether or not to simplify IDs of group taxonomy to their shorest unique prefix (for each OTU in each group, this is taxonomy down to the coarsest taxonomic level unique to the OTU's group)}
 
