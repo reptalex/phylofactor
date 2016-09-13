@@ -22,12 +22,22 @@
 
 phylofactor.visualize <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NULL,ly=NULL,colorbar.name=NULL,colorbar.ticks=5,...){
 
+  
+  
   if (!(dimension %in% c(2,3))){stop('dimension must be either 2 or 3')}
-
-  PROJ <- phylofactor.ILRprojection(PF,nfactors=dimension)
+  
+  if (class(PF)=='phylofactor'){
+    PROJ <- phylofactor.ILRprojection(PF,nfactors=dimension)
+  } else{
+    PROJ <- PF$projection
+  }
   
   if (is.null(X)){
-    X <- PF$X
+    if (!is.null(PF$X)){
+      X <- PF$X
+    } else {
+      X <- rep(1,ncol(PROJ))
+    }
   }
 
   if (default.colors){
@@ -47,9 +57,21 @@ phylofactor.visualize <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=
     }
   }
 
-  if (exists('xlab')==F){xlab='PF 1'}
-  if (exists('ylab')==F){ylab='PF 2'}
-  if (exists('zlab')==F){zlab='PF 3'}
+  if (exists('xlab')==F){
+    if (class(PF)=='phylofactor'){
+      xlab='PF 1'
+    } else {xlab='PhyComp 1'}
+  }
+    if (exists('ylab')==F){
+      if (class(PF)=='phylofactor'){
+        ylab='PF 2'
+      } else {ylab='PhyComp 2'}
+    }
+  if (exists('zlab')==F){
+    if (class(PF)=='phylofactor'){
+      zlab='PF 3'
+    } else {zlab='PhyComp 3'}
+  }
   if (exists('pch')==F){pch=19}
   if (exists('cex')==F){cex=2}
 

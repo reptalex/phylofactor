@@ -5,7 +5,7 @@
 \title{Performs phylofactorization of a compositional dataset}
 \usage{
 PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
-  nfactors = NULL, stop.fcn = NULL, stop.early = NULL,
+  nfactors = NULL, quiet = T, stop.fcn = NULL, stop.early = NULL,
   KS.Pthreshold = 0.01, ncores = NULL, clusterage = Inf,
   tolerance = 1e-10, delta = 0.65, ...)
 }
@@ -48,26 +48,33 @@ Performs phylofactorization of a compositional dataset
  library(phangorn)
  library(compositions)
 
-tree <- unroot(rtree(7))
+tree <- unroot(rtree(20))
 X <- as.factor(c(rep(0,5),rep(1,5)))
-sigClades <- Descendants(tree,c(9,12),type='tips')
-Data <- matrix(rlnorm(70,meanlog = 8,sdlog = .5),nrow=7)
+sigClades <- Descendants(tree,c(22,28),type='tips')
+Data <- matrix(rlnorm(20*10,meanlog = 8,sdlog = .5),nrow=20)
 rownames(Data) <- tree$tip.label
 colnames(Data) <- X
 Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*8
 Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 Data <- t(clo(t(Data)))
-Bins <- bins(G=sigClades,set=1:7)
+Bins <- bins(G=sigClades,set=1:20)
+
+phytools::phylo.heatmap(tree,Data)
+tiplabels()
 PF <- PhyloFactor(Data,tree,X,nfactors=2)
 PF$bins
 all(PF$bins \%in\% Bins)
 
+#PhyloFactor has built-in parallelization
+PF.par  <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
+all.equal(PF,PF.par)
 
 #PhyloFactor can also be used for multiple regression
 
-b <- rlnorm(10)
-X <- data.frame('a'=X,'b'=b)
+b <- rlnorm(ncol(Data))
+a <- as.factor(c(rep(0,5),rep(1,5)))
+X <- data.frame('a'=a,'b'=b)
 frmla <- Data~a+b
-PF.M <- PhyloFactor(Data,tree,X,nfactors=2)
+PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
 }
 

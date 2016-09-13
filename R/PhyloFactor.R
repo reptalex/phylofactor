@@ -20,32 +20,39 @@
 #'  library(phangorn)
 #'  library(compositions)
 #'
-#' tree <- unroot(rtree(7))
+#' tree <- unroot(rtree(20))
 
 #' X <- as.factor(c(rep(0,5),rep(1,5)))
-#' sigClades <- Descendants(tree,c(9,12),type='tips')
-#' Data <- matrix(rlnorm(70,meanlog = 8,sdlog = .5),nrow=7)
+#' sigClades <- Descendants(tree,c(22,28),type='tips')
+#' Data <- matrix(rlnorm(20*10,meanlog = 8,sdlog = .5),nrow=20)
 #' rownames(Data) <- tree$tip.label
 #' colnames(Data) <- X
 #' Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*8
 #' Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 #' Data <- t(clo(t(Data)))
-#' Bins <- bins(G=sigClades,set=1:7)
+#' Bins <- bins(G=sigClades,set=1:20)
+#' 
+#' phytools::phylo.heatmap(tree,Data)
+#' tiplabels()
 
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
 #' PF$bins
 #' all(PF$bins %in% Bins)
 #' 
+#' #PhyloFactor has built-in parallelization
+#' PF.par  <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
+#' all.equal(PF,PF.par)
 #' 
 #' #PhyloFactor can also be used for multiple regression
 #' 
-#' b <- rlnorm(10)
-#' X <- data.frame('a'=X,'b'=b)
+#' b <- rlnorm(ncol(Data))
+#' a <- as.factor(c(rep(0,5),rep(1,5)))
+#' X <- data.frame('a'=a,'b'=b)
 #' frmla <- Data~a+b
-#' PF.M <- PhyloFactor(Data,tree,X,nfactors=2)
+#' PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
   
   
   #### Housekeeping
@@ -91,9 +98,25 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   
   treeList <- list(tree)
   binList <- list(1:ape::Ntip(tree))
+  nms <- rownames(Data)
   #### Get list of groups from tree ####
-  if(is.null(Grps)){ #inputting groups allows us to make wrappers around PhyloFactor for efficient parallelization.
-    Grps <- getGroups(tree)
+#   if (is.null(Grps)){
+#     Grps <- getGroups(tree)
+#   }
+  par.input <- NULL
+  if (is.null(ncores)){
+    Grps <- phylofactor::getGroups(tree)
+    cl=NULL
+  } else {
+    cl <- phyloFcluster(ncores)
+    # clusterExport(cl,'findWinner')
+    nms=rownames(Data)
+    par.input$treetips <- sapply(treeList,FUN=ape::Ntip)
+    par.input$grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
+    nnodes <- sum(par.input$grpsizes)
+    par.input$cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
+    par.input$tree_map <- cumsum(par.input$grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
+    par.input$ix_cl <- parallel::clusterSplit(cl,par.input$cl_node_map)
   }
   # This is a list of 2-element lists containing the partitioning of tips
   # in our tree according to the edges. The groups can be mapped to the tree
@@ -127,29 +150,38 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   
   
   pfs=0
-  age=0
+  age=1
   output$terminated=F
-  cl=NULL
   
   while (pfs < min(length(OTUs)-1,nfactors)){
     
     
     if (is.null(ncores)==F && age==0){
       cl <- phyloFcluster(ncores)
+      clusterExport(cl,'findWinner')
     }
     
     
     if (pfs>=1){
       treeList <- updateTreeList(treeList,binList,grp,tree)
       binList <- updateBinList(binList,grp)
-      Grps <- getNewGroups(tree,treeList,binList)
-      # newGroups <- UNFINISHED (need to construct a vector indicating which groups need to be analyzed - we will also need to pass the GLMs and residualvars)
+      
+      if (is.null(ncores)){
+        Grps <- getNewGroups(tree,treeList,binList)
+      } else {
+        par.input$treetips <- sapply(treeList,FUN=ape::Ntip)
+        par.input$grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
+        nnodes <- sum(par.input$grpsizes)
+        par.input$cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
+        par.input$tree_map <- cumsum(par.input$grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
+        par.input$ix_cl <- parallel::clusterSplit(cl,par.input$cl_node_map)
+      }
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
     # clusterExport(cl,'pglm')
-    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,cl=cl,totalvar=totalvar)
-    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,cl,totalvar,...)
+    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,treeList=treeList,cl=cl,totalvar=totalvar,par.input=par.input,nms=nms)
+    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,par.input,quiet,nms,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     
@@ -181,10 +213,15 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     }
     
     ############# update output ########################
-    winner <- PhyloReg$winner
-    grp <- getLabelledGrp(winner,tree,Grps)
+    if (is.null(ncores)){
+      winner <- PhyloReg$winner
+      grp <- getLabelledGrp(winner,tree,Grps)
+      output$groups <- c(output$groups,list(Grps[[winner]]))
+    } else {
+      grp <- getLabelledGrp(tree=tree,Groups=PhyloReg$grp,from.parallel=T)
+      output$groups <- c(output$groups,list(PhyloReg$grp))
+    }
     grpInfo <- matrix(c(names(grp)),nrow=2)
-    output$groups <- c(output$groups,list(Grps[[winner]]))
     output$factors <- cbind(output$factors,grpInfo)
     output$glms[[length(output$glms)+1]] <- PhyloReg$glm
     output$basis <- output$basis %>% cbind(PhyloReg$basis)
