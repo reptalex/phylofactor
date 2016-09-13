@@ -62,7 +62,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   }
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
   if (all(tree$tip.label %in% rownames(Data))==F){
-    warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
+    if(!quiet){
+      warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
+    }
     tree <- ape::drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
   if (!all(rownames(Data)==tree$tip.label)){
     warning('rows of data are in different order of tree tip-labels - use output$data for downstream analysis, or set Data <- Data[tree$tip.label,]')
@@ -77,7 +79,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   #### Default treatment of Data ###
   if (any(Data==0)){
     if (delta==0.65){
-      warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
+      if (!quiet){
+        warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
+      }
     }
     rplc <- function(x,delta){
       x[x==0]=min(x[x>0])*delta
@@ -88,11 +92,15 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
   }
   if (any(abs(colSums(Data)-1)>tolerance)){
-    warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
+    if (!quiet){
+      warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
+    }
     Data <- t(compositions::clo(t(Data)))
     
     if (any(abs(colSums(Data)-1)>tolerance)){
-      warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+      if (!quiet){
+        warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+      }
     }
   }
   
@@ -109,14 +117,13 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     cl=NULL
   } else {
     cl <- phyloFcluster(ncores)
-    # clusterExport(cl,'findWinner')
     nms=rownames(Data)
     par.input$treetips <- sapply(treeList,FUN=ape::Ntip)
     par.input$grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
     nnodes <- sum(par.input$grpsizes)
-    par.input$cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
+    cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
     par.input$tree_map <- cumsum(par.input$grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
-    par.input$ix_cl <- parallel::clusterSplit(cl,par.input$cl_node_map)
+    par.input$ix_cl <- parallel::clusterSplit(cl,cl_node_map)
   }
   # This is a list of 2-element lists containing the partitioning of tips
   # in our tree according to the edges. The groups can be mapped to the tree
@@ -172,14 +179,13 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
         par.input$treetips <- sapply(treeList,FUN=ape::Ntip)
         par.input$grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
         nnodes <- sum(par.input$grpsizes)
-        par.input$cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
+        cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
         par.input$tree_map <- cumsum(par.input$grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
-        par.input$ix_cl <- parallel::clusterSplit(cl,par.input$cl_node_map)
+        par.input$ix_cl <- parallel::clusterSplit(cl,cl_node_map)
       }
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
-    # clusterExport(cl,'pglm')
     # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,treeList=treeList,cl=cl,totalvar=totalvar,par.input=par.input,nms=nms)
     PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,par.input,quiet,nms,...)
     ############################## EARLY STOP #####################################
