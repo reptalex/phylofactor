@@ -20,7 +20,7 @@
 #' X <- 1:40
 #' phylofactor.visualize(pf,dimension=3,colorbar.name='sample number')
 
-phylofactor.visualize <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NULL,ly=NULL,colorbar.name=NULL,colorbar.ticks=5,...){
+phylofactor.visualize <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NULL,ly=NULL,xlab='PF 1',ylab='PF 2',zlab='PF 3',colorbar.name=NULL,colorbar.ticks=5,...){
 
   
   
@@ -57,21 +57,12 @@ phylofactor.visualize <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=
     }
   }
 
-  if (exists('xlab')==F){
-    if (class(PF)=='phylofactor'){
-      xlab='PF 1'
-    } else {xlab='PhyComp 1'}
-  }
-    if (exists('ylab')==F){
-      if (class(PF)=='phylofactor'){
-        ylab='PF 2'
-      } else {ylab='PhyComp 2'}
+
+    if (class(PF)!='phylofactor'){
+      xlab='PhyComp 1'
+      ylab='PhyComp 2'
+      zlab='PhyComp 3'
     }
-  if (exists('zlab')==F){
-    if (class(PF)=='phylofactor'){
-      zlab='PF 3'
-    } else {zlab='PhyComp 3'}
-  }
   if (exists('pch')==F){pch=19}
   if (exists('cex')==F){cex=2}
 

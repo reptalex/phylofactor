@@ -7,6 +7,8 @@
 #' @param choice Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
 #' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
+#' @param quiet Logical, default is \code{FALSE}, indicating whether or not to display standard warnings. 
+#' @param trust.me Logical, default \code{FALSE}, indicating whether or not to trust the input Data to be compositional with no zeros.
 #' @param stop.fcn Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
@@ -52,7 +54,7 @@
 #' PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,...){
   
   
   #### Housekeeping
@@ -77,31 +79,37 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     tree <- ape::unroot(tree)}
   
   #### Default treatment of Data ###
-  if (any(Data==0)){
-    if (delta==0.65){
-      if (!quiet){
-        warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
+  if (!trust.me){
+    if (any(Data==0)){
+      if (delta==0.65){
+        if (!quiet){
+          warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
+        }
       }
+      rplc <- function(x,delta){
+        x[x==0]=min(x[x>0])*delta
+        return(x)
+      }
+      
+      Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
+      
     }
-    rplc <- function(x,delta){
-      x[x==0]=min(x[x>0])*delta
-      return(x)
-    }
-    
-    Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
-    
-  }
-  if (any(abs(colSums(Data)-1)>tolerance)){
-    if (!quiet){
-      warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
-    }
-    Data <- t(compositions::clo(t(Data)))
-    
     if (any(abs(colSums(Data)-1)>tolerance)){
       if (!quiet){
-        warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+        warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
+      }
+      Data <- t(compositions::clo(t(Data)))
+      
+      if (any(abs(colSums(Data)-1)>tolerance)){
+        if (!quiet){
+          warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+        }
       }
     }
+  }
+  
+  if (small.output){
+    warning('For downstream phylofactor functions, you may need to add pf$X, compositional pf$Data <- clo(OTUTable[tree$tip.labels],) and pf$tree (see beginning of PhyloFactor code for how to reproduce these tags). Information on bins can be found by bins(pf$basis).')
   }
   
   treeList <- list(tree)
@@ -138,9 +146,12 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   
   ################ OUTPUT ###################
   output <- NULL
-  output$Data <- Data
-  output$X <- X
-  output$tree <- tree
+  
+  if (!small.output){
+    output$Data <- Data
+    output$X <- X
+    output$tree <- tree
+  }
   output$glms <- list()
   n <- length(tree$tip.label)
   
@@ -170,7 +181,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     
     if (pfs>=1){
-      treeList <- updateTreeList(treeList,binList,grp,tree)
+      treeList <- updateTreeList(treeList,binList,grp,tree,skip.check=T)
       binList <- updateBinList(binList,grp)
       
       if (is.null(ncores)){
@@ -206,7 +217,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       if (is.null(stop.early)==T){
         if (is.null(stop.fcn)==F){
           if (stop.fcn=='KS'){
-            ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+            ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
               break
@@ -247,7 +258,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       if (is.null(stop.early)==F){
         if (is.null(stop.fcn)==F){
           if (stop.fcn=='KS'){
-            ks <- ks.test(PhyloReg$p.values,runif(length(PhyloReg$p.values)))$p.value
+            ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
               break
@@ -266,35 +277,46 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   
   
   ########### Clean up the Output ####################################
+  
+  ####### Factors ##########
   if (is.null(output$factors)==F){
     pfs <- dim(output$factors)[2]
     colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
     rownames(output$factors)=c('Group1','Group2')
   }
-  output$bins <- bins(output$basis)
-  NewOTUs <- output$bins
-  Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
-  names(output$bins)[Monophyletic] <- 'Monophyletic'
-  names(output$bins)[!Monophyletic] <- 'Paraphyletic'
   output$nfactors <- pfs
   output$factors <- t(output$factors)
   pvalues <- sapply(output$glms,FUN=function(gg) summary(aov(gg))[[1]][1,'Pr(>F)'])
   output$factors <- cbind(output$factors,pvalues)
   
-  ### Make the bin size distribution data frame ###
-  binsize <- unlist(lapply(NewOTUs,FUN = length))
-  ### The bins are not all OTUs, but vary in size:
-  sizes <- as.list(sort(unique(binsize)))
-  nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=binsize))
-  output$bin.sizes <- data.frame('Bin Size'=unlist(sizes),'Number of Bins'=nsizes)
   
+  
+  ####### Bins ###########
+  if (!small.output){
+    output$bins <- bins(output$basis)
+    NewOTUs <- output$bins
+    Monophyletic <- unlist(lapply(NewOTUs,function(x,y) return(ape::is.monophyletic(y,x)),y=tree))
+    names(output$bins)[Monophyletic] <- 'Monophyletic'
+    names(output$bins)[!Monophyletic] <- 'Paraphyletic'
+    ### Make the bin size distribution data frame ###
+    binsize <- unlist(lapply(NewOTUs,FUN = length))
+    ### The bins are not all OTUs, but vary in size:
+    sizes <- as.list(sort(unique(binsize)))
+    nsizes <- unlist(lapply(sizes,FUN=function(x,y){return(sum(y==x))},y=binsize))
+    output$bin.sizes <- data.frame('Bin Size'=unlist(sizes),'Number of Bins'=nsizes)
+    output$Monophyletic.clades <- intersect(which(names(output$bins)=='Monophyletic'),which(binsize>1))
+  }
+  
+  
+
+  
+  ### ExplainedVar
   if (choice=='var'){
     names(output$ExplainedVar) <- sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
   }
   
   
   
-  output$Monophyletic.clades <- intersect(which(names(output$bins)=='Monophyletic'),which(binsize>1))
   
   if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
     parallel::stopCluster(cl)

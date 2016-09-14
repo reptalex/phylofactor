@@ -5,9 +5,9 @@
 \title{Performs phylofactorization of a compositional dataset}
 \usage{
 PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
-  nfactors = NULL, quiet = T, stop.fcn = NULL, stop.early = NULL,
-  KS.Pthreshold = 0.01, ncores = NULL, clusterage = Inf,
-  tolerance = 1e-10, delta = 0.65, ...)
+  nfactors = NULL, quiet = T, trust.me = F, small.output = F,
+  stop.fcn = NULL, stop.early = NULL, KS.Pthreshold = 0.01,
+  ncores = NULL, clusterage = Inf, tolerance = 1e-10, delta = 0.65, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -23,6 +23,10 @@ PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
 \item{Grps}{Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups}
 
 \item{nfactors}{Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T}
+
+\item{quiet}{Logical, default is \code{FALSE}, indicating whether or not to display standard warnings.}
+
+\item{trust.me}{Logical, default \code{FALSE}, indicating whether or not to trust the input Data to be compositional with no zeros.}
 
 \item{stop.fcn}{Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.}
 

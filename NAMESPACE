@@ -2,6 +2,7 @@
 
 export(ColorTaxa)
 export(OTUtoTaxa)
+export(PhyCA)
 export(PhyloFactor)
 export(PhyloRegression)
 export(PredictAmalgam)
