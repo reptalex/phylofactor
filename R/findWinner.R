@@ -2,12 +2,14 @@
 #'
 #' @export
 findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=F,frmla=NULL,X=NULL,...){
+  
+  
+  ########### set-up and prime variables #############
   grp <- vector(mode='list',length=2)
   output <- NULL
   if (choice %in% c('var','F')){
     output$p.values <- numeric(length(nset))
   }
-  
   if (choice=='var'){
     output$ExplainedVar=0
   }
@@ -25,30 +27,24 @@ findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=
     
     if (nn>tree_map[1]){
       whichTree <- max(which(tree_map<nn))+1
+      if ((nn-tree_map[[whichTree-1]])==treetips[whichTree]+1){ 
+        #This prevents us from drawing the root of a subtree, which has no meaningful ILR transform. 
+        next 
+      }
+      grp[[1]] <- phangorn::Descendants(treeList[[whichTree]],node=(nn-tree_map[whichTree-1]))[[1]]
     } else {
       whichTree <- 1
-    }
-    
-    if (whichTree>1){
-      if ((nn-tree_map[[whichTree-1]])==treetips[whichTree]+1){ 
-      #This prevents us from drawing the root of a subtree, which has no meaningful ILR transform. 
-      next 
-      }
-    } else {
-      if (nn==treetips[whichTree]+1){ 
+      if (nn==treetips[1]+1){ 
         #This prevents us from drawing the root of a subtree, which has no meaningful ILR transform. 
-      next 
+        next 
       }
+      grp[[1]] <- phangorn::Descendants(treeList[[1]],node=nn)[[1]]
     }
     
-      if (whichTree>1){
-        grp[[1]] <- phangorn::Descendants(treeList[[whichTree]],node=(nn-tree_map[whichTree-1]))[[1]]
-      } else {
-        grp[[1]] <- phangorn::Descendants(treeList[[whichTree]],node=nn)[[1]]
-      }
+    
       grp[[2]] <- setdiff(1:treetips[whichTree],grp[[1]])
       grp <- lapply(grp,FUN=function(x,tree) tree$tip.label[x],tree=treeList[[whichTree]])
-      #This converts our numbered grps, which are local tip-labels for trees in treeList, to otus that correspond to rownames in Data.
+      #This converts numbered grps of tip-labels for trees in treeList to otus that correspond to rownames in Data.
       
       Y <- phylofactor::amalg.ILR(grp,Log.Data=Log.Data)
       
