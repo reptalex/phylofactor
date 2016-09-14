@@ -1,4 +1,4 @@
-#' Performs Phylogenetic Components Analysis
+#' Performs Phylogenetic Principal Components Analysis
 #' 
 #' @export
 #' @param Data Positive-valued data matrix whose rownames are tip-labels in the input \code{tree}. 
@@ -7,10 +7,9 @@
 #' @param output.edges Logical, whether or not to output the edges in the input \code{tree} corresponding to phylogenetic components
 #' @param tol tolerance for compositional matrix. Rounding error in large datasets can lead to columns of compositional data not summing to 1. 
 #' @param quiet Logical, whether or not to quiet warnings.
-#' @return PhCA object containing Data, tree, basis, and edges of the phylogeny corresponding to each split.
+#' @return PhyCA object containing Data, tree, basis, and edges of the phylogeny corresponding to each split.
 #' @examples 
 #' 
-#' source('C:/Users/Big Alculus/Documents/Boulder/PhyCA.R')
 #' library(phylofactor)
 #' data("FTmicrobiome")
 #' 
@@ -65,12 +64,12 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
   output$edges <- vector(mode='list',length=ncomponents)
   totalvar <- sum(apply(apply(Data,MARGIN=2,FUN=function(y) log(y)-mean(log(y))),MARGIN=1,var))
   treeList <- list(tree)
+  binList <- list(1:nrow(Data))
   
   
   #### Getting the Groups is parallelizable and very memory-intensive.
   #### To paralellize, we will 
   if (is.null(ncores)){
-    binList <- list(1:ape::Ntip(tree))
     Grps <- getGroups(tree)
   } else {
     cl <- phyloFcluster(ncores)
