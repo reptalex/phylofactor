@@ -17,10 +17,17 @@
 #' tree <- FTmicrobiome$PF$tree
 #' taxonomy <- FTmicrobiome$taxonomy
 #' 
-#' phca <- PhyCA(Data,tree,ncomponents = 2)
+#' phca <- PhyCA(Data,tree,ncomponents = 3,ncores=3,output.edges=F)
+#' 
+#' #the standard
 #' td <- phyca.tidy(phca,Taxonomy)
+#' 
+#' #or, for a simpler view
+#' td <- phyca.tidy(phca,taxonomy,taxa.split=T)
+#' 
+#' sum(FTmicrobiome$PF$basis[,1:3]-phca$basis[,1:3])  #the first three phylofactors here correspond to the first three ILR-phylogenetic Components. 
 
-phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,common.name=F,uniques=T,getEdges=F,ncores=NULL,...){
+phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,taxa.split=F,common.name=F,uniques=T,getEdges=F,ncores=NULL,...){
   
   if (is.null(ncomponents)){
     ncomponents <- ncol(phca$basis)
@@ -41,8 +48,16 @@ phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,common.name=F,uniques=T,ge
     grp <- list(which(x>0),which(x<0))
     grp <- getLabelledGrp(tree=phca$tree,Groups=grp,from.parallel = T)
     otus <- lapply(grp,FUN = function(g,otus) otus[g],otus=OTUs) 
-    taxa <- lapply(otus,FUN=function(g,Taxonomy,common.name,uniques,...) OTUtoTaxa(g,Taxonomy=Taxonomy,common.name,uniques,...),common.name=common.name,uniques=uniques,Taxonomy=Taxonomy)
-    output$taxa[[nn]] <- taxa
+    
+    if (!taxa.split){
+      taxa <- lapply(otus,FUN=function(g,Taxonomy,common.name,uniques,...) OTUtoTaxa(g,Taxonomy=Taxonomy,common.name,uniques,...),common.name=common.name,uniques=uniques,Taxonomy=Taxonomy)
+      output$taxa[[nn]] <- taxa
+    } else {
+      taxa <- lapply(otus,FUN=function(g,Taxonomy,common.name,uniques,...) OTUtoTaxa(g,Taxonomy=Taxonomy,common.name,uniques,...),common.name=F,uniques=T,Taxonomy=Taxonomy)
+      output$taxa[[nn]] <- vector(mode='list',length=2)
+      output$taxa[[nn]][[1]] <- uniqueTaxa(taxa[[1]],taxa[[2]])
+      output$taxa[[nn]][[2]] <- uniqueTaxa(taxa[[2]],taxa[[1]])
+    }
     output$summary[nn,1:2] <- sapply(as.list(names(grp)),FUN=function(a) paste('--(',a,')--',sep=''))
 
     if (getEdges && is.null(ncores)){

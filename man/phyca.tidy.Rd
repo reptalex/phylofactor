@@ -4,8 +4,8 @@
 \alias{phyca.tidy}
 \title{clean description of phca object}
 \usage{
-phyca.tidy(phca, Taxonomy, ncomponents = NULL, common.name = F,
-  uniques = T, getEdges = F, ncores = NULL, ...)
+phyca.tidy(phca, Taxonomy, ncomponents = NULL, taxa.split = F,
+  common.name = F, uniques = T, getEdges = F, ncores = NULL, ...)
 }
 \arguments{
 \item{phca}{\code{PhyCA} object}
@@ -34,7 +34,14 @@ Data <- FTmicrobiome$PF$Data
 tree <- FTmicrobiome$PF$tree
 taxonomy <- FTmicrobiome$taxonomy
 
-phca <- PhyCA(Data,tree,ncomponents = 2)
+phca <- PhyCA(Data,tree,ncomponents = 3,ncores=3,output.edges=F)
+
+#the standard
 td <- phyca.tidy(phca,Taxonomy)
+
+#or, for a simpler view
+td <- phyca.tidy(phca,taxonomy,taxa.split=T)
+
+sum(FTmicrobiome$PF$basis[,1:3]-phca$basis[,1:3])  #the first three phylofactors here correspond to the first three ILR-phylogenetic Components. 
 }
 
