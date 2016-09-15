@@ -148,7 +148,7 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
   }
   
   if(!is.null(ncores)){
-    stopCluster(cl)
+    parallel::stopCluster(cl)
     rm('cl')
     gc()
   }
