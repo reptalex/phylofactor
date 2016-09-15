@@ -16,6 +16,7 @@
 #' Data <- FTmicrobiome$PF$Data
 #' tree <- FTmicrobiome$PF$tree
 #' X <- FTmicrobiome$X
+#' taxonomy <- FTmicrobiome$taxonomy
 #' phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
 #' 
 #' 

@@ -4,7 +4,7 @@
 \alias{updateTreeList}
 \title{internal Phylofactor function - splits the tree corresponding to the split bin}
 \usage{
-updateTreeList(treeList, binList, grp, tree)
+updateTreeList(treeList, binList, grp, tree, skip.check = F)
 }
 \arguments{
 \item{treeList}{list of trees}

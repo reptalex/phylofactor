@@ -2,7 +2,7 @@
 % Please edit documentation in R/PhyCA.R
 \name{PhyCA}
 \alias{PhyCA}
-\title{Performs Phylogenetic Components Analysis}
+\title{Performs Phylogenetic Principal Components Analysis}
 \usage{
 PhyCA(Data, tree, ncores = NULL, ncomponents = NULL, output.edges = T,
   tol = 1e-05, quiet = T)
@@ -21,20 +21,20 @@ PhyCA(Data, tree, ncores = NULL, ncomponents = NULL, output.edges = T,
 \item{quiet}{Logical, whether or not to quiet warnings.}
 }
 \value{
-PhCA object containing Data, tree, basis, and edges of the phylogeny corresponding to each split.
+PhyCA object containing Data, tree, basis, and edges of the phylogeny corresponding to each split.
 }
 \description{
-Performs Phylogenetic Components Analysis
+Performs Phylogenetic Principal Components Analysis
 }
 \examples{
 
-source('C:/Users/Big Alculus/Documents/Boulder/PhyCA.R')
 library(phylofactor)
 data("FTmicrobiome")
 
 Data <- FTmicrobiome$PF$Data
 tree <- FTmicrobiome$PF$tree
 X <- FTmicrobiome$X
+taxonomy <- FTmicrobiome$taxonomy
 phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
 
 

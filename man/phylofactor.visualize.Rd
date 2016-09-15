@@ -5,8 +5,8 @@
 \title{Phylofactor Ordination-Visualization}
 \usage{
 phylofactor.visualize(PF, X = NULL, dimension = 2, default.colors = T,
-  Legend = T, lx = NULL, ly = NULL, colorbar.name = NULL,
-  colorbar.ticks = 5, ...)
+  Legend = T, lx = NULL, ly = NULL, xlab = "PF 1", ylab = "PF 2",
+  zlab = "PF 3", colorbar.name = NULL, colorbar.ticks = 5, ...)
 }
 \arguments{
 \item{PF}{Phylofactor object}
