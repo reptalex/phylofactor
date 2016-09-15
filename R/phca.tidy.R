@@ -59,7 +59,7 @@ phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,taxa.split=F,common.name=F
       output$taxa[[nn]][[2]] <- unique(uniqueTaxa(taxa[[2]],taxa[[1]]))
     }
     output$summary[nn,1:2] <- sapply(as.list(names(grp)),FUN=function(a) paste('--(',a,')--',sep=''))
-
+    names(output$taxa[[nn]]) <- output$summary[nn,1:2]
     if (getEdges && is.null(ncores)){
       output$edges[[nn]] <- getFactoredEdges(x,phca$tree)
     }
