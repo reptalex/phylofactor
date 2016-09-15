@@ -55,8 +55,8 @@ phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,taxa.split=F,common.name=F
     } else {
       taxa <- lapply(otus,FUN=function(g,Taxonomy,common.name,uniques,...) OTUtoTaxa(g,Taxonomy=Taxonomy,common.name,uniques,...),common.name=F,uniques=T,Taxonomy=Taxonomy)
       output$taxa[[nn]] <- vector(mode='list',length=2)
-      output$taxa[[nn]][[1]] <- uniqueTaxa(taxa[[1]],taxa[[2]])
-      output$taxa[[nn]][[2]] <- uniqueTaxa(taxa[[2]],taxa[[1]])
+      output$taxa[[nn]][[1]] <- unique(uniqueTaxa(taxa[[1]],taxa[[2]]))
+      output$taxa[[nn]][[2]] <- unique(uniqueTaxa(taxa[[2]],taxa[[1]]))
     }
     output$summary[nn,1:2] <- sapply(as.list(names(grp)),FUN=function(a) paste('--(',a,')--',sep=''))
 
