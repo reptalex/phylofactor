@@ -10,51 +10,58 @@
 #' tree <- rtree(12)
 #' grp1 <- c(9:12)
 #' grp2 <- c(1:8) #correct answer: 16
-#' getFactoredEdges(tree,grp1,grp2)
+#' getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 #' 
 #' #Case 2: mrca2>root:
 #' grp1 <- c(1:8)
 #' grp2 <- c(9:12) #correct answer:16
-#' getFactoredEdges(tree,grp1,grp2)
+#' getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 
 #' 
 #' grp1 <- c(1:8,12)
 #' grp2 <- c(9:11) #correct answer: 17
-#' getFactoredEdges(tree,grp1,grp2)
+#' getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 
 
 #' #Case 3: mrca1>root & mrca2 >root - nodepath passing trough root
 #' grp1 <- c(9:11)
 #' grp2 <- c(2:3) #correct answer: c(17,16,6,1,3)
-#' getFactoredEdges(tree,grp1,grp2)
+#' getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 
 
 #' #Case 4: mrca1>root & mrca2 >root - nodepath NOT passing trough root
 #' grp1 <- c(9:11)
 #' grp2 <- c(5,6) #correct answer: c(17,16,7,8,10,11)
-#' getFactoredEdges(tree,grp1,grp2)
+#' getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 
 
-getFactoredEdges <- function(v=NULL,tree,grp1=NULL,grp2=NULL){
+getFactoredEdges <- function(v=NULL,tree,M=NULL,grp1=NULL,grp2=NULL){
   if (is.null(grp1) && is.null(grp2) && is.null(v)){stop('need to input either grp1 and grp2, or ILR vector v')}
   if (is.null(v)==F){
     grp1 <- which(v<0)
     grp2 <- which(v>0)
   }
+  
 ########## the FUNCTION!!
-rooot <- length(tree$tip.label)+1
+  ntips <- ape::Ntip(tree)
+  rooot <- ntips+1
 
 #### get MRCA1
+  if (is.null(M)){
+    M <- ape::mrca(tree)
+  }
 if (length(grp1)>1){
-  mrca1 <- phytools::findMRCA(tree,tree$tip.label[grp1])
+  ms <- c(M[grp1,grp1])
+  mrca1 <- min(ms[ms>ntips])
 } else {
   mrca1 <- grp1
 }
 
 #### get MRCA2
 if (length(grp2)>1){
-  mrca2 <- phytools::findMRCA(tree,tree$tip.label[grp2])
-} else {
+  ms <- c(M[grp2,grp2])
+  mrca2 <- min(ms[ms>ntips])
+  } else {
   mrca2 <- grp2
 }
 NP <- ape::nodepath(tree,mrca1,mrca2)

@@ -40,8 +40,14 @@ getFactoredEdgesPAR <- function(cl=NULL,ncores=NULL,tree=NULL,V=NULL,PF=NULL){
   ind <- 1:ncol(V)
   ix <- parallel::clusterSplit(cl,ind)
   v <- lapply(ix,function(j,v) v[,j,drop=F],v=V)
+  M <- ape::mrca(tree)
   
-  edgsPAR <- parallel::parLapply(cl,v,function(v,tree) lapply(apply(v,MARGIN=2,as.list),getFactoredEdges,tree=tree),tree=tree)
+  splitFCN <- function(v,tree,M){
+    apply(v,MARGIN=2,as.list)  %>% 
+      lapply(.,FUN=function(v,tree,M) getFactoredEdges(v=v,tree=tree,M=M),tree=tree,M=M)
+  }
+  
+  edgsPAR <- parallel::parLapply(cl,v,function(v,tree,M) splitFCN(v,tree,M),tree=tree,M=M)
   
   edgs <- vector(mode='list',length=ncol(V))
   for (pp in 1:length(ix)){
