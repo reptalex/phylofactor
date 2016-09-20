@@ -55,7 +55,21 @@ findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=
       grp <- lapply(grp,FUN=function(x,tree) tree$tip.label[x],tree=treeList[[whichTree]])
       #This converts numbered grps of tip-labels for trees in treeList to otus that correspond to rownames in Data.
       
-      Y <- amalg.ILR(grp,Log.Data=Log.Data)
+      
+      #### ILR-transform the data, splitting grp ###
+      r = length(grp[[1]])
+      s = length(grp[[2]])
+      if (r>1){
+        Y <- colSums(Log.Data[grp[[1]],])*(sqrt(s/(r*(r+s))))
+      } else {
+        Y <- Log.Data[grp[[1]],]*(sqrt(s/(r*(r+s))))
+      }
+      if (s>1){
+        Y <- Y-colSums(Log.Data[grp[[2]],])*sqrt(r/(s*(r+s)))
+      } else {
+        Y <- Y-Log.Data[grp[[2]],]*sqrt(r/(s*(r+s)))
+      }
+      ##################################################
       
       if (choice %in% c('var','F')){
         
