@@ -95,7 +95,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,p
     }
     
     WinnerOutput <- Winners[[winner]]
-    gc()
+    gc
   }
 
 
