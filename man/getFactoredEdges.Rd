@@ -4,7 +4,7 @@
 \alias{getFactoredEdges}
 \title{Returns edges from a phylofactor}
 \usage{
-getFactoredEdges(v = NULL, tree, grp1 = NULL, grp2 = NULL)
+getFactoredEdges(v = NULL, tree, M = NULL, grp1 = NULL, grp2 = NULL)
 }
 \arguments{
 \item{v}{Optional input of an ILR-style partition vector, which automatically extracts grp1 and grp2}
@@ -24,23 +24,23 @@ set.seed(1)
 tree <- rtree(12)
 grp1 <- c(9:12)
 grp2 <- c(1:8) #correct answer: 16
-getFactoredEdges(tree,grp1,grp2)
+getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 
 #Case 2: mrca2>root:
 grp1 <- c(1:8)
 grp2 <- c(9:12) #correct answer:16
-getFactoredEdges(tree,grp1,grp2)
+getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 
 grp1 <- c(1:8,12)
 grp2 <- c(9:11) #correct answer: 17
-getFactoredEdges(tree,grp1,grp2)
+getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 #Case 3: mrca1>root & mrca2 >root - nodepath passing trough root
 grp1 <- c(9:11)
 grp2 <- c(2:3) #correct answer: c(17,16,6,1,3)
-getFactoredEdges(tree,grp1,grp2)
+getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 #Case 4: mrca1>root & mrca2 >root - nodepath NOT passing trough root
 grp1 <- c(9:11)
 grp2 <- c(5,6) #correct answer: c(17,16,7,8,10,11)
-getFactoredEdges(tree,grp1,grp2)
+getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 }
 

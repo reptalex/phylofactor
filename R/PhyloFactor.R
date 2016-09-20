@@ -115,6 +115,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   treeList <- list(tree)
   binList <- list(1:ape::Ntip(tree))
   nms <- rownames(Data)
+  LogData = log(Data)
+  
   #### Get list of groups from tree ####
 #   if (is.null(Grps)){
 #     Grps <- getGroups(tree)
@@ -128,8 +130,20 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     Grps <- phylofactor::getGroups(tree)
     cl=NULL
   } else {
+    
+    ############################## Setting up phyloFcluster ################################
     cl <- phyloFcluster(ncores)
-    parallel::clusterExport(cl,'X')
+    ### To reduce the data transfer to the clusters, we can allocate X and LogData, which remain unchanged throughout.
+    ### To pre-allocate memory on the clusters, we can export Y and gg - an ILR vector and glm, respectively.
+    Y <- amalg.ILR(list(1,setdiff(nrow(Data),1)),LogData)
+    dataset <- c(list(Y),as.list(X))
+    names(dataset) <- c('Data',names(X))
+    dataset <- model.frame(frmla,data = dataset)
+    gg <- glm(frmla,data=dataset)
+    parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg'),envir=environment())
+    
+    #### The following variables - treetips, grpsizes, tree_map, ix_cl - change every iteration.
+    #### Updated versions will need to be passed to the cluster.
     nms=rownames(Data)
     treetips <- sapply(treeList,FUN=ape::Ntip)
     grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
@@ -138,9 +152,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     tree_map <- cumsum(grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
     ix_cl <- parallel::clusterSplit(cl,cl_node_map)
   }
-  # This is a list of 2-element lists containing the partitioning of tips
-  # in our tree according to the edges. The groups can be mapped to the tree
-  # via the node given names(Grps)[i]. The OTUs corresponding to the Groups can be found with:
+  
   ### Get OTUs from tree
   OTUs <- tree$tip.label
   if (choice=='var'){
@@ -151,7 +163,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   
   ################ OUTPUT ###################
   output <- NULL
-  
   if (!small.output){
     output$Data <- Data
     output$X <- X
@@ -171,17 +182,19 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   }
   
   
-  
+  ####### On your marks.... Get set.... #######
   pfs=0
   age=1
   output$terminated=F
   
+  
+  ########## GO! ##############################
   while (pfs < min(length(OTUs)-1,nfactors)){
     
     
     if (is.null(ncores)==F && age==0){
       cl <- phyloFcluster(ncores)
-      parallel::clusterExport(cl,'X')
+      parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg'),envir=environment())
     }
     
     
@@ -202,8 +215,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
-    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms)
-    
+    PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms)
     # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
@@ -277,6 +289,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     }
     
     pfs=pfs+1
+    gc()
   }
   
   

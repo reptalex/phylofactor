@@ -1,19 +1,20 @@
 #' Internal phylofactor function for finding the winning edge.
 #'
 #' @export
-#' @param nset
+#' @param nset set of nodes
 #' @param tree_map mapping cumulative number of nodes in treeList, used to map elements of nset to their appropriate tree in treeList.
 #' @param treeList list containing disjoint trees from phylofactor / PhyCA
 #' @param treetips number of tips in each tree
-#' @param Log.Data logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once. 
+#' @param LogData logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once. 
 #' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
 #' @param smallglm Logical - whether or not to use regular GLM. if smallglm=F, will use bigglm from the biglm package.
-findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=F,frmla=NULL,X=NULL,...){
+findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,X=NULL,...){
   
   
   ########### set-up and prime variables #############
   grp <- vector(mode='list',length=2)
   output <- NULL
+  Y <- numeric(ncol(LogData))
   gg <- NULL #This will be our GLM
   
   if (choice %in% c('var','F')){
@@ -60,14 +61,14 @@ findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=
       r = length(grp[[1]])
       s = length(grp[[2]])
       if (r>1){
-        Y <- colSums(Log.Data[grp[[1]],])*(sqrt(s/(r*(r+s))))
+        Y <- colSums(LogData[grp[[1]],])*(sqrt(s/(r*(r+s))))
       } else {
-        Y <- Log.Data[grp[[1]],]*(sqrt(s/(r*(r+s))))
+        Y <- LogData[grp[[1]],]*(sqrt(s/(r*(r+s))))
       }
       if (s>1){
-        Y <- Y-colSums(Log.Data[grp[[2]],])*sqrt(r/(s*(r+s)))
+        Y <- Y-colSums(LogData[grp[[2]],])*sqrt(r/(s*(r+s)))
       } else {
-        Y <- Y-Log.Data[grp[[2]],]*sqrt(r/(s*(r+s)))
+        Y <- Y-LogData[grp[[2]],]*sqrt(r/(s*(r+s)))
       }
       ##################################################
       
@@ -89,19 +90,11 @@ findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=
             if (stats['ExplainedVar']>output$ExplainedVar){
               output$grp <- grp
               output$ExplainedVar <- stats['ExplainedVar']
-              output$Pvalue <- stats['Pval']
-              output$glm <- gg
-              output$Y <- Y
-              output$Yhat <- gg$fitted.values
             }
           } else {
             if (stats['F']>output$Fstat){
               output$grp <- grp
               output$Fstat <- stats['F']
-              output$Pvalue <- stats['Pval']
-              output$glm <- gg
-              output$Y <- Y
-              output$Yhat <- gg$fitted.values
             }
           }
       } else { #PhyCA
@@ -116,7 +109,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=
   }
   
   if (choice %in% c('var','F') && !smallglm){ #convert bigglm to glm
-    Y <- amalg.ILR(output$grp,Log.Data=Log.Data)
+    Y <- amalg.ILR(output$grp,LogData=LogData)
     dataset <- c(list(Y),as.list(X))
     names(dataset) <- c('Data',names(X))
     dataset <- model.frame(frmla,data = dataset)

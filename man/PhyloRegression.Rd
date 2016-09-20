@@ -4,11 +4,12 @@
 \alias{PhyloRegression}
 \title{Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.}
 \usage{
-PhyloRegression(Data, X, frmla, Grps, choice, treeList, cl, totalvar = NULL,
-  par.input = NULL, quiet = T, nms = NULL, ...)
+PhyloRegression(LogData, X, frmla, Grps, choice, treeList, cl,
+  totalvar = NULL, ix_cl, treetips, grpsizes, tree_map, quiet = T,
+  nms = NULL, ...)
 }
 \arguments{
-\item{Data}{Compositional data matrix whose rows are parts and columns are samples.}
+\item{LogData}{Logarithm of Compositional data matrix whose rows are parts and columns are samples.}
 
 \item{X}{independent variables for input into glm.}
 

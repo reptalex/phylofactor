@@ -4,8 +4,23 @@
 \alias{findWinner}
 \title{Internal phylofactor function for finding the winning edge.}
 \usage{
-findWinner(nset, tree_map, treeList, treetips, Log.Data, choice, smallglm = F,
+findWinner(nset, tree_map, treeList, treetips, choice, smallglm = F,
   frmla = NULL, X = NULL, ...)
+}
+\arguments{
+\item{nset}{set of nodes}
+
+\item{tree_map}{mapping cumulative number of nodes in treeList, used to map elements of nset to their appropriate tree in treeList.}
+
+\item{treeList}{list containing disjoint trees from phylofactor / PhyCA}
+
+\item{treetips}{number of tips in each tree}
+
+\item{choice}{string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}}
+
+\item{smallglm}{Logical - whether or not to use regular GLM. if smallglm=F, will use bigglm from the biglm package.}
+
+\item{LogData}{logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once.}
 }
 \description{
 Internal phylofactor function for finding the winning edge.

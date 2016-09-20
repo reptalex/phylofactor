@@ -5,7 +5,7 @@
 \title{amalgamate two groups in a compositional data matrix to obtain ILR vector
 Must input the log of the data matrix}
 \usage{
-amalg.ILR(Grp, Log.Data)
+amalg.ILR(Grp, LogData)
 }
 \arguments{
 \item{Grp}{List containing two non-overlapping vectors of positive, non-zero integers less than the number of rows in the Data matrix.}

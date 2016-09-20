@@ -1,6 +1,6 @@
 #' Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.
 #' @export
-#' @param Data Compositional data matrix whose rows are parts and columns are samples.
+#' @param LogData Logarithm of Compositional data matrix whose rows are parts and columns are samples.
 #' @param X independent variables for input into glm.
 #' @param frmla Formula for input into glm by lapply(Y,FUN = pglm,x=X,frmla=frmla,choice,...). 
 #' @param Grps Groups - a list whose elements are two-element lists containing the groups and their compliments for amalgamation into ILR coordinates
@@ -33,9 +33,9 @@
 #' image(clr(t(Y)),main="Original Data")
 #' image(clr(t(pr$residualData)),main="residual Data")
 
-PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,ix_cl,treetips,grpsizes,tree_map,quiet=T,nms=NULL,...){
+PhyloRegression <- function(LogData,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,ix_cl,treetips,grpsizes,tree_map,quiet=T,nms=NULL,...){
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
-  n <- dim(Data)[1]
+  n <- dim(LogData)[1]
   
   
   ############# REGRESSION ################
@@ -46,8 +46,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,i
     Y <- vector(mode='list',length=ngrps)
     GLMs <- Y
     stats <- matrix(NA,ncol=2,nrow=ngrps)
-    Y <- lapply(X=Grps,FUN=amalg.ILR,Log.Data=log(Data))
-    # GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T)
+    Y <- lapply(X=Grps,FUN=amalg.ILR,LogData=LogData)
     GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
     stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=3,byrow=T) #contains Pvalues and F statistics
     rownames(stats) <- names(GLMs)
@@ -77,24 +76,34 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,i
     
     
   } else {  ##### PARALLEL #####
-
-    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) findWinner(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,Log.Data=log(Data),choice=choice,smallglm=F,frmla=frmla,XX=X)
-    if (choice=='var'){
-      vs <- sapply(Winners,FUN=function(x) x$ExplainedVar)
-    } else {
-      vs <- sapply(Winners,FUN=function(x) x$Fstat)
-    }
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,...) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,...)
+    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla)
     
-    winner= which(vs==max(vs))
+    grps <- lapply(Winners,FUN=function(x) x$grp)
+    Y <- lapply(grps,amalg.ILR,LogData=LogData)
+    getGLMs <- function(y,frmla,X,...){
+      dataset <- c(list(y),as.list(X))
+      names(dataset) <- c('Data',names(X))
+      dataset <- model.frame(frmla,data = dataset)
+      gg=glm(frmla,data = dataset,...)
+    }
+    gg <- lapply(Y,FUN=getGLMs,frmla=frmla,X,...)
+    stats <- lapply(gg,getStats)
+    
+    if (choice=='var'){
+      objective <- sapply(stats,function(x) x['ExplainedVar'])
+    }
+    if (choice=='F'){
+      objective <- sapply(stats,function(x) x['F'])
+    }
+    winner=which(objective==max(objective))
+    
     if (length(winner)>1){
       if (!quiet){
         warning(paste('There was a tie at step ',phcas,'. The first entry will be chosen.'))
       }
       winner <- winner[1]
     }
-    
-    WinnerOutput <- Winners[[winner]]
-    gc()
   }
 
   
@@ -112,14 +121,14 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,i
       output$explainedvar <- stats[winner,'ExplainedVar']/totalvar
     }
   } else {
-    output$glm <- WinnerOutput$glm
+    output$glm <- gg[[winner]]
     output$winner <- NA
-    grp <- lapply(WinnerOutput$grp,FUN=function(x,nms) which(nms %in% x),nms=nms)
+    grp <- lapply(grps[[winner]],FUN=function(x,nms) which(nms %in% x),nms=nms)
     output$grp <- grp
     output$basis <- ilrvec(grp,n)
     output$p.values <- c(sapply(Winners,FUN=function(x) x$p.values))
     if (choice=='var'){
-      output$explainedvar <- WinnerOutput$ExplainedVar/totalvar
+      output$explainedvar <- objective[winner]/totalvar
     }
   }
 
