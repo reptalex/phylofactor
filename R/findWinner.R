@@ -1,12 +1,21 @@
 #' Internal phylofactor function for finding the winning edge.
 #'
 #' @export
+#' @param nset
+#' @param tree_map mapping cumulative number of nodes in treeList, used to map elements of nset to their appropriate tree in treeList.
+#' @param treeList list containing disjoint trees from phylofactor / PhyCA
+#' @param treetips number of tips in each tree
+#' @param Log.Data logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once. 
+#' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
+#' @param smallglm Logical - whether or not to use regular GLM. if smallglm=F, will use bigglm from the biglm package.
 findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=F,frmla=NULL,X=NULL,...){
   
   
   ########### set-up and prime variables #############
   grp <- vector(mode='list',length=2)
   output <- NULL
+  gg <- NULL #This will be our GLM
+  
   if (choice %in% c('var','F')){
     output$p.values <- numeric(length(nset))
   }
@@ -46,7 +55,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=
       grp <- lapply(grp,FUN=function(x,tree) tree$tip.label[x],tree=treeList[[whichTree]])
       #This converts numbered grps of tip-labels for trees in treeList to otus that correspond to rownames in Data.
       
-      Y <- phylofactor::amalg.ILR(grp,Log.Data=Log.Data)
+      Y <- amalg.ILR(grp,Log.Data=Log.Data)
       
       if (choice %in% c('var','F')){
         
@@ -90,6 +99,14 @@ findWinner <- function(nset,tree_map,treeList,treetips,Log.Data,choice,smallglm=
         }
       }  
     
+  }
+  
+  if (choice %in% c('var','F') && !smallglm){ #convert bigglm to glm
+    Y <- amalg.ILR(output$grp,Log.Data=Log.Data)
+    dataset <- c(list(Y),as.list(X))
+    names(dataset) <- c('Data',names(X))
+    dataset <- model.frame(frmla,data = dataset)
+    output$glm <- glm(frmla,data = dataset,...)
   }
   return(output)
 }

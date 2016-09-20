@@ -79,7 +79,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,p
   } else {  ##### PARALLEL #####
 
     # parallel::clusterExport(cl,'X')
-    Winners=parallel::clusterApply(cl,x=par.input$ix_cl,fun= function(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) findWinner(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) ,tree_map=par.input$tree_map,treeList=treeList,treetips=par.input$treetips,Log.Data=log(Data),choice=choice,smallglm=T,frmla=frmla,XX=X)
+    Winners=parallel::clusterApply(cl,x=par.input$ix_cl,fun= function(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) findWinner(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) ,tree_map=par.input$tree_map,treeList=treeList,treetips=par.input$treetips,Log.Data=log(Data),choice=choice,smallglm=F,frmla=frmla,XX=X)
     if (choice=='var'){
       vs <- sapply(Winners,FUN=function(x) x$ExplainedVar)
     } else {
@@ -95,6 +95,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,p
     }
     
     WinnerOutput <- Winners[[winner]]
+    gc()
   }
 
 
