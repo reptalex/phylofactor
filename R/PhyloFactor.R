@@ -119,19 +119,23 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
 #   if (is.null(Grps)){
 #     Grps <- getGroups(tree)
 #   }
-  par.input <- NULL
+  
+  ix_cl=NULL
+  treetips=NULL
+  grpsizes=NULL
+  tree_map=NULL
   if (is.null(ncores)){
     Grps <- phylofactor::getGroups(tree)
     cl=NULL
   } else {
     cl <- phyloFcluster(ncores)
     nms=rownames(Data)
-    par.input$treetips <- sapply(treeList,FUN=ape::Ntip)
-    par.input$grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
-    nnodes <- sum(par.input$grpsizes)
+    treetips <- sapply(treeList,FUN=ape::Ntip)
+    grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
+    nnodes <- sum(grpsizes)
     cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
-    par.input$tree_map <- cumsum(par.input$grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
-    par.input$ix_cl <- parallel::clusterSplit(cl,cl_node_map)
+    tree_map <- cumsum(grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
+    ix_cl <- parallel::clusterSplit(cl,cl_node_map)
   }
   # This is a list of 2-element lists containing the partitioning of tips
   # in our tree according to the edges. The groups can be mapped to the tree
@@ -186,18 +190,17 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       if (is.null(ncores)){
         Grps <- getNewGroups(tree,treeList,binList)
       } else {
-        par.input$treetips <- sapply(treeList,FUN=ape::Ntip)
-        par.input$grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
-        nnodes <- sum(par.input$grpsizes)
+        treetips <- sapply(treeList,FUN=ape::Ntip)
+        grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
+        nnodes <- sum(grpsizes)
         cl_node_map <- sample(1:nnodes)  ### By randomizing, we can help clusters have a more even load.
-        par.input$tree_map <- cumsum(par.input$grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
-        par.input$ix_cl <- parallel::clusterSplit(cl,cl_node_map)
+        tree_map <- cumsum(grpsizes) # if tree_map[i-1]<Nde<=tree_map[i], then node is Nde-tree_map[i-1] in tree i.
+        ix_cl <- parallel::clusterSplit(cl,cl_node_map)
       }
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
-    # PhyloReg <- PhyloRegression(Data=Data,X=X,frmla=frmla,Grps=Grps,choice=choice,treeList=treeList,cl=cl,totalvar=totalvar,par.input=par.input,nms=nms)
-    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,par.input,quiet,nms,...)
+    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     

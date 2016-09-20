@@ -33,7 +33,7 @@
 #' image(clr(t(Y)),main="Original Data")
 #' image(clr(t(pr$residualData)),main="residual Data")
 
-PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,par.input=NULL,quiet=T,nms=NULL,...){
+PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,ix_cl,treetips,grpsizes,tree_map,quiet=T,nms=NULL,...){
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
   n <- dim(Data)[1]
   
@@ -79,7 +79,7 @@ PhyloRegression <- function(Data,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,p
   } else {  ##### PARALLEL #####
 
     # parallel::clusterExport(cl,'X')
-    Winners=parallel::clusterApply(cl,x=par.input$ix_cl,fun= function(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) findWinner(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) ,tree_map=par.input$tree_map,treeList=treeList,treetips=par.input$treetips,Log.Data=log(Data),choice=choice,smallglm=F,frmla=frmla,XX=X)
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) findWinner(x,tree_map,treeList,treetips,Log.Data,choice,smallglm,frmla,XX,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,Log.Data=log(Data),choice=choice,smallglm=F,frmla=frmla,XX=X)
     if (choice=='var'){
       vs <- sapply(Winners,FUN=function(x) x$ExplainedVar)
     } else {
