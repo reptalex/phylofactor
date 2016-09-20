@@ -176,7 +176,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     if (is.null(ncores)==F && age==0){
       cl <- phyloFcluster(ncores)
-      clusterExport(cl,'findWinner')
     }
     
     
