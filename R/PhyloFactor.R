@@ -129,6 +129,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     cl=NULL
   } else {
     cl <- phyloFcluster(ncores)
+    parallel::clusterExport(cl,'X')
     nms=rownames(Data)
     treetips <- sapply(treeList,FUN=ape::Ntip)
     grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
@@ -180,6 +181,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     if (is.null(ncores)==F && age==0){
       cl <- phyloFcluster(ncores)
+      parallel::clusterExport(cl,'X')
     }
     
     
@@ -200,7 +202,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
-    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,...)
+    PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms)
+    
+    # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     
