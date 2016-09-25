@@ -21,7 +21,7 @@
 #' 
 #' 
 #' phca <- PhyCA(Data,tree,ncomponents = 2)
-#' phcaPAR <- PhyCA(Data,tree,ncomponents=3,ncores=3)
+#' phcaPAR <- PhyCA(Data,tree,ncomponents=3,ncores=2)
 #' 
 #' phylofactor.visualize(phcaPAR,X=X,dimension=3)
 #' 
@@ -74,6 +74,8 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
     Grps <- getGroups(tree)
   } else {
     cl <- phyloFcluster(ncores)
+    LogData <- log(Data)
+    parallel::clusterExport(cl,'LogData',envir=environment())
     nms=rownames(Data)
     treetips <- sapply(treeList,FUN=ape::Ntip)
     grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
@@ -103,7 +105,7 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
     }
     
     if (is.null(ncores)){
-      Y <- lapply(Grps,FUN = function(g,d) amalg.ILR(g,Log.Data=log(d)), d=Data)
+      Y <- lapply(Grps,FUN = function(g,d) amalg.ILR(g,LogData=log(d)), d=Data)
       vars <- sapply(Y,var)
       winner <- which(vars==max(vars))
       if (length(winner)>1){
@@ -122,8 +124,8 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
         output$edges[[phcas]] <- list(getFactoredEdges(v,tree))
       }
       
-    } else {
-      Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,Log.Data,choice) findWinner(x,tree_map,treeList,treetips,Log.Data,choice),tree_map=tree_map,treeList=treeList,treetips=treetips,Log.Data=log(Data),choice='phyca')
+    } else {                                                 #nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,X=NULL,.
+      Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice) findWinner(x,tree_map,treeList,treetips,choice),tree_map=tree_map,treeList=treeList,treetips=treetips,choice='phyca')
       vs <- sapply(Winners,FUN=function(x) x$var)
       winner=which(vs==max(vs))
       if (length(winner)>1){
