@@ -140,7 +140,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     names(dataset) <- c('Data',names(X))
     dataset <- model.frame(frmla,data = dataset)
     gg <- glm(frmla,data=dataset)
-    parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg'),envir=environment())
+    parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg','dataset'),envir=environment())
     
     #### The following variables - treetips, grpsizes, tree_map, ix_cl - change every iteration.
     #### Updated versions will need to be passed to the cluster.
@@ -194,7 +194,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     if (is.null(ncores)==F && age==0){
       cl <- phyloFcluster(ncores)
-      parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg'),envir=environment())
+      parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg','dataset'),envir=environment())
     }
     
     

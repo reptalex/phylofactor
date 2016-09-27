@@ -8,14 +8,16 @@
 #' @param LogData logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once. 
 #' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
 #' @param smallglm Logical - whether or not to use regular GLM. if smallglm=F, will use bigglm from the biglm package.
-findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,X=NULL,...){
+findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,xx=NULL,...){
   
   
   ########### set-up and prime variables #############
   grp <- vector(mode='list',length=2)
   output <- NULL
   Y <- numeric(ncol(LogData))
-  gg <- NULL #This will be our GLM
+  if (!exists('gg')){
+    gg <- NULL #This will be our GLM
+  }
   
   if (choice %in% c('var','F')){
     output$p.values <- numeric(length(nset))
@@ -44,7 +46,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
       grp[[1]] <- phangorn::Descendants(treeList[[whichTree]],node=(nn-tree_map[whichTree-1]))[[1]]
     } else {
       whichTree <- 1
-      if (nn==treetips[1]+1){ 
+      if (nn==(treetips[1]+1)){ 
         #This prevents us from drawing the root of a subtree, which has no meaningful ILR transform. 
         next 
       }
@@ -73,10 +75,14 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
       ##################################################
       
       if (choice %in% c('var','F')){
-        
-        dataset <- c(list(Y),as.list(X))
-        names(dataset) <- c('Data',names(X))
-        dataset <- model.frame(frmla,data = dataset)
+          
+          if (!exists('dataset')){
+            dataset <- c(list(Y),as.list(xx))
+            names(dataset) <- c('Data',names(xx))
+            dataset <- model.frame(frmla,data = dataset)
+          } else {
+            dataset$Data <- Y
+          }
         
         if(smallglm){
           gg=glm(frmla,data = dataset,...)
@@ -110,8 +116,8 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
   
   if (choice %in% c('var','F') && !smallglm){ #convert bigglm to glm
     Y <- amalg.ILR(output$grp,LogData=LogData)
-    dataset <- c(list(Y),as.list(X))
-    names(dataset) <- c('Data',names(X))
+    dataset <- c(list(Y),as.list(xx))
+    names(dataset) <- c('Data',names(xx))
     dataset <- model.frame(frmla,data = dataset)
     output$glm <- glm(frmla,data = dataset,...)
   }

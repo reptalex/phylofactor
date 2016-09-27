@@ -76,8 +76,8 @@ PhyloRegression <- function(LogData,X,frmla,Grps,choice,treeList,cl,totalvar=NUL
     
     
   } else {  ##### PARALLEL #####
-    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,...) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,...)
-    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla)
+    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,...) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,...)
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,xx=X)
     
     grps <- lapply(Winners,FUN=function(x) x$grp)
     Y <- lapply(grps,amalg.ILR,LogData=LogData)
