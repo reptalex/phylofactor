@@ -136,11 +136,12 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     ### To reduce the data transfer to the clusters, we can allocate X and LogData, which remain unchanged throughout.
     ### To pre-allocate memory on the clusters, we can export Y and gg - an ILR vector and glm, respectively.
     Y <- amalg.ILR(list(1,setdiff(nrow(Data),1)),LogData)
-    dataset <- c(list(Y),as.list(X))
-    names(dataset) <- c('Data',names(X))
+    xx=X
+    dataset <- c(list(Y),as.list(xx))
+    names(dataset) <- c('Data',names(xx))
     dataset <- model.frame(frmla,data = dataset)
     gg <- glm(frmla,data=dataset)
-    parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg','dataset'),envir=environment())
+    parallel::clusterExport(cl,varlist=c('LogData','Y','gg','dataset'),envir=environment())
     
     #### The following variables - treetips, grpsizes, tree_map, ix_cl - change every iteration.
     #### Updated versions will need to be passed to the cluster.
@@ -175,10 +176,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     STOP=F
   } else {
     STOP=T
-  }
-  
-  if (is.null(stop.early)==F && is.null(stop.fcn)==T){
-    stop.fcn='KS'
+    if (is.null(stop.fcn)){
+      stop.fcn='KS'
+    }
   }
   
   
@@ -194,7 +194,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     if (is.null(ncores)==F && age==0){
       cl <- phyloFcluster(ncores)
-      parallel::clusterExport(cl,varlist=c('X','LogData','Y','gg','dataset'),envir=environment())
+      parallel::clusterExport(cl,varlist=c('LogData','Y','gg','dataset'),envir=environment())
     }
     
     
@@ -232,8 +232,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     }
     
     if (STOP){
-      if (is.null(stop.early)==T){
-        if (is.null(stop.fcn)==F){
+      if (is.null(stop.early)){
+        if (!is.null(stop.fcn)){
           if (stop.fcn=='KS'){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
@@ -272,9 +272,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     ############################## LATE STOP ######################################
     ############# Decide whether or not to stop based on PhyloReg #################
     if (STOP){
-      
-      if (is.null(stop.early)==F){
-        if (is.null(stop.fcn)==F){
+      if (!is.null(stop.early)){
+        if (!is.null(stop.fcn)){
           if (stop.fcn=='KS'){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
@@ -298,7 +297,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   ########### Clean up the Output ####################################
   
   ####### Factors ##########
-  if (is.null(output$factors)==F){
+  if (!is.null(output$factors)){
     pfs <- dim(output$factors)[2]
     colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
     rownames(output$factors)=c('Group1','Group2')
@@ -336,7 +335,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   
   
   
-  
+  ### Shut down cluster
   if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
     parallel::stopCluster(cl)
     rm(cl)

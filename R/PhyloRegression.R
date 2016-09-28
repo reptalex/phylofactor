@@ -77,7 +77,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps,choice,treeList,cl,totalvar=NUL
     
   } else {  ##### PARALLEL #####
     # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,...) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,...)
-    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,xx=X)
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=X) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,xx=X)
     
     grps <- lapply(Winners,FUN=function(x) x$grp)
     Y <- lapply(grps,amalg.ILR,LogData=LogData)
@@ -126,7 +126,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps,choice,treeList,cl,totalvar=NUL
     grp <- lapply(grps[[winner]],FUN=function(x,nms) which(nms %in% x),nms=nms)
     output$grp <- grp
     output$basis <- ilrvec(grp,n)
-    output$p.values <- c(sapply(Winners,FUN=function(x) x$p.values))
+    output$p.values <- unlist(c(sapply(Winners,FUN=function(x) x$p.values)))
     if (choice=='var'){
       output$explainedvar <- objective[winner]/totalvar
     }
