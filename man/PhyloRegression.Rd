@@ -6,7 +6,7 @@
 \usage{
 PhyloRegression(LogData, X, frmla, Grps, choice, treeList, cl,
   totalvar = NULL, ix_cl, treetips, grpsizes, tree_map, quiet = T,
-  nms = NULL, ...)
+  nms = NULL, smallglm = F, ...)
 }
 \arguments{
 \item{LogData}{Logarithm of Compositional data matrix whose rows are parts and columns are samples.}
@@ -19,7 +19,27 @@ PhyloRegression(LogData, X, frmla, Grps, choice, treeList, cl,
 
 \item{choice}{Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.}
 
+\item{treeList}{List of trees formed by phylofactorization and cutting trees along factored edges.}
+
 \item{cl}{phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.}
+
+\item{totalvar}{Total variance of dataset.}
+
+\item{ix_cl}{Cluster split of nodes in treeList}
+
+\item{treetips}{Number of tips in treeList for quickly identifying whether nodes correspond to a root}
+
+\item{grpsizes}{Number of nodes in each tree of treeList}
+
+\item{tree_map}{Cumulative number of nodes in trees of treeList - allows rapid mapping of nodes in ix_cl to appropriate tree in treeList.}
+
+\item{quiet}{Logical to supress warnings}
+
+\item{nms}{rownames of LogData, allowing reliable mapping of rows of data to tree.}
+
+\item{smallglm}{Logical. See \code{\link{PhyloFactor}}}
+
+\item{RegressionFunction}{Regression type function; see \code{\link{PhyloFactor}}}
 }
 \description{
 Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.

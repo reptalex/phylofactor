@@ -15,6 +15,9 @@
 #' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
+#' @param smallglm Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false. 
+#' @param RegressionFunction Optional input regression function, such as \code{lm}, \code{gam}, etc. Calling \code{reg <- summary(aov(RegressionFunction(y~x)))} must produce a table whose first row contains the F statistic and 'Pr(>F)'.
+#' @param package String. Package name in which \code{RegressionFunction} can be found - will export package to all workers in the \code{\link{phyloFcluster}}.
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1
 #' @examples
 #'  set.seed(1)
@@ -52,9 +55,14 @@
 #' X <- data.frame('a'=a,'b'=b)
 #' frmla <- Data~a+b
 #' PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
+#' 
+#' #PhyloFactor can also be used for generalized additive models
+#' 
+#' frmla <- Data~a+s(b)
+#' PF.G <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2,RegressionFunction=gam::gam,ncores=2)
 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=F,...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=F,RegressionFunction=NULL,package=NULL,...){
   
   
   #### Housekeeping
@@ -79,6 +87,9 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     tree <- ape::unroot(tree)}
   
   #### Default treatment of Data ###
+  if (any(colSums(Data)<=0)){
+    stop('all columns of input data must have sum greater than 0')
+  }
   if (!trust.me){
     if (any(Data==0)){
       if (delta==0.65){
@@ -136,12 +147,31 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     ### To reduce the data transfer to the clusters, we can allocate X and LogData, which remain unchanged throughout.
     ### To pre-allocate memory on the clusters, we can export Y and gg - an ILR vector and glm, respectively.
     Y <- numeric(ncol(Data))
-    xx=X
-    dataset <- c(list(Y),as.list(xx))
-    names(dataset) <- c('Data',names(xx))
-    dataset <- model.frame(frmla,data = dataset)
-    gg <- glm(frmla,data=dataset)
-    parallel::clusterExport(cl,varlist=c('LogData','Y','gg','dataset'),envir=environment())
+    if (is.null(RegressionFunction)){
+      dataset <- c(list(Y),as.list(X))
+      names(dataset) <- c('Data',names(X))
+      dataset <- model.frame(frmla,data = dataset)
+      gg <- glm(frmla,data=dataset)
+    } else {
+      if (is.null(package)){
+        stop('Must insert package where RegressionFunction can be found, e.g. package="gam". This will be passed onto workers in the cluster')
+      } else {
+        clusterExport(cl,'package',envir = environment())
+        clusterEvalQ(cl,expr=eval(parse(text=paste('library(',package,')',sep=''))))
+      }
+      
+      ##### Make dataset for gam #####
+      dataset <- as.data.frame(cbind(Y,X))
+      if (class(X) != 'data.frame'){
+        names(dataset)=c('Data','X')
+      } else {
+        names(dataset) <- c('Data',names(X))
+      }
+      model.frame(frmla,data=dataset)
+      gg=NULL
+    }
+    xx <- X
+    parallel::clusterExport(cl,varlist=c('xx','X','LogData','Y','gg','dataset'),envir=environment())
     
     #### The following variables - treetips, grpsizes, tree_map, ix_cl - change every iteration.
     #### Updated versions will need to be passed to the cluster.
@@ -194,7 +224,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     if (is.null(ncores)==F && age==0){
       cl <- phyloFcluster(ncores)
-      parallel::clusterExport(cl,varlist=c('LogData','Y','gg','dataset'),envir=environment())
+      parallel::clusterExport(cl,varlist=c('xx','X','LogData','Y','gg','dataset'),envir=environment())
     }
     
     
@@ -215,8 +245,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
-    PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm)
-    # PhyloReg <- PhyloRegression(Data,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,...)
+    PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,RegressionFunction)
+    # PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,RegressionFunction...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     
@@ -325,6 +355,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     output$Monophyletic.clades <- intersect(which(names(output$bins)=='Monophyletic'),which(binsize>1))
   }
   
+  
+  ### Regression functions
   
 
   

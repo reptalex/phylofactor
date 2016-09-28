@@ -7,8 +7,9 @@
 #' @param treetips number of tips in each tree
 #' @param LogData logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once. 
 #' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
-#' @param smallglm Logical - whether or not to use regular GLM. if smallglm=F, will use bigglm from the biglm package.
-findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,xx=NULL,...){
+#' @param smallglm Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.
+#' @param RegressionFunction See \code{\link{PhyloFactor}}
+findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,xx=NULL,RegressionFunction=NULL,...){
   
   
   ########### set-up and prime variables #############
@@ -60,38 +61,48 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
       
       
       #### ILR-transform the data, splitting grp ###
-      r = length(grp[[1]])
-      s = length(grp[[2]])
-      if (r>1){
-        Y <- colSums(LogData[grp[[1]],])*(sqrt(s/(r*(r+s))))
+      rr = length(grp[[1]])
+      ss = length(grp[[2]])
+      if (rr>1){
+        Y <- colSums(LogData[grp[[1]],])*(sqrt(ss/(rr*(rr+ss))))
       } else {
-        Y <- LogData[grp[[1]],]*(sqrt(s/(r*(r+s))))
+        Y <- LogData[grp[[1]],]*(sqrt(ss/(rr*(rr+ss))))
       }
-      if (s>1){
-        Y <- Y-colSums(LogData[grp[[2]],])*sqrt(r/(s*(r+s)))
+      if (ss>1){
+        Y <- Y-colSums(LogData[grp[[2]],])*sqrt(rr/(ss*(rr+ss)))
       } else {
-        Y <- Y-LogData[grp[[2]],]*sqrt(r/(s*(r+s)))
+        Y <- Y-LogData[grp[[2]],]*sqrt(rr/(ss*(rr+ss)))
       }
       ##################################################
       
       if (choice %in% c('var','F')){
           
           if (!exists('dataset')){
-            dataset <- c(list(Y),as.list(xx))
-            names(dataset) <- c('Data',names(xx))
-            dataset <- model.frame(frmla,data = dataset)
-          } else {
-            if (nrow(dataset) != length(Y)){
-              stop(paste('dataset=',toString(dim(dataset)),' Y=',toString(length(Y)),'.',sep=''))
+            if (is.null(RegressionFunction)){
+              dataset <- c(list(Y),as.list(xx))
+              names(dataset) <- c('Data',names(xx))
+              dataset <- model.frame(frmla,data = dataset)
+            } else {
+              dataset <- cbind(data.frame('Data'=Y),xx)
+              if (is.null(dim(xx))){
+                names(dataset)[2] <- 'X'
+              } else {
+                names(dataset)[2:ncol(dataset)] <- names(xx)
+              }
             }
+          } else {
             dataset$Data <- Y
           }
         
-        
-        if(smallglm){
-          gg=glm(frmla,data = dataset,...)
+        if (is.null(RegressionFunction)){
+          if(smallglm){
+            gg=glm(frmla,data = dataset,...)
+          } else {
+            gg=biglm::bigglm(frmla,data = dataset,...)
+          }
         } else {
-          gg=biglm::bigglm(frmla,data = dataset,...)
+          smallglm=T
+          gg = RegressionFunction(frmla,data=dataset,...)
         }
         
         stats=getStats(gg,y=Y)
@@ -122,8 +133,12 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
     Y <- amalg.ILR(output$grp,LogData=LogData)
     dataset <- c(list(Y),as.list(xx))
     names(dataset) <- c('Data',names(xx))
-    dataset <- model.frame(frmla,data = dataset)
-    output$glm <- glm(frmla,data = dataset,...)
+    if (is.null(RegressionFunction)){
+      dataset <- model.frame(frmla,data = dataset)
+      output$glm <- glm(frmla,data = dataset,...)
+    } else {
+      output$glm <- RegressionFunction(frmla,data=dataset,...)
+    }
   } else {
     output$glm <- gg
   }

@@ -13,9 +13,9 @@
 ############################# getP #####################################
 getStats <- function(GLM,y=NULL){
   #extract P value and F statistic from analysis of variance for an input glm
-  if (!(class(GLM)[1] %in% c('glm','bigglm'))){stop('unknown input class - need glm or bigglm')}
+  if (!(class(GLM)[1] %in% c('lm','gam','glm','bigglm'))){stop('unknown input class - need glm or bigglm')}
 
-  if (class(GLM)[1]=='glm'){
+  if (class(GLM)[1] %in% c('lm','gam','glm')){
     av <- aov(GLM)
     P <- summary(av)[[1]][1,5]
     f <- summary(av)[[1]][1,4]

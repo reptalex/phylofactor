@@ -7,7 +7,8 @@
 PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
   nfactors = NULL, quiet = T, trust.me = F, small.output = F,
   stop.fcn = NULL, stop.early = NULL, KS.Pthreshold = 0.01,
-  ncores = NULL, clusterage = Inf, tolerance = 1e-10, delta = 0.65, ...)
+  ncores = NULL, clusterage = Inf, tolerance = 1e-10, delta = 0.65,
+  smallglm = F, RegressionFunction = NULL, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -39,6 +40,10 @@ PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
 \item{tolerance}{Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.}
 
 \item{delta}{Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])}
+
+\item{smallglm}{Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false.}
+
+\item{RegressionFunction}{Optional input regression function, such as \code{lm}, \code{gam}, etc. Calling \code{reg <- summary(aov(RegressionFunction(y~x)))} must produce a table whose first row contains the F statistic and 'Pr(>F)'.}
 }
 \value{
 Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1

@@ -5,7 +5,7 @@
 \title{Internal phylofactor function for finding the winning edge.}
 \usage{
 findWinner(nset, tree_map, treeList, treetips, choice, smallglm = F,
-  frmla = NULL, X = NULL, ...)
+  frmla = NULL, xx = NULL, ...)
 }
 \arguments{
 \item{nset}{set of nodes}

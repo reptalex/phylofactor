@@ -39,7 +39,7 @@ phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
 
 
 phca <- PhyCA(Data,tree,ncomponents = 2)
-phcaPAR <- PhyCA(Data,tree,ncomponents=3,ncores=3)
+phcaPAR <- PhyCA(Data,tree,ncomponents=3,ncores=2)
 
 phylofactor.visualize(phcaPAR,X=X,dimension=3)
 

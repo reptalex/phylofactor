@@ -2,10 +2,20 @@
 #' @export
 #' @param LogData Logarithm of Compositional data matrix whose rows are parts and columns are samples.
 #' @param X independent variables for input into glm.
-#' @param frmla Formula for input into glm by lapply(Y,FUN = pglm,x=X,frmla=frmla,choice,...). 
+#' @param frmla Formula for input into glm by lapply(Y,FUN = pglm,x=xx,frmla=frmla,choice,...). 
 #' @param Grps Groups - a list whose elements are two-element lists containing the groups and their compliments for amalgamation into ILR coordinates
 #' @param choice Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.
+#' @param treeList List of trees formed by phylofactorization and cutting trees along factored edges.
 #' @param cl phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.
+#' @param totalvar Total variance of dataset.
+#' @param ix_cl Cluster split of nodes in treeList
+#' @param treetips Number of tips in treeList for quickly identifying whether nodes correspond to a root
+#' @param grpsizes Number of nodes in each tree of treeList
+#' @param tree_map Cumulative number of nodes in trees of treeList - allows rapid mapping of nodes in ix_cl to appropriate tree in treeList.
+#' @param quiet Logical to supress warnings
+#' @param nms rownames of LogData, allowing reliable mapping of rows of data to tree.
+#' @param smallglm Logical. See \code{\link{PhyloFactor}}
+#' @param RegressionFunction Regression type function; see \code{\link{PhyloFactor}}
 #' @examples
 #' data("FTmicrobiome")
 #' library(ape)
@@ -23,9 +33,9 @@
 #'
 #' frmla <- Y~X
 #' print(head(Y))
-#' Z=Y
+#' Z=log(Y)
 #'
-#' pr <- PhyloRegression(Z,X,frmla,Grps,choice,cl)
+#' pr <- PhyloRegression(Z,X,frmla,Grps=Grps,choice,cl=cl)
 #'
 #' stopCluster(cl)
 #' gc()
@@ -33,10 +43,10 @@
 #' image(clr(t(Y)),main="Original Data")
 #' image(clr(t(pr$residualData)),main="residual Data")
 
-PhyloRegression <- function(LogData,X,frmla,Grps,choice,treeList,cl,totalvar=NULL,ix_cl,treetips,grpsizes,tree_map,quiet=T,nms=NULL,smallglm=F,...){
+PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,quiet=T,nms=NULL,smallglm=F,RegressionFunction,...){
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
   n <- dim(LogData)[1]
-  
+  xx=X
   
   ############# REGRESSION ################
   ##### SERIAL #####
@@ -47,7 +57,11 @@ PhyloRegression <- function(LogData,X,frmla,Grps,choice,treeList,cl,totalvar=NUL
     GLMs <- Y
     stats <- matrix(NA,ncol=2,nrow=ngrps)
     Y <- lapply(X=Grps,FUN=amalg.ILR,LogData=LogData)
-    GLMs <- lapply(X=Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+    if (is.null(RegressionFunction)){
+      GLMs <- lapply(Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+    } else {
+      GLMs <- lapply(Y,FUN = preg,xx=X,frmla=frmla,RegressionFunctio=RegressionFunction,...)
+    }
     stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=3,byrow=T) #contains Pvalues and F statistics
     rownames(stats) <- names(GLMs)
     colnames(stats) <- c('Pval','F','ExplainedVar')
@@ -76,18 +90,31 @@ PhyloRegression <- function(LogData,X,frmla,Grps,choice,treeList,cl,totalvar=NUL
     
     
   } else {  ##### PARALLEL #####
-    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,...) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=F,frmla=frmla,...)
-    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=X) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=X)
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,RegressionFunction,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction,...)
+    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,RegressionFunction) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction)
+    # Winners=lapply(ix_cl,FUN=function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,RegressionFunction) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction)
     
     grps <- lapply(Winners,FUN=function(x) x$grp)
     Y <- lapply(grps,amalg.ILR,LogData=LogData)
-    getGLMs <- function(y,frmla,X,...){
-      dataset <- c(list(y),as.list(X))
-      names(dataset) <- c('Data',names(X))
-      dataset <- model.frame(frmla,data = dataset)
-      gg=glm(frmla,data = dataset,...)
+    
+    getReg <- function(y,frmla,xx,RegressionFunction,...){
+      if (is.null(RegressionFunction)){
+        dataset <- c(list(y),as.list(xx))
+        names(dataset) <- c('Data',names(xx))
+        dataset <- model.frame(frmla,data = dataset)
+        gg=glm(frmla,data = dataset,...)
+      } else {
+        dataset <- as.data.frame(cbind(y,xx))
+        if (class(xx) != 'data.frame'){
+          names(dataset)=c('Data','X')
+        } else {
+          names(dataset) <- c('Data',names(xx))
+        }
+        model.frame(frmla,data=dataset)
+        gg=RegressionFunction(frmla,data=dataset,...)
+      }
     }
-    gg <- lapply(Y,FUN=getGLMs,frmla=frmla,X,...)
+    gg <- lapply(Y,FUN=getReg,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction,...)
     stats <- lapply(gg,getStats)
     
     if (choice=='var'){
