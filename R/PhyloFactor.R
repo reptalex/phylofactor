@@ -135,7 +135,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     cl <- phyloFcluster(ncores)
     ### To reduce the data transfer to the clusters, we can allocate X and LogData, which remain unchanged throughout.
     ### To pre-allocate memory on the clusters, we can export Y and gg - an ILR vector and glm, respectively.
-    Y <- amalg.ILR(list(1,setdiff(nrow(Data),1)),LogData)
+    Y <- numeric(ncol(Data))
     xx=X
     dataset <- c(list(Y),as.list(xx))
     names(dataset) <- c('Data',names(xx))
