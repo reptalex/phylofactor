@@ -81,6 +81,9 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
             names(dataset) <- c('Data',names(xx))
             dataset <- model.frame(frmla,data = dataset)
           } else {
+            if (nrow(dataset) != length(Y)){
+              stop('FUUUCK!')
+            }
             dataset$Data <- Y
           }
         
