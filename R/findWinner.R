@@ -88,9 +88,6 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
           }
         
         
-        if (is.factor(dataset$X)){
-          stop('FUUUUUCK')
-        }
         if(smallglm){
           gg=glm(frmla,data = dataset,...)
         } else {
