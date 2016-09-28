@@ -87,6 +87,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
             dataset$Data <- Y
           }
         
+        show(dataset)
         if(smallglm){
           gg=glm(frmla,data = dataset,...)
         } else {
