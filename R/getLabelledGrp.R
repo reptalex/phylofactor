@@ -14,9 +14,9 @@
 #' grp <- getLabelledGrp(factor,tree,Groups)
 #' grp
 
-getLabelledGrp <- function(factor=NULL,tree,Groups,from.parallel=F){
+getLabelledGrp <- function(factor=NULL,tree,Groups){
   
-  if (!from.parallel){
+  if (!is.null(factor)){
     grp <- Groups[[factor]]
   } else {
     grp <- Groups

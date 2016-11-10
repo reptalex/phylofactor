@@ -1,4 +1,4 @@
-#' Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.
+#' PhyloFactor internal function to prep, find and summarize the best ILR coordinate
 #' @export
 #' @param LogData Logarithm of Compositional data matrix whose rows are parts and columns are samples.
 #' @param X independent variables for input into glm.
@@ -15,35 +15,9 @@
 #' @param quiet Logical to supress warnings
 #' @param nms rownames of LogData, allowing reliable mapping of rows of data to tree.
 #' @param smallglm Logical. See \code{\link{PhyloFactor}}
-#' @param RegressionFunction Regression type function; see \code{\link{PhyloFactor}}
-#' @examples
-#' data("FTmicrobiome")
-#' library(ape)
-#' library(compositions)
-#' Y <- FTmicrobiome$OTUTable
-#' Y <- Y[which(rowSums(Y==0)<30),] #only include taxa present in at least 29 samples
-#' Y[Y==0]=.65
-#'
-#' Y <- t(clo(t(Y)))
-#' tree <- drop.tip(FTmicrobiome$tree, setdiff(FTmicrobiome$tree$tip.label,rownames(Y)))
-#' X <- FTmicrobiome$X
-#' Grps <- getGroups(tree)
-#' choice='var'
-#' cl <- phyloFcluster(2)
-#'
-#' frmla <- Y~X
-#' print(head(Y))
-#' Z=log(Y)
-#'
-#' pr <- PhyloRegression(Z,X,frmla,Grps=Grps,choice,cl=cl)
-#'
-#' stopCluster(cl)
-#' gc()
-#' par(mfrow=c(1,2))
-#' image(clr(t(Y)),main="Original Data")
-#' image(clr(t(pr$residualData)),main="residual Data")
+#' @param choice.fcn optional customized choice function to choose 'best' edge; see \code{\link{PhyloFactor}}
 
-PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,quiet=T,nms=NULL,smallglm=F,RegressionFunction,...){
+PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,quiet=T,nms=NULL,smallglm=F,choice.fcn,...){
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
   n <- dim(LogData)[1]
   xx=X
@@ -57,22 +31,30 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
     GLMs <- Y
     stats <- matrix(NA,ncol=2,nrow=ngrps)
     Y <- lapply(X=Grps,FUN=amalg.ILR,LogData=LogData)
-    if (is.null(RegressionFunction)){
-      GLMs <- lapply(Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
-    } else {
-      GLMs <- lapply(Y,FUN = preg,xx=X,frmla=frmla,RegressionFunctio=RegressionFunction,...)
-    }
-    stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=3,byrow=T) #contains Pvalues and F statistics
-    rownames(stats) <- names(GLMs)
-    colnames(stats) <- c('Pval','F','ExplainedVar')
-    Yhat <- lapply(GLMs,predict)
     
+    if (choice != 'custom'){
+    ################ DEFAULT choice.fcn #########################
+      GLMs <- lapply(Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+      stats <- matrix(unlist(lapply(GLMs,FUN=getStats)),ncol=3,byrow=T) #contains Pvalues and F statistics
+      rownames(stats) <- names(GLMs)
+      colnames(stats) <- c('Pval','F','ExplainedVar')
+      Yhat <- lapply(GLMs,predict)
+    ###############################################################
+    } else {
+    ##################### input choice.fcn ########################
+      
+    ch <- lapply(Y,FUN=function(y,xx,...) choice.fcn(y=y,X=xx,...),xx=xx)
+    objective <- sapply(ch,FUN=function(x) x$objective)
+    ###############################################################
+    }
     
       ############# CHOICE - EXTRACT "BEST" CLADE ##################
       if (choice=='F'){ #in this case, the GLM outputs was an F-statistic.
           winner <- which(stats[,'F']==max(stats[,'F']))
-      } else { #we pick the clade that best reduces the residual variance.
+      } else if (choice=='var'){ #we pick the clade that best reduces the residual variance.
           winner=which(stats[,'ExplainedVar']==max(stats[,'ExplainedVar']))
+      } else {
+        winner=which(objective==max(objective))
       }
       if (length(winner)>1){
         ## Check to see if they're equivalent groups, in which case don't display message.
@@ -90,41 +72,33 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
     
     
   } else {  ##### PARALLEL #####
-    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,RegressionFunction,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction,...)
-    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,RegressionFunction) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction)
-    # Winners=lapply(ix_cl,FUN=function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,RegressionFunction) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction)
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,choice.fcn,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...)
+    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,choice.fcn) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
+    
+    # Winners=lapply(ix_cl,FUN=function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,choice.fcn) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
+    # Recall: output from findWinnder is $grp and then our objective function output: $objective, $Fstat, or $ExplainedVar, corresponding to choice='custom','F', and 'var', respectivley.
     
     grps <- lapply(Winners,FUN=function(x) x$grp)
     Y <- lapply(grps,amalg.ILR,LogData=LogData)
     
-    getReg <- function(y,frmla,xx,RegressionFunction,...){
-      if (is.null(RegressionFunction)){
-        dataset <- c(list(y),as.list(xx))
-        names(dataset) <- c('Data',names(xx))
-        dataset <- model.frame(frmla,data = dataset)
-        gg=glm(frmla,data = dataset,...)
-      } else {
-        dataset <- as.data.frame(cbind(y,xx))
-        if (class(xx) != 'data.frame'){
-          names(dataset)=c('Data','X')
-        } else {
-          names(dataset) <- c('Data',names(xx))
-        }
-        model.frame(frmla,data=dataset)
-        gg=RegressionFunction(frmla,data=dataset,...)
+    
+    ####################################### DEFAULT REGRESSIONS #####################
+    if (choice != 'custom'){
+      gg <- lapply(Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+      stats <- lapply(gg,getStats)
+      if (choice=='var'){
+        objective <- sapply(stats,function(x) x['ExplainedVar'])
+      } else if (choice=='F'){
+        objective <- sapply(stats,function(x) x['F'])
       }
+    ###################################################################################
+    } else {
+    ####################################### input choice.fcn ########################
+      objective <- sapply(Y,FUN=function(y,xx,...) choice.fcn(y=y,X=xx,...)$objective,xx=xx)
+    #################################################################################
     }
-    gg <- lapply(Y,FUN=getReg,frmla=frmla,xx=xx,RegressionFunction=RegressionFunction,...)
-    stats <- lapply(gg,getStats)
     
-    if (choice=='var'){
-      objective <- sapply(stats,function(x) x['ExplainedVar'])
-    }
-    if (choice=='F'){
-      objective <- sapply(stats,function(x) x['F'])
-    }
     winner=which(objective==max(objective))
-    
     if (length(winner)>1){
       if (!quiet){
         warning(paste('There was a tie at step ',phcas,'. The first entry will be chosen.'))
@@ -136,27 +110,52 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
   
 
 
-  ############ OUTPUT ##########################
+  ################################ OUTPUT ##########################
   output <- NULL
 
-  if (is.null(cl)){
-    output$glm <- GLMs[[winner]]         #this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
-    output$winner <- winner
-    output$basis <- ilrvec(Grps[[winner]],n) #this allows us to quickly project other data onto our partition
-    output$p.values <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
-    if (choice=='var'){
-      output$explainedvar <- stats[winner,'ExplainedVar']/totalvar
+  if (is.null(cl)){ ############### SERIAL #########################
+    
+    ############ DEFAULT ##########
+    if (choice != 'custom'){
+      output$glm <- GLMs[[winner]] ## this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
+      output$p.values <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
+      if (choice=='var'){
+        output$explainedvar <- stats[winner,'ExplainedVar']/totalvar
+      }
+      ###############################
+    
+    } else {
+      ######## choice.fcn input #####
+      output$stopStatistics <- sapply(ch,FUN=function(x) x$stopStatistics)
+      output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
+      ###############################
     }
-  } else {
+    
+    output$grp <- Grps[[winner]]
+    output$basis <- ilrvec(output$grp,n) #this allows us to quickly project other data onto our partition
+    
+  } else {   #################### PARALLEL ##########################
+    
+    
+    ######## Default ##############
+    if (choice != 'custom'){
     output$glm <- gg[[winner]]
-    output$winner <- NA
-    grp <- lapply(grps[[winner]],FUN=function(x,nms) which(nms %in% x),nms=nms)
-    output$grp <- grp
-    output$basis <- ilrvec(grp,n)
     output$p.values <- unlist(c(sapply(Winners,FUN=function(x) x$p.values)))
     if (choice=='var'){
       output$explainedvar <- objective[winner]/totalvar
     }
+    ###############################
+    
+    } else {
+    ######## choice.fcn input #####
+    output$stopStatistics <- unlist(c(sapply(Winners,FUN=function(x) x$stopStatistics)))
+    output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
+    ###############################
+    }
+    
+    output$grp <- lapply(grps[[winner]],FUN=function(x,nms) which(nms %in% x),nms=nms)
+    output$basis <- ilrvec(output$grp,n)
+    
   }
 
 
