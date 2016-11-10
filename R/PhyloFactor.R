@@ -157,8 +157,8 @@
 #' }
 #' 
 #' 
-#' 
-#' ### Example of how to use PhyloFactor to identify Gaussian-shapped Hutchisonian niches ###
+#' ######################## Finding Hutchisonian Niches #####################################
+#' ### Example of how to use PhyloFactor to identify Gaussian-shapped Hutchinsonian niches ###
 #' set.seed(1)
 #' n=1000
 #' A <- 20
@@ -171,26 +171,31 @@
 #' Data <- t(clo(t(Data)))
 #' 
 #' par(mfrow=c(1,1))
-#' plot(X,geometricmeanCol(Data[sigClades[[1]],])/geometricmeanCol(Data[setdiff(1:20,sigClades[[1]]),]),ylab='Group1/Group2 gMean',log='y')
+#' plot(X,geometricmeanCol(Data[sigClades[[1]],])/geometricmeanCol(Data[setdiff(1:20,sigClades[[1]]),]),ylab='Group1/Group2 gMean',log='y',main='Identifying Gaussian-shaped Hutchinsonian Niches',xlab='Environmental Variable')
 #' 
 #' frmla=Data~X+I(X^2) 
 #' PF.Gaus <- PhyloFactor(Data,tree,frmla=frmla,X,nfactors=1,ncores=7)
 #' 
 #' all.equal(sigClades[[1]],PF.Gaus$bins[[2]])
 #' y <- PF.Gaus$groups[[1]] %>% amalg.ILR(.,log(Data))
-#' plot(X,y)
+#' plot(X,y,ylab='Group1/Group2 gMean',,main='Identifying Gaussian-shaped Hutchinsonian Niches',xlab='Environmental Variable')
 #' lines(sort(X),predict(PF.Gaus$glms[[1]])[order(X)],lwd=4,col='green')
+#' legend(-2.5,-3,legend=c('Observed','Predicted'),pch=c(1,NA),col=c('black','green'),lty=c(NA,1),lwd=c(NA,2))
 #' 
-#' ### Because the regression is performed on an ILR coordinate, getting an estimate about the mean and standard deviation of their habitat preference
+#' ### Because the regression is performed on an ILR coordinate, getting an estimate 
+#' ### about the optimal habitat preference and the width of habitat preferences
 #' ### requires a little algebra
 #' grp <- PF.Gaus$groups[[1]]
 #' r <- length(grp[[1]])
 #' s <- length(grp[[2]])
-#' c <- sqrt(r*s/(r+s))
+#' a <- coefs['I(X^2)']
+#' b <- coefs['X']
+#' c <- coefs['(Intercept)']
+#' d <- sqrt(r*s/(r+s))
 #' coefs <- PF.Gaus$glms[[1]]$coefficients
-#' sigma.hat <- sqrt(-c/(2*coefs['I(X^2)']))
-#' mu.hat <- -coefs['X']/(2*coefs['I(X^2)'])
-#' A.hat <- exp(coefs['(Intercept)']/c+mu.hat^2/(2*sigma.hat^2))
+#' sigma.hat <- sqrt(-d/(2*a))
+#' mu.hat <- -b/(2*a)
+#' A.hat <- exp(c/d+mu.hat^2/(2*sigma.hat^2))
 #' names(A.hat) <- NULL
 #' names(mu.hat) <- NULL
 #' names(sigma.hat) <- NULL
