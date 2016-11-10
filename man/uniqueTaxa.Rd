@@ -2,7 +2,7 @@
 % Please edit documentation in R/uniqueTaxa.R
 \name{uniqueTaxa}
 \alias{uniqueTaxa}
-\title{Find shortest taxonomic prefix}
+\title{Find shortest unique prefix in two taxonomic lists x and y}
 \usage{
 uniqueTaxa(x, y)
 }
@@ -15,6 +15,6 @@ uniqueTaxa(x, y)
 list of taxonomic strings unique to x, i.e. the shortest taxonomic prefix of x that is unique to x
 }
 \description{
-Find shortest taxonomic prefix
+Find shortest unique prefix in two taxonomic lists x and y
 }
 

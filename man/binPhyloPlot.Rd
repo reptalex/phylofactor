@@ -4,15 +4,15 @@
 \alias{binPhyloPlot}
 \title{Color bins on a plot of a phylogeny}
 \usage{
-binPhyloPlot(atms, factor, tree = NULL, n = NULL, colorfcn = rainbow,
+binPhyloPlot(X, factor, tree = NULL, n = NULL, colorfcn = rainbow,
   type = "unrooted", show.tip.label = F, legend.return = F, ...)
 }
 \arguments{
-\item{atms}{Either a list of bins or a phylofactor object. See \code{\link{bins}} or \code{\link{PhyloFactor}}}
+\item{X}{Either a phylofactor object or a list of bins. See \code{\link{bins}} or \code{\link{PhyloFactor}}}
 
 \item{factor}{Integer. Bins will be the set of bins defined by factors up to the input \code{factor} in phylofactor object.}
 
-\item{tree}{phylo-class tree. If input \code{atms} is a list of bins, tree must be input, otherwise it will be extracted from phylofactor object.}
+\item{tree}{phylo-class tree. If input \code{X} is a list of bins, tree must be input, otherwise it will be extracted from phylofactor object.}
 
 \item{n}{Size of total set to use for colorfcn - this enables multiple plots with differnent numbers of bins to have the same color order.}
 

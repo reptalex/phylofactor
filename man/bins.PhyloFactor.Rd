@@ -3,7 +3,6 @@
 \name{bins.PhyloFactor}
 \alias{bins.PhyloFactor}
 \title{Outputs the bins made by the first n factors in PhyloFactor object
- @export
  @param PF Phylofactor object. See \code{\link{PhylOFactor}}
  @param nfactors Number of factors, from 1:nfactors, whose resultant bins are desired.
  @return a list of bins}
@@ -12,7 +11,6 @@ bins.PhyloFactor(PF, nfactors = 1)
 }
 \description{
 Outputs the bins made by the first n factors in PhyloFactor object
- @export
  @param PF Phylofactor object. See \code{\link{PhylOFactor}}
  @param nfactors Number of factors, from 1:nfactors, whose resultant bins are desired.
  @return a list of bins

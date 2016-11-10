@@ -2,7 +2,7 @@
 % Please edit documentation in R/getStats.R
 \name{getStats}
 \alias{getStats}
-\title{Grabs P value and F statistic from aov of glm object.}
+\title{Grabs P value, F statistic and difference between null and residual deviance from glm, lm, gam and bigglm objects.}
 \usage{
 getStats(GLM, y = NULL)
 }
@@ -15,7 +15,7 @@ getStats(GLM, y = NULL)
 vector containing P value and F statistic from aov(GLM)
 }
 \description{
-Grabs P value and F statistic from aov of glm object.
+Grabs P value, F statistic and difference between null and residual deviance from glm, lm, gam and bigglm objects.
 }
 \examples{
 x <- rnorm(10)

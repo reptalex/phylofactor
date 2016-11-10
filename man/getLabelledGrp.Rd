@@ -4,7 +4,7 @@
 \alias{getLabelledGrp}
 \title{Internal phylofactor function - get labelled Group from phylofactor}
 \usage{
-getLabelledGrp(factor = NULL, tree, Groups, from.parallel = F)
+getLabelledGrp(factor = NULL, tree, Groups)
 }
 \arguments{
 \item{factor}{integer indicating the element of \code{Groups} to be labelled}

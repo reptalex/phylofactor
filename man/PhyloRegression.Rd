@@ -2,18 +2,18 @@
 % Please edit documentation in R/PhyloRegression.R
 \name{PhyloRegression}
 \alias{PhyloRegression}
-\title{Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.}
+\title{PhyloFactor internal function to prep, find and summarize the best ILR coordinate}
 \usage{
-PhyloRegression(LogData, X, frmla, Grps, choice, treeList, cl,
-  totalvar = NULL, ix_cl, treetips, grpsizes, tree_map, quiet = T,
-  nms = NULL, smallglm = F, ...)
+PhyloRegression(LogData, X, frmla, Grps = NULL, choice, treeList = NULL, cl,
+  totalvar = NULL, ix_cl, treetips = NULL, grpsizes = NULL,
+  tree_map = NULL, quiet = T, nms = NULL, smallglm = F, choice.fcn, ...)
 }
 \arguments{
 \item{LogData}{Logarithm of Compositional data matrix whose rows are parts and columns are samples.}
 
 \item{X}{independent variables for input into glm.}
 
-\item{frmla}{Formula for input into glm by lapply(Y,FUN = pglm,x=X,frmla=frmla,choice,...).}
+\item{frmla}{Formula for input into glm by lapply(Y,FUN = pglm,x=xx,frmla=frmla,choice,...).}
 
 \item{Grps}{Groups - a list whose elements are two-element lists containing the groups and their compliments for amalgamation into ILR coordinates}
 
@@ -39,36 +39,9 @@ PhyloRegression(LogData, X, frmla, Grps, choice, treeList, cl,
 
 \item{smallglm}{Logical. See \code{\link{PhyloFactor}}}
 
-\item{RegressionFunction}{Regression type function; see \code{\link{PhyloFactor}}}
+\item{choice.fcn}{optional customized choice function to choose 'best' edge; see \code{\link{PhyloFactor}}}
 }
 \description{
-Performs regression of groups of Data against X for an input list of groups, and outputs the best group based on "choice" function input.
-}
-\examples{
-data("FTmicrobiome")
-library(ape)
-library(compositions)
-Y <- FTmicrobiome$OTUTable
-Y <- Y[which(rowSums(Y==0)<30),] #only include taxa present in at least 29 samples
-Y[Y==0]=.65
-
-Y <- t(clo(t(Y)))
-tree <- drop.tip(FTmicrobiome$tree, setdiff(FTmicrobiome$tree$tip.label,rownames(Y)))
-X <- FTmicrobiome$X
-Grps <- getGroups(tree)
-choice='var'
-cl <- phyloFcluster(2)
-
-frmla <- Y~X
-print(head(Y))
-Z=Y
-
-pr <- PhyloRegression(Z,X,frmla,Grps,choice,cl)
-
-stopCluster(cl)
-gc()
-par(mfrow=c(1,2))
-image(clr(t(Y)),main="Original Data")
-image(clr(t(pr$residualData)),main="residual Data")
+PhyloFactor internal function to prep, find and summarize the best ILR coordinate
 }
 
