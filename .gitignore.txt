@@ -1,0 +1,8 @@
+*.Rproj
+.Rproj.user
+.Rhistory
+.Rdata
+*.so
+*.o
+src/phylofactor.dll
+PF_Mult_Hot_Springs
