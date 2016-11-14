@@ -9,7 +9,7 @@
 #' @return Returns list containing the compositional dataset formed by the bins and the list of OTUs in each bin.
 
 
-binProjection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,uniques=T,prediction=F){
+pf.BINprojection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,uniques=T,prediction=F){
   
   Bins <- bins(PF$basis[,1:factor])
   if (prediction){

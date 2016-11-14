@@ -4,7 +4,7 @@
 #' @param Data Optional new data matrix, Must have rownames matching those in PF$Data
 #' @param nfactors Number of factors used for projection. Default nfactors=2 for ordination-visualization
 
-phylofactor.ILRprojection <- function(PF,Data=NULL,nfactors=2){
+pf.ILRprojection <- function(PF,Data=NULL,nfactors=2){
 
 
   if (is.null(Data)){

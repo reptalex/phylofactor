@@ -7,9 +7,9 @@
 #' @examples
 #' data('FTmicrobiome')
 #'
-#' TipTest(Ftmicrobiome$PF)
+#' pf.TipTest(Ftmicrobiome$PF)
 
-TipTest <- function(PF,factors=1:(PF$nfactors),lower.tail=FALSE){
+pf.TipTest <- function(PF,factors=1:(PF$nfactors),lower.tail=FALSE){
   nn <- dim(PF$Data)[1]   ## number of tips
   N <- 2*nn-3               ## total number of edges
   mm <- N-nn                 ## number of basal edges

@@ -26,11 +26,11 @@
 
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
 
-#' plot.phylofactor(PF,factors=1)
-#' plot.phylofactor(PF,factors=c(1,2),compare=T)
+#' pf.plot(PF,factors=1)
+#' pf.plot(PF,factors=c(1,2),compare=T)
 
 
-phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,...){
+pf.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,...){
   #returns phylo.heatmap highlighting our PFs.
   if(is.null(tree)){
     if(is.null(PF$tree)){stop('Input Phylofactor object does not contain tree - must input tree')}
@@ -43,7 +43,7 @@ phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,c
     if (is.null(Data)==T){
       if (is.null(names)){stop('must input rownames for PhyloPF predicted dataset')}
       row.names=tree$tip.label
-      PData <- phylofactor.predict(PF,factors)
+      PData <- pf.predict(PF,factors)
       rownames(PData) <- row.names
       colnames(PData) <- colnames(PData)
       phytools::phylo.heatmap(tree,t(compositions::clr(t(PData))),...)
@@ -60,7 +60,7 @@ phylofactor.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,c
       stop('if compare==T, need to input Data for Comparison')
     }
     row.names=rownames(Data)
-    PData <-  phylofactor.predict(PF,factors)
+    PData <-  pf.predict(PF,factors)
     rownames(PData) <- row.names
     rownames(PData) <- tree$tip.label
     colnames(PData) <- colnames(Data)

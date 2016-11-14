@@ -8,26 +8,26 @@
 #' @param Legend Logical indicating if legend should be included. Must also have default.colors=T
 #' @param lx x location for legend. If \code{dimension} = 2, x must be a numeric. If \code{dimension} = 3, x must be an scatterplot3d()$xyz.convert list
 #' @param ly y location for legend, only applicable if \code{dimension}=2
-#' @param colorbar.name The name of the colorbar for quantitative independent variable, \code{X}. If independent variable is not a factor, \code{phylofactor.visualization} assumes they are quantitative and will make a colorbar on the sorted independent variable.
+#' @param colorbar.name The name of the colorbar for quantitative independent variable, \code{X}. If independent variable is not a factor, \code{pf.visualization} assumes they are quantitative and will make a colorbar on the sorted independent variable.
 #' @param colorbar.ticks Number of ticks in colorbar
 #' @param ... Additional arguments. If \code{dimension==2}, these are arguments for \code{\link{plot}}. Otherwise, they are additional arguments for \code{\link{scatterplot3d}}
 #' @examples
 #' data(FTmicrobiome)
-#' phylofactor.visualize(FTmicrobiome$PF)
-#' phylofactor.visualize(FTmicrobiome$PF,dimension=3)
+#' pf.ordination(FTmicrobiome$PF)
+#' pf.ordination(FTmicrobiome$PF,dimension=3)
 #'
 #' pf <- FTmicrobiome$PF
 #' X <- 1:40
-#' phylofactor.visualize(pf,dimension=3,colorbar.name='sample number')
+#' pf.ordination(pf,dimension=3,colorbar.name='sample number')
 
-phylofactor.visualize <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NULL,ly=NULL,xlab='PF 1',ylab='PF 2',zlab='PF 3',colorbar.name=NULL,colorbar.ticks=5,...){
+pf.ordination <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NULL,ly=NULL,xlab='PF 1',ylab='PF 2',zlab='PF 3',colorbar.name=NULL,colorbar.ticks=5,...){
 
   
   
   if (!(dimension %in% c(2,3))){stop('dimension must be either 2 or 3')}
   
   if (class(PF)=='phylofactor'){
-    PROJ <- phylofactor.ILRprojection(PF,nfactors=dimension)
+    PROJ <- pf.ILRprojection(PF,nfactors=dimension)
   } else{
     PROJ <- PF$projection
   }

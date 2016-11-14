@@ -26,12 +26,12 @@
 #'
 #' PF <- PhyloFactor(Data,tree,X=T,nclades=1)
 #'
-#' CommunityEst <- predict.phylofactor(PF,factors=1,newdata=data.frame(X=seq(0,11,by=1/3)))
+#' CommunityEst <- pf.predict(PF,factors=1,newdata=data.frame(X=seq(0,11,by=1/3)))
 #' rownames(CommunityEst) <- rownames(Data)
 #'
 #' phylo.heatmapAW(tree,clr(t(CommunityEst)))
 
-phylofactor.predict <- function(PF,factors=NULL,...){
+pf.predict <- function(PF,factors=NULL,...){
   #outputs the predictions, using nfactors from PhyloFactor.
   #additional arguments '...' are for function predict()
 
