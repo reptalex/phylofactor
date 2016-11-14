@@ -1,4 +1,5 @@
 #' returns the taxonomic identity of taxa in bins
+#' @export
 #' @param PF Phylofactor object
 #' @param nfactors number of factors used (will look at bins created by factors \code{1:nfactors})
 #' @param taxonomy Taxonomy: first column is OTU IDs and second column is taxonomy.
