@@ -114,14 +114,13 @@ legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),lty=c(NA,1
 PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) \%>\% unlist   ## this will fail if any factor corresponds to more than one edge - if that happens, users should use the distal edge.
 PFnodes <- tree$edge[PFedges,2]
 PFclades <- Descendants(tree,PFnodes,'tips')
-cols=rep('black',Nedge(tree))
-cols[e1]='yellow'
-cols[e2]='red'
+
 par(mfrow=c(3,1))
 phylo.heatmap(tree,Data)
 # edgelabels(c('Factor 1','Factor 2'),edge=PFedges,bg=c('yellow','red'),cex=2)
-tiplabels('pf 1',PFclades[[1]],bg='yellow')
-tiplabels('pf 2',PFclades[[2]],bg='red')
+tiplabels('  ',PFclades[[1]],bg='yellow')
+tiplabels('  ',PFclades[[2]],bg='red')
+edgelabels(c('PF1','PF2'),edge=PFedges,bg=c('yellow','red'),cex=2)
 
 ### predicted data matrix given phylofactors
 pred <- pf.predict(PF)
