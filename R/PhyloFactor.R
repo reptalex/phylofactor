@@ -24,17 +24,27 @@
 #' library(ape)
 #' library(phangorn)
 #' library(compositions)
+#' library(phytools)
 #' 
 #' ## Example with pseudo-simulated data: real tree with real taxonomy, but fake abundance patterns.
 #' data("FTmicrobiome")
 #' tree <- FTmicrobiome$tree
 #' Taxonomy <- FTmicrobiome$taxonomy
 #' tree <- drop.tip(tree,setdiff(tree$tip.label,sample(tree$tip.label,20)))
+#' 
+#' ### plot phylogeny ###
+#' plot.phylo(tree,use.edge.length=F,main='Community Phylogeny')
+#' nodelabels()
+#' 
 #' Taxonomy <- Taxonomy[match(tree$tip.label,Taxonomy[,1]),]
 #' X <- as.factor(c(rep(0,5),rep(1,5)))
 #' 
 #' ### Simulate data ###
-#' sigClades <- Descendants(tree,c(35,30),type='tips')
+#' Factornodes <- c(37,27)
+#' Factoredges <- sapply(Factornodes,FUN=function(n,tree) which(tree$edge[,2]==n),tree=tree)
+#' edgelabels(c('PF 1','PF 2'),edge=Factoredges,cex=2,bg='red')
+#' sigClades <- Descendants(tree,Factornodes,type='tips')
+#' 
 #' Data <- matrix(rlnorm(20*10,meanlog = 8,sdlog = .5),nrow=20)
 #' rownames(Data) <- tree$tip.label
 #' colnames(Data) <- X
@@ -42,16 +52,18 @@
 #' Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 #' Data <- t(clo(t(Data)))
 #' Bins <- bins(G=sigClades,set=1:20)
+#' phylo.heatmap(tree,Data)
 #' 
 #' ### PhylOFactor ###
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
 #' PF$bins
 #' all(PF$bins %in% Bins)
 #' 
+#' 
 #' ######### Summary tools ##########
 #' PF$factors                                         # Notice that both of the groups at the first factor are labelled as "Monophyletic" due to the unrooting of the tree
 #' PF$ExplainedVar
-#' s <- phylofactor.summary(PF,Taxonomy,factor=1)   ### A coarse summary tool
+#' s <- pf.summary(PF,Taxonomy,factor=1)   ### A coarse summary tool
 #' s$group1$IDs                                       # Grabbing group IDs
 #' s$group2$IDs
 #' td <- pf.tidy(s)                                 ### A tidier summary tool
@@ -62,14 +74,45 @@
 #' plot(as.numeric(X),td$`Observed Ratio of group1/group2 geometric means`,ylab='Average ratio of Group1/Group2',pch=18,cex=2)
 #' lines(td$`Predicted ratio of group1/group2`,lwd=2)
 #' legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),lty=c(NA,1),cex=2)
+#' 
+#' ######### get and plot Phylogenetic info ####
+#' PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) %>% unlist   ## this will fail if any factor corresponds to more than one edge - if that happens, users should use the distal edge.
+#' PFnodes <- tree$edge[PFedges,2]
+#' PFclades <- Descendants(tree,PFnodes,'tips')
+#' cols=rep('black',Nedge(tree))
+#' cols[e1]='yellow'
+#' cols[e2]='red'
+#' par(mfrow=c(3,1))
+#' phylo.heatmap(tree,Data)
+#' # edgelabels(c('Factor 1','Factor 2'),edge=PFedges,bg=c('yellow','red'),cex=2)
+#' tiplabels('pf 1',PFclades[[1]],bg='yellow')
+#' tiplabels('pf 2',PFclades[[2]],bg='red')
+#' 
+#' ### predicted data matrix given phylofactors
+#' pred <- pf.predict(PF)
+#' colnames(pred) <- colnames(Data)
+#' phylo.heatmap(tree,pf.predict(PF))
+#' ### residual data
+#' resid <- Data/pred
+#' resid <- resid %>% t %>% clo %>% t
+#' phylo.heatmap(tree,resid)
 #' ##################################
+#' 
+#' ##################################################
+#' ############### Other features: ##################
+#' 
+#' #### Stopping Function ###########################
+#' PF.stop <- PhyloFactor(Data,tree,X,stop.early=T)
+#' PF.stop$terminated #### TRUE - this indicates that the factorization was terminated when there was sufficiently low signal
+#' PF.stop$nfactors   #### 2 - the correct number of factors
+#' all(PF.stop$bins %in% Bins)   #### TRUE - the factors identified were the correct ones.
 #' 
 #' #### PhyloFactor has built-in parallelization ####
 #' PF.par  <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
 #' all.equal(PF,PF.par)
 #' ##################################################
 #' 
-#' ######### Multiple regression #########
+#' ######### Multiple regression ####################
 #' b <- rlnorm(ncol(Data))
 #' a <- as.factor(c(rep(0,5),rep(1,5)))
 #' X <- data.frame('a'=a,'b'=b)
@@ -78,7 +121,8 @@
 #' PF.M$glms[[1]]
 #' PF.M.par <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2,ncores=2)
 #' all.equal(PF.M,PF.M.par)
-#' #######################################
+#' ##################################################
+#' ##################################################
 #' 
 #' 
 #' 
@@ -188,11 +232,11 @@
 #' grp <- PF.Gaus$groups[[1]]
 #' r <- length(grp[[1]])
 #' s <- length(grp[[2]])
+#' coefs <- PF.Gaus$glms[[1]]$coefficients
 #' a <- coefs['I(X^2)']
 #' b <- coefs['X']
 #' c <- coefs['(Intercept)']
 #' d <- sqrt(r*s/(r+s))
-#' coefs <- PF.Gaus$glms[[1]]$coefficients
 #' sigma.hat <- sqrt(-d/(2*a))
 #' mu.hat <- -b/(2*a)
 #' A.hat <- exp(c/d+mu.hat^2/(2*sigma.hat^2))
@@ -411,7 +455,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     
     #################### STOP FUNCTIONS ####################
     if (STOP){
-      if (is.null(stop.early)){
+      if (!is.null(stop.early)){  #early stop - don't add this factor
         if (!is.null(stop.fcn)){
           if (stop.fcn=='KS'){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
@@ -461,7 +505,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     ############################## LATE STOP ###############
     #################### STOP FUNCTIONS ####################
     if (STOP){
-      if (!is.null(stop.early)){
+      if (is.null(stop.early)){
         if (!is.null(stop.fcn)){
           if (stop.fcn=='KS'){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
