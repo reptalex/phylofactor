@@ -4,7 +4,7 @@
 #' @param tree Phylogeny whose tip-labels are row-names in Data.
 #' @param X independent variable. If performing multiple regression, X must be a data frame whose columns contain all the independent variables used in \code{frmla}
 #' @param frmla Formula for input in GLM. Default formula is Data ~ X. 
-#' @param choice Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
+#' @param choice Choice, or objective, function for determining the best edges at each iteration using default regression. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
 #' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
 #' @param quiet Logical, default is \code{FALSE}, indicating whether or not to display standard warnings. 
@@ -26,6 +26,7 @@
 #' library(phangorn)
 #' library(compositions)
 #' library(phytools)
+#' mar <- par('mar')
 #' 
 #' ## Example with pseudo-simulated data: real tree with real taxonomy, but fake abundance patterns.
 #' data("FTmicrobiome")
@@ -71,7 +72,7 @@
 #' td$`group1, Monophyletic`                          # Simplified group IDs - the unique shortest unique prefixes separating the groups
 #' td$`group2, Monophyletic`
 #' ## Plotting with summary tools ##
-#' par(mfrow=c(1,1))
+#' par(mfrow=c(1,1),mar=mar)
 #' plot(as.numeric(X),td$`Observed Ratio of group1/group2 geometric means`,ylab='Average ratio of Group1/Group2',pch=18,cex=2)
 #' lines(td$`Predicted ratio of group1/group2`,lwd=2)
 #' legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),lty=c(NA,1),cex=2)
@@ -96,6 +97,7 @@
 #' resid <- Data/pred
 #' resid <- resid %>% t %>% clo %>% t
 #' phylo.heatmap(tree,resid)
+#' par(mar=mar)
 #' ##################################
 #' 
 #' ##################################################
@@ -246,8 +248,6 @@
 #' c('A'=A,'A.hat'=A.hat)
 #' c('mu'=mu,'mu.hat'=mu.hat)             #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
-
-
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=F,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
   

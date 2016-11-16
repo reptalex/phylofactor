@@ -20,7 +20,7 @@ PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
 
 \item{frmla}{Formula for input in GLM. Default formula is Data ~ X.}
 
-\item{choice}{Choice, or objective, function for determining the best edges at each iteration. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.}
+\item{choice}{Choice, or objective, function for determining the best edges at each iteration using default regression. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.}
 
 \item{Grps}{Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups}
 
@@ -61,6 +61,7 @@ library(ape)
 library(phangorn)
 library(compositions)
 library(phytools)
+mar <- par('mar')
 
 ## Example with pseudo-simulated data: real tree with real taxonomy, but fake abundance patterns.
 data("FTmicrobiome")
@@ -106,7 +107,7 @@ td <- pf.tidy(s)                                 ### A tidier summary tool
 td$`group1, Monophyletic`                          # Simplified group IDs - the unique shortest unique prefixes separating the groups
 td$`group2, Monophyletic`
 ## Plotting with summary tools ##
-par(mfrow=c(1,1))
+par(mfrow=c(1,1),mar=mar)
 plot(as.numeric(X),td$`Observed Ratio of group1/group2 geometric means`,ylab='Average ratio of Group1/Group2',pch=18,cex=2)
 lines(td$`Predicted ratio of group1/group2`,lwd=2)
 legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),lty=c(NA,1),cex=2)
@@ -131,6 +132,7 @@ phylo.heatmap(tree,pf.predict(PF))
 resid <- Data/pred
 resid <- resid \%>\% t \%>\% clo \%>\% t
 phylo.heatmap(tree,resid)
+par(mar=mar)
 ##################################
 
 ##################################################
