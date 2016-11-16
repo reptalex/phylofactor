@@ -56,6 +56,7 @@ Performs phylofactorization of a compositional dataset
 }
 \examples{
 set.seed(1)
+library(phylofactor)
 library(ape)
 library(phangorn)
 library(compositions)
@@ -111,7 +112,7 @@ lines(td$`Predicted ratio of group1/group2`,lwd=2)
 legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),lty=c(NA,1),cex=2)
 
 ######### get and plot Phylogenetic info ####
-PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) \%>\% unlist   ## this will fail if any factor corresponds to more than one edge - if that happens, users should use the distal edge.
+PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) \%>\% unlist   ## unlisting is unwise if any factor corresponds to more than one edge
 PFnodes <- tree$edge[PFedges,2]
 PFclades <- Descendants(tree,PFnodes,'tips')
 

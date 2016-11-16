@@ -21,6 +21,7 @@
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
 #' set.seed(1)
+#' library(phylofactor)
 #' library(ape)
 #' library(phangorn)
 #' library(compositions)
@@ -76,7 +77,7 @@
 #' legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),lty=c(NA,1),cex=2)
 #' 
 #' ######### get and plot Phylogenetic info ####
-#' PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) %>% unlist   ## this will fail if any factor corresponds to more than one edge - if that happens, users should use the distal edge.
+#' PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) %>% unlist   ## unlisting is unwise if any factor corresponds to more than one edge
 #' PFnodes <- tree$edge[PFedges,2]
 #' PFclades <- Descendants(tree,PFnodes,'tips')
 #' 
