@@ -21,7 +21,11 @@ pf.tidy <- function(smry){
 
     ### Be concise about their predicted effects ##
     xs <- smry$glm$xlevels
-    pp <- predict(smry$glm,newdata=data.frame(X=xs))
+    if (length(xs)>0){
+      pp <- predict(smry$glm,newdata=data.frame(X=xs))
+    } else {
+      pp <- predict(smry$glm)
+    }
     r <- dim(smry$group1$IDs)[1]
     s <- dim(smry$group2$IDs)[1]
     ratios <- exp(sqrt((r+s)/(r*s))*pp)
