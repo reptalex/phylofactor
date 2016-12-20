@@ -13,7 +13,7 @@ pf.BINprojection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,u
   
   Bins <- bins(PF$basis[,1:factor])
   if (prediction){
-    binned_Data <- lapply(Bins,FUN=function(ix,Y) compositions::geometricmeanCol(Y[ix,,drop=F]),Y=phylofactor.predict(PF,factors=factor))
+    binned_Data <- lapply(Bins,FUN=function(ix,Y) compositions::geometricmeanCol(Y[ix,,drop=F]),Y=pf.predict(PF,factors=factor))
   } else {
     binned_Data <- lapply(Bins,FUN=function(ix,Y) compositions::geometricmeanCol(Y[ix,,drop=F]),Y=PF$Data)
     
