@@ -346,6 +346,13 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       dataset <- c(list(Y),as.list(X))
       names(dataset) <- c('Data',names(X))
       dataset <- model.frame(frmla,data = dataset)
+      if (any(! colnames(X) %in% colnames(dataset))){
+        ix <- which(!colnames(X) %in% colnames(dataset))
+        for (nn in 1:length(ix)){
+        dataset <-cbind(dataset,X[,ix])
+        colnames(dataset)[ncol(dataset)] <- colnames(X)[ix[nn]]
+        }
+      }
       gg <- glm(frmla,data=dataset)
     } else {
       ################# export dependencies for choice.fcn ##################################
