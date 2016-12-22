@@ -126,7 +126,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
     
     } else {
       ######## choice.fcn input #####
-      output$stopStatistics <- sapply(ch,FUN=function(x) x$stopStatistics)
+      output$stopStatistics <- lapply(ch,FUN=function(x) x$stopStatistics)
       output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
       ###############################
     }
@@ -141,16 +141,19 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
     if (choice != 'custom'){
     output$glm <- gg[[winner]]
     output$p.values <- unlist(c(sapply(Winners,FUN=function(x) x$p.values)))
-    if (choice=='var'){
-      output$explainedvar <- objective[winner]/totalvar
-    }
+      if (choice=='var'){
+        output$explainedvar <- objective[winner]/totalvar
+      }
     ###############################
     
     } else {
-    ######## choice.fcn input #####
-    output$stopStatistics <- unlist(c(sapply(Winners,FUN=function(x) x$stopStatistics)))
-    output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
-    ###############################
+      ######## choice.fcn input #####
+      for (nn in 1:length(Winners)){
+        output$stopStatistics <- c(output$stopStatistics,Winners[[nn]]$stopStatistics)
+      }
+      # output$stopStatistics <- lapply(Winners,FUN=function(x) x$stopStatistics)
+      output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
+      ###############################
     }
     
     output$grp <- lapply(grps[[winner]],FUN=function(x,nms) which(nms %in% x),nms=nms)

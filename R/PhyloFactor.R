@@ -16,7 +16,7 @@
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
 #' @param smallglm Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false. 
-#' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistic} to stop phylofactor internally. 
+#' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally. 
 #' @param choice.fcn.dependencies Function called by cluster to load all dependencies for custom choice.fcn. e.g. \code{choice.fcn.dependencies <- function(){library(bayesm)}}
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
@@ -164,8 +164,8 @@
 #'     break
 #'   } else {
 #'     output <- NULL
-#'     output$objective <- getStats(gg)['ExplainedVar']  ## The output of the choice function for PF.output=F must contain two labelled numerics: an "objective" statistic and a "stopStatistic". 
-#'     output$stopStatistic <- getStats(gg)['Pval']
+#'     output$objective <- getStats(gg)['ExplainedVar']  ## The output of the choice function for PF.output=F must contain two labelled numerics: an "objective" statistic and a "stopStatistics". 
+#'     output$stopStatistics <- getStats(gg)['Pval']
 #'     return(output)
 #'   }
 #' }
@@ -275,7 +275,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       choice.fcn <- function(y=NULL,X=NULL,PF.output=NULL){
         ch <- NULL
         ch$objective <- 1
-        ch$stopStatistic <- 1
+        ch$stopStatistics <- 1
         return(ch)
       }
   }
@@ -403,7 +403,12 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
   } else {
     STOP=T
     if (is.null(stop.fcn)){
-      stop.fcn='KS'
+      default.stop=T
+    } else {
+      default.stop=F
+    }
+    if (is.null(stop.early)){
+      stop.early=T
     }
   }
   
@@ -464,7 +469,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     if (STOP){
       if (!is.null(stop.early)){  #early stop - don't add this factor
         if (!is.null(stop.fcn)){
-          if (stop.fcn=='KS'){
+          if (default.stop){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
@@ -514,7 +519,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     if (STOP){
       if (is.null(stop.early)){
         if (!is.null(stop.fcn)){
-          if (stop.fcn=='KS'){
+          if (default.stop){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T

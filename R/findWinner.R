@@ -23,7 +23,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
   if (choice %in% c('var','F')){
     output$p.values <- numeric(length(nset))
   } else {
-    output$stopStatistic <- numeric(length(nset))
+    output$stopStatistics <- vector(mode='list',length=length(nset))
   }
   if (choice=='var'){
     output$ExplainedVar=0
@@ -41,7 +41,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
         choice.fcn <- function(y=NULL,X=NULL,PF.output=NULL){
           ch <- NULL
           ch$objective <- 1
-          ch$stopStatistic <- 1
+          ch$stopStatistics <- 1
           return(ch)
         }
       }
@@ -148,7 +148,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
         ################# choice.fcn ######################
         ch <- choice.fcn(y=Y,X=xx,PF.output=F,...)
         obj <- ch$objective
-        output$stopStatistic[iteration] <- ch$stopStatistic
+        output$stopStatistics[[iteration]] <- ch$stopStatistics
         ################# update if obj ###################
         if (obj>output$objective){
           output$grp <- grp
