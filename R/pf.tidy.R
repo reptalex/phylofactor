@@ -20,26 +20,28 @@ pf.tidy <- function(smry){
 
 
     ### Be concise about their predicted effects ##
-    xs <- smry$glm$xlevels
-    if (length(xs)>0){
-      pp <- predict(smry$glm,newdata=data.frame(X=xs))
-    } else {
+    ### If 
+      coef <- smry$glm$coefficients
+      l <- c(l,list(coef))
+      names(l)[3] <- 'Coefficients'
+      
       pp <- predict(smry$glm)
-    }
+    
     r <- dim(smry$group1$IDs)[1]
     s <- dim(smry$group2$IDs)[1]
     ratios <- exp(sqrt((r+s)/(r*s))*pp)
-    names(ratios) <- xs$X
+    
+    
 
     l <- c(l,list(ratios))
-    names(l)[3] <- 'Predicted ratio of group1/group2'
+    names(l)[4] <- 'Predicted ratio of group1/group2'
 
 
     obsRatios <- gMean(smry$group1$otuData)/gMean(smry$group2$otuData)
     names(obsRatios) <- names(smry$glm$linear.predictors)
 
     l <- c(l,list(obsRatios))
-    names(l)[4] <- 'Observed Ratio of group1/group2 geometric means'
+    names(l)[5] <- 'Observed Ratio of group1/group2 geometric means'
 
     return(l)
 }

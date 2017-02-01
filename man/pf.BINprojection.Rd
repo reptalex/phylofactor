@@ -5,7 +5,7 @@
 \title{Projects phylofactored data onto bins defined by the factors 1:factor}
 \usage{
 pf.BINprojection(PF, factor = PF$nfactors, taxonomy = NULL,
-  common.name = F, uniques = T, prediction = F)
+  common.name = F, uniques = T, prediction = F, rel.abund = F)
 }
 \arguments{
 \item{PF}{phylofactor object. See \link{PhyloFactor}}
@@ -17,6 +17,10 @@ pf.BINprojection(PF, factor = PF$nfactors, taxonomy = NULL,
 \item{common.name}{Logical. If input taxonomy, will indicate whether to trim taxonomic list to the longest common prefix of each bin.}
 
 \item{uniques}{Logical. If input taxonomy, will indicate whether to trim the taxonomic list to the unique names.}
+
+\item{prediction}{Logical. If true, will output the predictions for each bin instead of the observations.}
+
+\item{rel.abund}{Logical. If true, will return the total relative abundances in the bin. Default, F, returns the geometric mean of the relative abundances of each bin}
 }
 \value{
 Returns list containing the compositional dataset formed by the bins and the list of OTUs in each bin.
