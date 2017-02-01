@@ -16,4 +16,3 @@ amalg.ILR(Grp, LogData)
 amalgamate two groups in a compositional data matrix to obtain ILR vector
 Must input the log of the data matrix
 }
-

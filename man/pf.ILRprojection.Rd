@@ -16,4 +16,3 @@ pf.ILRprojection(PF, Data = NULL, nfactors = 2)
 \description{
 Projects Data onto basis defined by phylofactor object
 }
-

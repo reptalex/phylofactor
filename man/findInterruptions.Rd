@@ -23,4 +23,3 @@ findInterruptions(edges, tree, original_community, new_community,
 \description{
 Finds interrupting edges along chain of edges
 }
-

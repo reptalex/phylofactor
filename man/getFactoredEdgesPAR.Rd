@@ -28,4 +28,3 @@ cl <- phyloFcluster(2)
 
 getFactoredEdges.par(cl,tree=tree,V=V[,1:10])
 }
-

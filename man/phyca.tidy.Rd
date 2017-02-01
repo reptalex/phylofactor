@@ -44,4 +44,3 @@ td <- phyca.tidy(phca,taxonomy,taxa.split=T)
 
 sum(FTmicrobiome$PF$basis[,1:3]-phca$basis[,1:3])  #the first three phylofactors here correspond to the first three ILR-phylogenetic Components. 
 }
-

@@ -45,4 +45,3 @@ rownames(CommunityEst) <- rownames(Data)
 
 phylo.heatmapAW(tree,clr(t(CommunityEst)))
 }
-

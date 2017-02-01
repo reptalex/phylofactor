@@ -23,4 +23,3 @@ smry <- phylofactor.summary(FTmicrobiome$PF,FTmicrobiome$taxonomy,factor=1)
 
 pf.tidy(smry)
 }
-

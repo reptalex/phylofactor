@@ -18,4 +18,3 @@ OTUtoTaxa(otus, Taxonomy, common.name = F, uniques = F)
 \description{
 Input OTUs and outputs their taxonomic detail, optinally trimmed to their common taxonomic levels.
 }
-

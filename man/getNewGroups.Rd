@@ -19,4 +19,3 @@ List of groups for amalgamation. For example, see \code{updateBinList}
 \description{
 Internal phylofactor function - get new grouplist corresponding to binlist & treelist
 }
-

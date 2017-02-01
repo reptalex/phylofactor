@@ -22,4 +22,6 @@ Imports:
   Biostrings (>= 2.38.4),
   biglm (>= 0.9.1),
   parallel (>= 3.2.2)
-RoxygenNote: 5.0.1
+Suggests: 
+  testthat (>= 1.0.2)
+RoxygenNote: 6.0.0

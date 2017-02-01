@@ -27,4 +27,3 @@ findWinner(nset, tree_map, treeList, treetips, choice, smallglm = F,
 \description{
 Internal PhyloRegression function for finding the winning edge.
 }
-

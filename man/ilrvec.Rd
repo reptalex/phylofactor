@@ -31,4 +31,3 @@ v2 <- ilrvec(ix,n)
 sum(v2)
 v1 \%*\% v2
 }
-

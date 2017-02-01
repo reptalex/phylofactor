@@ -28,4 +28,3 @@ Returns list containing the compositional dataset formed by the bins and the lis
 \description{
 Projects phylofactored data onto bins defined by the factors 1:factor
 }
-

@@ -41,4 +41,3 @@ L <- ColorTaxa(tree,taxonomy,level='c',legend=F,show.tip.label=FALSE,type='unroo
 lims <- par('usr')
 legend(lims[1],lims[4],legend=L$Taxa,fill=L$colors,cex=.6)
 }
-

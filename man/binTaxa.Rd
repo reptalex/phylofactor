@@ -20,4 +20,3 @@ binTaxa(PF, nfactors, taxonomy, common.name = F, uniques = T)
 \description{
 returns the taxonomic identity of taxa in bins
 }
-

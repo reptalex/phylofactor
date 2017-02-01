@@ -38,4 +38,3 @@ edgelabels('SPLIT',12,bg='red',cex=2)
 plot.phylo(treeList[[1]],main='First Bin Tree',cex=2)
 plot.phylo(treeList[[2]],main='Second Bin Tree',cex=2)
 }
-

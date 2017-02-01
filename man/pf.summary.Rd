@@ -55,4 +55,3 @@ plot(FactorSummary$MeanRatio,ylab='ILR coordinate',main='Mean Ratio of Grp1/Grp2
 lines(FactorSummary$fittedMeanRatio,lwd=2,col='blue')
 legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
 }
-

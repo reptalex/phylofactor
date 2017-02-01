@@ -41,4 +41,3 @@ pf <- FTmicrobiome$PF
 X <- 1:40
 pf.ordination(pf,dimension=3,colorbar.name='sample number')
 }
-

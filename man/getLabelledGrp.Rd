@@ -27,4 +27,3 @@ factor <- 16
 grp <- getLabelledGrp(factor,tree,Groups)
 grp
 }
-

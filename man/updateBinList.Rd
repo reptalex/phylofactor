@@ -52,4 +52,3 @@ tree$tip.label[unlist(grp)]
 treeList <- updateTreeList(treeList,binList,grp,tree)
 binList <- updateBinList(binList,grp)
 }
-

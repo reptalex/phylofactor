@@ -42,4 +42,3 @@ ec <- ecols
 ec[extractEdges(tr,txa,type=3)] = 'red'
 plot.phylo(tr,edge.color=ec,edge.width=3,main='Type=3')
 }
-

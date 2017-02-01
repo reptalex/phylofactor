@@ -43,4 +43,3 @@ grp1 <- c(9:11)
 grp2 <- c(5,6) #correct answer: c(17,16,7,8,10,11)
 getFactoredEdges(tree=tree,grp1=grp1,grp2=grp2)
 }
-

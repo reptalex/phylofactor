@@ -14,4 +14,3 @@ gMean(Y, MARGIN = 2)
 \description{
 Computes geometric mean using logarithms
 }
-

@@ -55,7 +55,7 @@ Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactori
 Performs phylofactorization of a compositional dataset
 }
 \examples{
-set.seed(1)
+set.seed(2)
 library(phylofactor)
 library(ape)
 library(phangorn)
@@ -284,4 +284,3 @@ c('A'=A,'A.hat'=A.hat)
 c('mu'=mu,'mu.hat'=mu.hat)             #The optimal environment for this simulated organism is mu=-1
 c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 }
-

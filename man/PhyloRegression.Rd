@@ -44,4 +44,3 @@ PhyloRegression(LogData, X, frmla, Grps = NULL, choice, treeList = NULL, cl,
 \description{
 PhyloFactor internal function to prep, find and summarize the best ILR coordinate
 }
-
