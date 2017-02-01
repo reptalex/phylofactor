@@ -46,7 +46,7 @@ phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,taxa.split=F,common.name=F
   for (nn in 1:ncomponents){
     x <- phca$basis[,nn]
     grp <- list(which(x>0),which(x<0))
-    grp <- getLabelledGrp(tree=phca$tree,Groups=grp,from.parallel = T)
+    grp <- getLabelledGrp(tree=phca$tree,Groups=grp)
     otus <- lapply(grp,FUN = function(g,otus) otus[g],otus=OTUs) 
     
     if (!taxa.split){
