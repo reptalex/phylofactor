@@ -19,7 +19,7 @@ findInterruptions <- function(edges,tree,original_community,new_community,old_ed
     if (!all(tree$tip.label %in% new_community)){
       new_edges <- extractEdges(tree,new_community,type=1) %>% setdiff(.,old_edges)
     } else {
-      new_edges <- setdiff(1:Nedge(tree),old_edges)
+      new_edges <- setdiff(1:(ape::Nedge(tree)),old_edges)
     }
   }
   
@@ -65,10 +65,10 @@ findInterruptions <- function(edges,tree,original_community,new_community,old_ed
         if (neighbor_node<rt){
           interrupting_grps[n] <- list(tree$tip.label[neighbor_node])
         } else {
-          interrupting_grps[n] <- list(tree$tip.label[Descendants(tree,neighbor_node,type='tips')[[1]]])
+          interrupting_grps[n] <- list(tree$tip.label[phangorn::Descendants(tree,neighbor_node,type='tips')[[1]]])
         }
       } else { #in this case, the neighbor edges point the way to the root. 
-        interrupting_grps[n] <- list(setdiff(tree$tip.label,tree$tip.label[Descendants(tree,nd,type='tips')[[1]]]))
+        interrupting_grps[n] <- list(setdiff(tree$tip.label,tree$tip.label[phangorn::Descendants(tree,nd,type='tips')[[1]]]))
       }
       interrupting.nds <- c(interrupting.nds,nd)
     }

@@ -117,31 +117,31 @@ nds <- as.numeric(names(which(by(nds,nds,length)==1)))
 ## We need to ensure grp1 and grp2 line up, e.g. grp1 contains t2, and not grp2 contains t2.
 
 ROOT <- Ntip(tree)+1
-np1 <- nodepath(tree,nds[1],ROOT)
+np1 <- ape::nodepath(tree,nds[1],ROOT)
 if (nds[2] %in% np1){
-  g1 <- tree$tip.label[Descendants(tree,nds[1],type='tips')[[1]]]
+  g1 <- tree$tip.label[phangorn::Descendants(tree,nds[1],type='tips')[[1]]]
   if (length(factored.edges)>1){
     nd <- np1[match(nds[2],np1)-1]
-    g2 <- setdiff(setdiff(tree$tip.label,g1),tree$tip.label[Descendants(tree,nd,type='tips')[[1]]])
+    g2 <- setdiff(setdiff(tree$tip.label,g1),tree$tip.label[phangorn::Descendants(tree,nd,type='tips')[[1]]])
   } else {
     g2 <- setdiff(tree$tip.label,g1)
   }
 } else {
-  np2 <- nodepath(tree,nds[2],ROOT)
+  np2 <- ape::nodepath(tree,nds[2],ROOT)
   if (nds[1] %in% np2){ #nds[1] is the basal node. 
-    g1 <- tree$tip.label[Descendants(tree,nds[2],type='tips')[[1]]]
+    g1 <- tree$tip.label[phangorn::Descendants(tree,nds[2],type='tips')[[1]]]
     if (length(factored.edges)>1){
       # node before the basal node:
       nd <- np2[match(nds[1],np2)-1]
-      g2 <- setdiff(setdiff(tree$tip.label,g1),tree$tip.label[Descendants(tree,nd,type='tips')[[1]]])
+      g2 <- setdiff(setdiff(tree$tip.label,g1),tree$tip.label[phangorn::Descendants(tree,nd,type='tips')[[1]]])
     } else {
       g2 <- setdiff(tree$tip.label,g1)
     }
     nds <- rev(nds)
   } else {
     # nodes are on opposite side of root
-    g1 <- tree$tip.label[Descendants(tree,nds[1],type='tips')[[1]]]
-    g2 <- tree$tip.label[Descendants(tree,nds[2],type='tips')[[1]]]
+    g1 <- tree$tip.label[phangorn::Descendants(tree,nds[1],type='tips')[[1]]]
+    g2 <- tree$tip.label[phangorn::Descendants(tree,nds[2],type='tips')[[1]]]
   }
 }
 
@@ -164,7 +164,7 @@ if (ignore.interruptions){
   names(grps) <- c(nds[1],nds[2])
 } else {
   ## as it is, g1 starts at nds[1] and g2 starts at nds[2]
-  np <- nodepath(tree,nds[1],nds[2])
+  np <- ape::nodepath(tree,nds[1],nds[2])
   ordr <- order(match(names(interruptions),np))
   #sort interrupting grps from g1, I1, I2,...,In, g2
   interruptions <- interruptions[ordr]
