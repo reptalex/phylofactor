@@ -9,7 +9,7 @@ devtools::install_github('reptalex/phylofactor')
 
 For more details, a tutorial is available online [here](http://media.wix.com/ugd/0119a1_f9ff04d5ada440829cc2d942b8b9f928.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to contact me!
 
-``` {r tree, echo=FALSE}
+``` {r tree}
 library(phylofactor)
 data('FTmicrobiome')
 PF <- FTmicrobiome$PF
