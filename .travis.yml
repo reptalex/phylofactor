@@ -1,0 +1,42 @@
+language: r
+cache: packages
+
+r:
+  - release
+  - devel
+  - bioc-release
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - qpdf
+
+r_packages:
+  - magrittr 
+  - ape
+  - compositions
+  - phangorn
+  - stats 
+  - phytools 
+  - caper 
+  - scatterplot3d 
+  - Biostrings
+  - biglm 
+  - parallel 
+  - testthat
+
+r_github_packages:
+  - jimhester/covr
+
+after_success:
+  - Rscript -e 'covr::codecov()'
+
+script: 
+  - Rscript -e "library(testthat); test_check('phylofactor')"
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
