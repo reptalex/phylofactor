@@ -7,11 +7,4 @@ devtools::install_github('reptalex/phylofactor')
 ? Phylofactor
 ```
 
-For more details, a tutorial is available online [here](http://media.wix.com/ugd/0119a1_f9ff04d5ada440829cc2d942b8b9f928.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to contact me!
-
-``` {r tree}
-library(phylofactor)
-data('FTmicrobiome')
-PF <- FTmicrobiome$PF
-binPhyloPlot(PF,factor=3,edge.width=2)
-```
+For detailed information, a tutorial is available online [here](http://media.wix.com/ugd/0119a1_951b32eb0abe4f228f0d6fd4ae11a0e8.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to contact me!
