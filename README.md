@@ -2,14 +2,14 @@
 
 This package provides functions to extract and visualize the phylogenetic factors in biological datasets. To get started, download the packsage using \code{devtools}
 
-```{r cars}
+```{r install}
 devtools::install_github('reptalex/phylofactor')
 ? Phylofactor
 ```
 
 For more details, a tutorial is available online [here](http://media.wix.com/ugd/0119a1_f9ff04d5ada440829cc2d942b8b9f928.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to contact me!
 
-``` {r echo=FALSE}
+``` {r tree, echo=FALSE}
 library(phylofactor)
 data('FTmicrobiome')
 PF <- FTmicrobiome$PF
