@@ -15,4 +15,3 @@ list of taxa (with trimmed taxonomy strings) unique to the group & complement fo
 \description{
 Describes the taxa split at a particular factor summarized by summary.phylofactor
 }
-

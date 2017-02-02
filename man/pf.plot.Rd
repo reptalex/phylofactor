@@ -34,4 +34,3 @@ PF <- PhyloFactor(Data,tree,X,nfactors=2)
 pf.plot(PF,factors=1)
 pf.plot(PF,factors=c(1,2),compare=T)
 }
-

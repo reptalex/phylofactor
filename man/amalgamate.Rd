@@ -36,4 +36,3 @@ method='ILR'
 lr <- amalgamate(Grp,Data,method)
 plot(1:10,lr,xlab='sample',ylab='log-ratio of Grp {1,2} over {3,4,8}')
 }
-

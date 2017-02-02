@@ -17,4 +17,3 @@ index where binList[[ix]] contains grp
 \description{
 Internal function - id which bin in binList split
 }
-

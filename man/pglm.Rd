@@ -24,4 +24,3 @@ x <- rnorm(10)
 y <- x+rnorm(10)
 phyloreg(y,x,y~x)
 }
-

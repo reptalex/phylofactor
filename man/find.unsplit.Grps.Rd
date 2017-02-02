@@ -16,4 +16,3 @@ Finds unsplit groups in a signed partition matrix, V
 V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)
 find.unsplit.Grps(V)
 }
-

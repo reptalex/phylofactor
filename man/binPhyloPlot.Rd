@@ -36,4 +36,3 @@ data('FTmicrobiome')
 
 binPhyloPlot(FTmicrobiome$PF,factor=3)
 }
-

@@ -24,4 +24,3 @@ y <- 2*x+rnorm(10)
 GLM <- glm(y~x)
 getStats(GLM)
 }
-

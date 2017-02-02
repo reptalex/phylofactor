@@ -21,4 +21,3 @@ Lists all unique taxonomic names in a Taxonomy at a given level
 data(FTmicrobiome)
 listTaxa(FTmicrobiome$taxonomy,level='p')
 }
-

@@ -46,4 +46,3 @@ phylofactor.visualize(phcaPAR,X=X,dimension=3)
 phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
 edgelabels(text=1:3,edge = unlist(phcaPAR$edges),cex=2)
 }
-

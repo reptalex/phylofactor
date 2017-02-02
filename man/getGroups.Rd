@@ -22,4 +22,3 @@ par(mfrow=c(1,1))
 plot.phylo(tr,use.edge.length=F);edgelabels()
 Grps <- getGroups(tr)
 }
-

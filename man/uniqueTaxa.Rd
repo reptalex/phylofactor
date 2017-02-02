@@ -17,4 +17,3 @@ list of taxonomic strings unique to x, i.e. the shortest taxonomic prefix of x t
 \description{
 Find shortest unique prefix in two taxonomic lists x and y
 }
-

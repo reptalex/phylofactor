@@ -27,4 +27,3 @@ set=1:10
 G <- list(c(1,2),c(1,2,3,4),c(8))
 bins(G=G,set=set)
 }
-

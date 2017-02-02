@@ -20,7 +20,7 @@
 #' @param choice.fcn.dependencies Function called by cluster to load all dependencies for custom choice.fcn. e.g. \code{choice.fcn.dependencies <- function(){library(bayesm)}}
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
-#' set.seed(1)
+#' set.seed(2)
 #' library(phylofactor)
 #' library(ape)
 #' library(phangorn)
@@ -353,7 +353,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
         colnames(dataset)[ncol(dataset)] <- colnames(X)[ix[nn]]
         }
       }
-      gg <- glm(frmla,data=dataset)
+      gg <- glm(frmla,data=dataset,...)
     } else {
       ################# export dependencies for choice.fcn ##################################
       gg=NULL
