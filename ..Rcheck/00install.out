@@ -1,0 +1,7 @@
+* installing *source* package 'phylofactor' ...
+** libs
+
+*** arch - i386
+Warning: running command 'make -f "C:/PROGRA~1/R/R-33~1.1/etc/i386/Makeconf" -f "C:/PROGRA~1/R/R-33~1.1/share/make/winshlib.mk" SHLIB="phylofactor.dll" OBJECTS="bifurcations.o"' had status 127
+ERROR: compilation failed for package 'phylofactor'
+* removing 'C:/Users/Alculus/Documents/PhyloFactor/phylofactor/..Rcheck/phylofactor'

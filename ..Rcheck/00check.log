@@ -1,0 +1,42 @@
+* using log directory 'C:/Users/Alculus/Documents/PhyloFactor/phylofactor/..Rcheck'
+* using R version 3.3.1 (2016-06-21)
+* using platform: x86_64-w64-mingw32 (64-bit)
+* using session charset: ISO8859-1
+* checking for file './DESCRIPTION' ... OK
+* checking extension type ... Package
+* this is package 'phylofactor' version '0.1'
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... WARNING
+Subdirectory 'phylofactor/src' contains apparent object files/libraries
+  bifurcations.o phylofactor.dll
+Object files/libraries should not be included in a source package.
+
+In addition to the above warning(s), found the following notes:
+
+Found the following apparent object files/libraries:
+  src-i386/bifurcations.o src-i386/phylofactor.dll
+Object files/libraries should not be included in a source package.
+* checking if there is a namespace ... OK
+* checking for .dll and .exe files ... WARNING
+Found the following executable files:
+  src-i386/phylofactor.dll
+  src/phylofactor.dll
+Source packages should not contain undeclared executable files.
+See section 'Package structure' in the 'Writing R Extensions' manual.
+* checking for hidden files and directories ... NOTE
+Found the following hidden files and directories:
+  .Rhistory
+  .gitignore
+  .gitignore.txt
+  ..Rcheck
+  .Rproj.user
+  .git
+These were most likely included in error. See section 'Package
+structure' in the 'Writing R Extensions' manual.
+* checking for portable file names ... OK
+* checking whether package 'phylofactor' can be installed ... ERROR
+Installation failed.
+See 'C:/Users/Alculus/Documents/PhyloFactor/phylofactor/..Rcheck/00install.out' for details.
+* DONE
+Status: 1 ERROR, 2 WARNINGs, 1 NOTE
