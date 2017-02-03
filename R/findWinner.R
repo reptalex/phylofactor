@@ -19,7 +19,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
   if (!exists('gg')){
     gg <- NULL #This will be our GLM
   }
-  
+
   if (choice %in% c('var','F')){
     output$p.values <- numeric(length(nset))
   } else {

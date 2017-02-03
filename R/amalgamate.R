@@ -6,7 +6,6 @@
 #' @param collapse Logical indicating whether or not to collapse groups (collapse=T) by summing or geometric means, or to output log-ratios from amalgamation & comparison.
 #' @return If collapse=T, returns either a log-ratio of the groups. If collapse=F, returns the geometric mean of each group.
 #' @examples
-#' library(compositions)
 #' set.seed(1)
 #' Data <- matrix(rlnorm(80),nrow=8)
 #' Grp <- list(c(1,2),c(3,4,8))
@@ -22,7 +21,6 @@
 
 amalgamate <- function(Grp,Data,method,collapse=F){
   ## This function is general. However, we want a speedy version for the guts of PhyloFactor
-    clo <- compositions::clo
   
     if (collapse==T){
   
