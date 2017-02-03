@@ -14,13 +14,13 @@
 #' tree <- FTmicrobiome$PF$tree
 #' taxonomy <- FTmicrobiome$taxonomy
 #'
-#' ColorTaxa(tree,taxonomy,level='p',legend=T,show.tip.label=FALSE,type='unrooted')
+#' ColorTaxa(tree,taxonomy,level='p',legend=TRUE,show.tip.label=FALSE,type='unrooted')
 #'
 #' L <- ColorTaxa(tree,taxonomy,level='c',legend=F,show.tip.label=FALSE,type='unrooted',outputlegend=T)
 #'
 #' lims <- par('usr')
 #' legend(lims[1],lims[4],legend=L$Taxa,fill=L$colors,cex=.6)
-ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legend=FALSE,scramble=F,...){
+ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legend=FALSE,scramble=FALSE,...){
   if (!level %in% c('k','p','c','o','f','g','s')){stop('unknown level - must be a string in the set {k,p,c,o,f,g,s}')}
   #This function produces a tree of the entire community in which the taxa at level "p" are
   #labelled by color.
