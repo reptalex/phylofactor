@@ -19,7 +19,7 @@ Concise summarization of phylofactor summary
 library(phylofactor)
 data('FTmicrobiome')
 
-smry <- phylofactor.summary(FTmicrobiome$PF,FTmicrobiome$taxonomy,factor=1)
+smry <- pf.summary(FTmicrobiome$PF,FTmicrobiome$taxonomy,factor=1)
 
 pf.tidy(smry)
 }

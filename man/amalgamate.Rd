@@ -22,7 +22,6 @@ If collapse=T, returns either a log-ratio of the groups. If collapse=F, returns 
 amalgamate two groups in a compositional data matrix
 }
 \examples{
-library(compositions)
 set.seed(1)
 Data <- matrix(rlnorm(80),nrow=8)
 Grp <- list(c(1,2),c(3,4,8))

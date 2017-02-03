@@ -8,7 +8,7 @@ PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
   nfactors = NULL, quiet = T, trust.me = F, small.output = F,
   stop.fcn = NULL, stop.early = NULL, KS.Pthreshold = 0.01,
   ncores = NULL, clusterage = Inf, tolerance = 1e-10, delta = 0.65,
-  smallglm = F, choice.fcn = NULL, choice.fcn.dependencies = function() {
+  smallglm = T, choice.fcn = NULL, choice.fcn.dependencies = function() {
   }, ...)
 }
 \arguments{
@@ -59,7 +59,6 @@ set.seed(2)
 library(phylofactor)
 library(ape)
 library(phangorn)
-library(compositions)
 library(phytools)
 mar <- par('mar')
 
