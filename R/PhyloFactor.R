@@ -249,7 +249,7 @@
 #' c('mu'=mu,'mu.hat'=mu.hat)             #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=F,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
   
   
   ######################################################## Housekeeping #################################################################################
@@ -343,7 +343,11 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     cl <- phyloFcluster(ncores)
     Y <- numeric(ncol(Data))
     if (choice != 'custom'){
-      dataset <- c(list(Y),as.list(X))
+      if (is.null(ncol(X))){
+        dataset <- c(list(Y),as.list(X))
+      } else {
+        dataset <- c(list(Y),list(X))
+      }
       names(dataset) <- c('Data',names(X))
       dataset <- model.frame(frmla,data = dataset)
       if (any(! colnames(X) %in% colnames(dataset))){
