@@ -1,4 +1,4 @@
-expect_that(1+1, equal(2))
+expect_that(1+1, equals(2))
 
 # set.seed(2)
 # data("FTmicrobiome")
