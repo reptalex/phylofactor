@@ -46,8 +46,10 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=F,colorfcn=NULL,legen
   fixers <- setdiff(1:nT,keepers)
   if (length(keepers)==0){stop('Consult Alex Washburne on a funky plot - you encountered No-Mans land')}
   # For each element of "fixers", we need to 
-  for (nn in 1:length(fixers)){
-    Edgelist[[fixers[nn]]] <- setdiff(Edgelist[[fixers[nn]]],unlist(Edgelist[setdiff(1:nT,fixers[nn])]))
+  if (length(fixers)>0){
+    for (nn in 1:length(fixers)){
+      Edgelist[[fixers[nn]]] <- setdiff(Edgelist[[fixers[nn]]],unlist(Edgelist[setdiff(1:nT,fixers[nn])]))
+    }
   }
 
   #Then we assign colors to each taxon
