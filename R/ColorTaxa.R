@@ -16,8 +16,6 @@
 #'
 #' ColorTaxa(tree,taxonomy,level='p',legend=T,show.tip.label=FALSE,type='unrooted')
 #'
-#'
-#'
 #' L <- ColorTaxa(tree,taxonomy,level='c',legend=F,show.tip.label=FALSE,type='unrooted',outputlegend=T)
 #'
 #' lims <- par('usr')
