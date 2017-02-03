@@ -1,8 +1,0 @@
-@article{,
-title={phylofactor: An R package for phylogenetic factorization of ecological data},
-author={Alex D. Washburne},
-journal={NATURE BIATCH},
-year={2017},
-volume={3},
-pages={1-1000000},
-}
