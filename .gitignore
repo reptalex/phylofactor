@@ -6,3 +6,4 @@
 *.o
 src/phylofactor.dll
 Phylofactor_Benchmark_Times_2
+..Rcheck
