@@ -24,7 +24,6 @@
 #' library(phylofactor)
 #' library(ape)
 #' library(phangorn)
-#' library(compositions)
 #' library(phytools)
 #' mar <- par('mar')
 #' 
@@ -307,7 +306,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       if (!quiet){
         warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
       }
-      Data <- t(compositions::clo(t(Data)))
+      Data <- t(clo(t(Data)))
       
       if (any(abs(colSums(Data)-1)>tolerance)){
         if (!quiet){
