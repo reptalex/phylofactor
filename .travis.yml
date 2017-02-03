@@ -27,6 +27,12 @@ r_packages:
   - parallel 
   - testthat
 
+before_install:
+  - curl -OLs http://eddelbuettel.github.io/r-travis/run.sh && chmod 0755 run.sh
+  # add our launchpad repo which has (inter alia) the r-cran-rbenchmark package
+  - sudo add-apt-repository -y ppa:edd/misc
+  - ./run.sh bootstrap
+
 r_github_packages:
   - jimhester/covr
 
