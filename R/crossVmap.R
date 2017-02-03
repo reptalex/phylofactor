@@ -6,7 +6,7 @@
 #' @param original_community original community being factored (strings corresponding to tip-labels of \code{tree}. This helps us ID the new branches in the \code{new_community}
 #' @param new_community new community being cross-validated (strings corresponding to tip-labels of \code{tree})
 #' @examples
-#' c1 <- c('t1','t2','t5','t6','t3','t4')
+#'c1 <- c('t1','t2','t5','t6','t3','t4')
 #'c2 <- setdiff(tree$tip.label,c('t3','t4','t5'))
 #'
 #'grp1 <- c('t1','t2')
@@ -53,8 +53,6 @@
 #'#notice the output: the first and last entries are our output from crossVmap
 #'#when ignore.interruptions=T. The intervening elements are the interrupting clades
 #'#in the order in which they interrupt the factored edges.
-#'
-#'
 #'
 crossVmap <- function(Grps,tree,original_community,new_community,ignore.interruptions=T){
   
