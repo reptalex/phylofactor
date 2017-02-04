@@ -345,7 +345,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
       if (is.null(ncol(X))){
         dataset <- c(list(Y),as.list(X))
       } else {
-        dataset <- c(list(Y),list(X))
+        dataset <- cbind(Y,X)
       }
       names(dataset) <- c('Data',names(X))
       dataset <- model.frame(frmla,data = dataset)
@@ -412,6 +412,8 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     }
     if (is.null(stop.early)){
       stop.early=T
+    } else {
+      if (!stop.early){ stop.early=NULL}
     }
   }
   
@@ -471,7 +473,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     #################### STOP FUNCTIONS ####################
     if (STOP){
       if (!is.null(stop.early)){  #early stop - don't add this factor
-        if (!is.null(stop.fcn)){
           if (default.stop){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
@@ -484,7 +485,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
               break
             }
           }
-        }
       }
     }
     ########################################################
@@ -521,7 +521,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     #################### STOP FUNCTIONS ####################
     if (STOP){
       if (is.null(stop.early)){
-        if (!is.null(stop.fcn)){
           if (default.stop){
             ks <- ks.test(PhyloReg$p.values,'punif')$p.value
             if (ks>KS.Pthreshold){
@@ -534,7 +533,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
               break
             }
           }
-        }
       }
     }
     ########################################################
@@ -555,11 +553,14 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     rownames(output$factors)=c('Group1','Group2')
   }
   output$nfactors <- pfs
-  output$factors <- t(output$factors)
+  output$factors <- t(output$factors) %>% as.data.frame
   
   if (choice != 'custom'){
-    pvalues <- sapply(output$glms,FUN=function(gg) getStats(gg)['Pval'])
-    output$factors <- cbind(output$factors,pvalues)
+    summary.statistics <- sapply(output$glms,FUN=function(gg) getStats(gg)) %>% t %>% as.data.frame()
+    colnames(summary.statistics) <- c('Pr(>F)','F','ExpVar')
+    summary.statistics <- summary.statistics[,c(3,2,1)]
+    summary.statistics$ExpVar <- output$ExplainedVar
+    output$factors <- cbind(output$factors,summary.statistics)
   }
   
   
