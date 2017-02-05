@@ -7,3 +7,4 @@
 PF_Mult_Hot_Springs
 ..Rcheck
 .gitignore
+*.dll
