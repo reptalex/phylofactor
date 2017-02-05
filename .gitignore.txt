@@ -4,7 +4,6 @@
 .Rdata
 *.so
 *.o
-src/phylofactor.dll
-src-i386/phylofactor.dll
 PF_Mult_Hot_Springs
 ..Rcheck
+.gitignore
