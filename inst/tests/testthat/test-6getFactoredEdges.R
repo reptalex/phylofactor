@@ -1,7 +1,7 @@
 context('Checking getFactoredEdges and getFactoredEdgesPAR')
 
 set.seed(2)
-data("FTmicrobiome")
+data("FTmicrobiome",package='phylofactor')
 tree <- FTmicrobiome$tree
 Taxonomy <- FTmicrobiome$taxonomy
 tree <- ape::drop.tip(tree,setdiff(tree$tip.label,sample(tree$tip.label,20)))
