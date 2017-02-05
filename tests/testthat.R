@@ -1,3 +1,3 @@
 library(phylofactor)
 library(testthat)
-devtools::test()
+test_check('phylofactor')
