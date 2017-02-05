@@ -16,7 +16,7 @@ citEntry(entry = "Article",
          url          = "https://doi.org/10.7287/peerj.preprints.2685v1",
          
          textVersion  =
-           paste("Washburne AD, Silverman JD, Leff JW, Bennett DJ, Darcy JL, Mukherjee S, Fierer N, and David LA (2017).",
+           paste("Washburne AD, Silverman JD, Leff JW, Bennett DJ, Darcy JL, Mukherjee S, Fierer N, David LA (2017).",
                  "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
                  "PeerJ Preprints")
 )
