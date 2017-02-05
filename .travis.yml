@@ -16,7 +16,6 @@ addons:
 r_packages:
   - magrittr 
   - ape
-  - compositions
   - phangorn
   - stats 
   - phytools 
