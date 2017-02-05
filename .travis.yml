@@ -34,7 +34,7 @@ after_success:
   - Rscript -e 'covr::codecov()'
 
 script: 
-  - Rscript -e "library(testthat); test_check('phylofactor')"
+  - Rscript -e "library(testthat); test_package('phylofactor')"
 
 notifications:
   email:
