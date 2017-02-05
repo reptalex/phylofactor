@@ -4,8 +4,8 @@
 \alias{ColorTaxa}
 \title{Colors tree edges based on taxanomic ID}
 \usage{
-ColorTaxa(tree, taxonomy, level = "p", outputlegend = F, colorfcn = NULL,
-  legend = FALSE, scramble = F, ...)
+ColorTaxa(tree, taxonomy, level = "p", outputlegend = FALSE,
+  colorfcn = NULL, legend = FALSE, scramble = FALSE, ...)
 }
 \arguments{
 \item{tree}{phylogenetic tree}
@@ -32,11 +32,9 @@ data(FTmicrobiome)
 tree <- FTmicrobiome$PF$tree
 taxonomy <- FTmicrobiome$taxonomy
 
-ColorTaxa(tree,taxonomy,level='p',legend=T,show.tip.label=FALSE,type='unrooted')
+ColorTaxa(tree,taxonomy,level='p',legend=TRUE,show.tip.label=FALSE,type='unrooted')
 
-
-
-L <- ColorTaxa(tree,taxonomy,level='c',legend=F,show.tip.label=FALSE,type='unrooted',outputlegend=T)
+L <- ColorTaxa(tree,taxonomy,level='c',legend=FALSE,show.tip.label=FALSE,type='unrooted',outputlegend=TRUE)
 
 lims <- par('usr')
 legend(lims[1],lims[4],legend=L$Taxa,fill=L$colors,cex=.6)

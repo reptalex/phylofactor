@@ -68,6 +68,4 @@ crossVmap(Grps,tree,c1,c2,ignore.interruptions = F)
 #when ignore.interruptions=T. The intervening elements are the interrupting clades
 #in the order in which they interrupt the factored edges.
 
-
-
 }
