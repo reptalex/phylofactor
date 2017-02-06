@@ -4,6 +4,7 @@
 #' @param Data Positive-valued data matrix whose rownames are tip-labels in the input \code{tree}. 
 #' @param tree phylo-class object whose tip-labels cover the rownames of Data.
 #' @param ncores optional number of cores for built-in parallelization. Be cautious of memory - each worker is sent a copy of the dataset and tree, producing ncores+1 copies of the dataset & tree.
+#' @param ncomponents integer indicating number of phylogenetic components to extract
 #' @param output.edges Logical, whether or not to output the edges in the input \code{tree} corresponding to phylogenetic components
 #' @param tol tolerance for compositional matrix. Rounding error in large datasets can lead to columns of compositional data not summing to 1. 
 #' @param quiet Logical, whether or not to quiet warnings.
@@ -17,15 +18,16 @@
 #' tree <- FTmicrobiome$PF$tree
 #' X <- FTmicrobiome$X
 #' taxonomy <- FTmicrobiome$taxonomy
-#' phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
+#' clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
+#' phytools::phylo.heatmap(tree,clr(Data))
 #' 
 #' 
 #' phca <- PhyCA(Data,tree,ncomponents = 2)
-#' phcaPAR <- PhyCA(Data,tree,ncomponents=3,ncores=2)
+#' phcaPAR <- PhyCA(Data,tree,ncomponents=2,ncores=2)
 #' 
-#' phylofactor.visualize(phcaPAR,X=X,dimension=3)
+#' pf.ordination(phcaPAR,X=X,dimension=2)
 #' 
-#' phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
+#' phytools::phylo.heatmap(tree,clr(Data))
 #' edgelabels(text=1:3,edge = unlist(phcaPAR$edges),cex=2)
 
 

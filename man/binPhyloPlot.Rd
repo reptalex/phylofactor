@@ -23,6 +23,8 @@ binPhyloPlot(X, factor, tree = NULL, n = NULL, colorfcn = rainbow,
 \item{show.tip.label}{Logical. Whether or not to show tip labels. Default is False.}
 
 \item{legend.return}{Logical indicating whether or not to return legend labels and colors for making a legend.}
+
+\item{...}{optional input arguments to \code{\link{plot.phylo}}}
 }
 \value{
 plot.phylo where unique edges for each bin are different colors, with optional return of legend information

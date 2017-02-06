@@ -18,13 +18,13 @@ pf.BINprojection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,u
     if (rel.abund){
       binned_Data <- lapply(Bins,FUN=function(ix,Y) colSums(Y[ix,,drop=F]),Y=pf.predict(PF,factors=factor))
     } else {
-      binned_Data <- lapply(Bins,FUN=function(ix,Y) compositions::geometricmeanCol(Y[ix,,drop=F]),Y=pf.predict(PF,factors=factor))
+      binned_Data <- lapply(Bins,FUN=function(ix,Y) gMean(Y[ix,,drop=F]),Y=pf.predict(PF,factors=factor))
     }
   } else {
     if (rel.abund){
       binned_Data <- lapply(Bins,FUN=function(ix,Y) colSums(Y[ix,,drop=F]),Y=PF$Data)
     } else {
-      binned_Data <- lapply(Bins,FUN=function(ix,Y) compositions::geometricmeanCol(Y[ix,,drop=F]),Y=PF$Data)
+      binned_Data <- lapply(Bins,FUN=function(ix,Y) gMean(Y[ix,,drop=F]),Y=PF$Data)
     }
   }
   output <- NULL

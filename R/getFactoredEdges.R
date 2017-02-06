@@ -1,6 +1,7 @@
 #' Returns edges from a phylofactor
 #' @export
 #' @param tree Phylo object
+#' @param M Most recent common ancestor matrix of \code{tree}, the output from \link{mrca}
 #' @param grp1 Vector of the indexes for tips contained in group1 (also the nodes corresponding to the tips in group1)
 #' @param grp2 same as grp1, but must be a disjoint group from grp1. 
 #' @param v Optional input of an ILR-style partition vector, which automatically extracts grp1 and grp2

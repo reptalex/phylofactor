@@ -2,7 +2,7 @@
 % Please edit documentation in R/pf.TipTest.R
 \name{pf.TipTest}
 \alias{pf.TipTest}
-\title{Test of whether tips are over/under-represented in phylofactorization}
+\title{Test of whether tips are over/under-represented in phylofactorization. Currently in-development.}
 \usage{
 pf.TipTest(PF, factors = 1:(PF$nfactors), lower.tail = FALSE)
 }
@@ -11,13 +11,8 @@ pf.TipTest(PF, factors = 1:(PF$nfactors), lower.tail = FALSE)
 
 \item{factors}{Set of factors to test. Default is all the factors in PF input.}
 
-\item{two.tailed}{Logical indicating if test is to be two-tailed.}
+\item{lower.tail}{Logical, whether test should be one-tailed test looking at lower tail.}
 }
 \description{
 Performs hypergeometric test on the number of tips in a phylofactorization
-}
-\examples{
-data('FTmicrobiome')
-
-pf.TipTest(Ftmicrobiome$PF)
 }

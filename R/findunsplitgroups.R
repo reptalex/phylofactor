@@ -2,7 +2,7 @@
 #' @export
 #' @param V Partition matrix.
 #' @examples
-#' V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)
+#' V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=FALSE,ncol=2)
 #' find.unsplit.Grps(V)
 
 #################################### find.unsplit.groups ###############################################

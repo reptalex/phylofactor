@@ -4,10 +4,12 @@
 #' @param phca \code{PhyCA} object
 #' @param Taxonomy Greengenes taxonomy, first column are otus and second column are taxonomic strings of format "p__Phylum; c__Class; o__Order..."
 #' @param ncomponents Integer number of PhyCA components to tidy, from \code{1:ncomponents}
+#' @param taxa.split Logical whether to summarize taxonomic detail of component by only including the taxa names which are unique to each group.
 #' @param common.name Logical, whether or not to trim output taxonomic summary to the longest common prefix. Default \code{FALSE}
 #' @param uniques Logical, whether or not to trim taxonomic output to unique taxonomic names. Default \code{TRUE}
 #' @param getEdges Logical, whether or not to get edges corresponding to the splits. Default \code{FALSE}
 #' @param ncores Integer number of cores to use if getting edges - does not affect runtime if \code{getEdges=FALSE}
+#' @param ... optional input arguments to \code{\link{OTUtoTaxa}}
 #' @examples
 #' 
 #' library(phylofactor)
@@ -17,15 +19,16 @@
 #' tree <- FTmicrobiome$PF$tree
 #' taxonomy <- FTmicrobiome$taxonomy
 #' 
-#' phca <- PhyCA(Data,tree,ncomponents = 3,ncores=3,output.edges=F)
+#' phca <- PhyCA(Data,tree,ncomponents = 3,ncores=2,output.edges=FALSE)
 #' 
 #' #the standard
-#' td <- phyca.tidy(phca,Taxonomy)
+#' td <- phyca.tidy(phca,taxonomy)
 #' 
 #' #or, for a simpler view
-#' td <- phyca.tidy(phca,taxonomy,taxa.split=T)
+#' td <- phyca.tidy(phca,taxonomy,taxa.split=TRUE)
 #' 
-#' sum(FTmicrobiome$PF$basis[,1:3]-phca$basis[,1:3])  #the first three phylofactors here correspond to the first three ILR-phylogenetic Components. 
+#' sum(FTmicrobiome$PF$basis[,1:3]-phca$basis[,1:3])  
+#' #the first three phylofactors here correspond to the first three ILR-phylogenetic Components. 
 
 phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,taxa.split=F,common.name=F,uniques=T,getEdges=F,ncores=NULL,...){
   

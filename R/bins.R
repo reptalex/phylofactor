@@ -5,7 +5,7 @@
 #' @param set If V is not input, set determines the full set of elements of which G is sub-groups and of which bins are constructed.
 #' @return a list of bins - list of elements corresponding to minimal, unsplit groups given the partition or the group list.
 #' @examples
-#' V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)
+#' V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=FALSE,ncol=2)
 #' bins(V)
 #'
 #' set=1:10

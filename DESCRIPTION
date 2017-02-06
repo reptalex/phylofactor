@@ -10,8 +10,9 @@ Description:
 License: GPL-3
 LazyData: TRUE
 Depends:
+  ape (>= 3.4),
   magrittr (>= 1.5),
-  ape (>= 3.4)
+  R (>= 2.10)
 Imports:
   phangorn (>= 2.0.2),
   stats (>= 3.2.2),
@@ -20,6 +21,7 @@ Imports:
   scatterplot3d (>= 0.3.36),
   Biostrings (>= 2.38.4),
   biglm (>= 0.9.1),
+  mgcv (>= 1.8-16),
   parallel (>= 3.2.2)
 Suggests: 
   testthat (>= 1.0.2)

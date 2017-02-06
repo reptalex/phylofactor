@@ -20,9 +20,13 @@ findWinner(nset, tree_map, treeList, treetips, choice, smallglm = F,
 
 \item{smallglm}{Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.}
 
+\item{frmla}{Formula for \code{\link{glm}}. See \code{\link{PhyloFactor}} for more details.}
+
+\item{xx}{data frame containing non-ILR (\code{Data}) variables used in \code{frmla}}
+
 \item{choice.fcn}{See \code{\link{PhyloFactor}}}
 
-\item{LogData}{logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once.}
+\item{...}{optional input arguments to \code{\link{glm}}}
 }
 \description{
 Internal PhyloRegression function for finding the winning edge.

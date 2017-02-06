@@ -20,7 +20,6 @@ estimated data based on estimates from phylofactorization
 Predicts based on phylofactorization
 }
 \examples{
-library(compositions)
 library(caper)
 set.seed(1)
 tree <- unroot(rtree(8))
@@ -31,17 +30,18 @@ for (gg in Grp){
 Data[gg,] <- Data[gg,]*20^(seq(-1,1,length.out=10))
 }
 
-T <- 1:10
-colnames(Data) <- T
+X <- 1:10
+colnames(Data) <- X
 
-Data <- t(rcomp(t(Data)))
+Data <- clo(Data)
 rownames(Data) <- tree$tip.label
-phylo.heatmapAW(tree,clr(t(Data)))
 
-PF <- PhyloFactor(Data,tree,X=T,nclades=1)
+PF <- PhyloFactor(Data,tree,X,nfactors=1)
 
 CommunityEst <- pf.predict(PF,factors=1,newdata=data.frame(X=seq(0,11,by=1/3)))
 rownames(CommunityEst) <- rownames(Data)
 
-phylo.heatmapAW(tree,clr(t(CommunityEst)))
+clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
+phytools::phylo.heatmap(tree,clr(Data))
+phytools::phylo.heatmap(tree,clr(CommunityEst))
 }

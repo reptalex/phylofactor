@@ -1,13 +1,10 @@
-#' Test of whether tips are over/under-represented in phylofactorization
-#' @export
+#' Test of whether tips are over/under-represented in phylofactorization. Currently in-development.
+
 #' @param PF phylofactor object. See \code{\link{PhyloFactor}}
 #' @param factors Set of factors to test. Default is all the factors in PF input.
-#' @param two.tailed Logical indicating if test is to be two-tailed.
+#' @param lower.tail Logical, whether test should be one-tailed test looking at lower tail.
 #' @description Performs hypergeometric test on the number of tips in a phylofactorization
-#' @examples
-#' data('FTmicrobiome')
-#'
-#' pf.TipTest(Ftmicrobiome$PF)
+
 
 pf.TipTest <- function(PF,factors=1:(PF$nfactors),lower.tail=FALSE){
   nn <- dim(PF$Data)[1]   ## number of tips

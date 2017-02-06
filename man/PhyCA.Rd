@@ -14,6 +14,8 @@ PhyCA(Data, tree, ncores = NULL, ncomponents = NULL, output.edges = T,
 
 \item{ncores}{optional number of cores for built-in parallelization. Be cautious of memory - each worker is sent a copy of the dataset and tree, producing ncores+1 copies of the dataset & tree.}
 
+\item{ncomponents}{integer indicating number of phylogenetic components to extract}
+
 \item{output.edges}{Logical, whether or not to output the edges in the input \code{tree} corresponding to phylogenetic components}
 
 \item{tol}{tolerance for compositional matrix. Rounding error in large datasets can lead to columns of compositional data not summing to 1.}
@@ -35,14 +37,15 @@ Data <- FTmicrobiome$PF$Data
 tree <- FTmicrobiome$PF$tree
 X <- FTmicrobiome$X
 taxonomy <- FTmicrobiome$taxonomy
-phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
+clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
+phytools::phylo.heatmap(tree,clr(Data))
 
 
 phca <- PhyCA(Data,tree,ncomponents = 2)
 phcaPAR <- PhyCA(Data,tree,ncomponents=3,ncores=2)
 
-phylofactor.visualize(phcaPAR,X=X,dimension=3)
+pf.ordination(phcaPAR,X=X,dimension=3)
 
-phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
+phytools::phylo.heatmap(tree,clr(Data))
 edgelabels(text=1:3,edge = unlist(phcaPAR$edges),cex=2)
 }

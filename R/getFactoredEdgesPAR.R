@@ -5,6 +5,7 @@
 #' @param ncores optional integer input ncores- must input wither cl or ncores.
 #' @param tree phylo object
 #' @param V partition matrix whose columns contain +/- 1 indicating group membership
+#' @param PF phylofactor class object.
 #' @examples 
 #' data("FTmicrobiome")
 #' V <- FTmicrobiome$PF$basis
@@ -12,7 +13,7 @@
 #' 
 #' cl <- phyloFcluster(2)
 #' 
-#' getFactoredEdges.par(cl,tree=tree,V=V[,1:10])
+#' getFactoredEdgesPAR(cl,tree=tree,V=V[,1:10])
 getFactoredEdgesPAR <- function(cl=NULL,ncores=NULL,tree=NULL,V=NULL,PF=NULL){
   if (is.null(cl)){
     if (is.null(ncores)){

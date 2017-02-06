@@ -2,7 +2,6 @@
 #' @export
 #' @param PF PhyloFactor object
 #' @param taxonomy Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string
-#' @param node node number, must be in PF$nodes. Takes priority over "factor" for what is summarized
 #' @param factor Factor number to summarize.
 #' @param simplify.TaxaIDs Logical, whether or not to simplify IDs of group taxonomy to their shorest unique prefix (for each OTU in each group, this is taxonomy down to the coarsest taxonomic level unique to the OTU's group)
 #' @return summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction
@@ -11,7 +10,8 @@
 #' OTUTable <- FTmicrobiome$OTUTable        #OTU table
 #' Taxonomy <- FTmicrobiome$taxonomy        #taxonomy
 #' tree <- FTmicrobiome$tree                #tree
-#' X <- FTmicrobiome$X                      #independent variable - factor indicating if sample is from feces or tongue
+#' X <- FTmicrobiome$X                      
+#' #independent variable - factor indicating if sample is from feces or tongue
 #'
 #' rm('FTmicrobiome')
 #'
@@ -22,21 +22,28 @@
 #' tree <- drop.tip(tree,which(!(tree$tip.label %in% OTUs)))
 #'
 #' par(mfrow=c(1,1))
-#' phylo.heatmap(tree,t(clr(t(OTUTable))))
-#' PF <- PhyloFactor(OTUTable,tree,X,nfactors=2,choice='var')
+#' clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
+#' OTUTable[OTUTable==0]=0.65
+#' phytools::phylo.heatmap(tree,clr(OTUTable))
+#' 
+#' PF <- PhyloFactor(OTUTable,tree,X,nfactors=2,ncores=2,choice='var')
 #'
 #' FactorSummary <- pf.summary(PF,Taxonomy,factor=1)
 #'
 #' str(FactorSummary)
 #'
 #' par(mfrow=c(1,2))
-#' plot(FactorSummary$ilr,ylab='ILR coordinate',main='ILR coordinate of factor',xlab='sample no.',pch=16)
+#' plot(FactorSummary$ilr,ylab='ILR coordinate',main='ILR coordinate of factor',
+#'       xlab='sample no.',pch=16)
 #' lines(FactorSummary$fitted.values,lwd=2,col='blue')
-#' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
+#' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),
+#'         col=c('black','blue'),lwd=c(NA,2))
 #'
-#' plot(FactorSummary$MeanRatio,ylab='ILR coordinate',main='Mean Ratio of Grp1/Grp2',xlab='sample no.',pch=16)
+#' plot(FactorSummary$MeanRatio,ylab='ILR coordinate',main='Mean Ratio of Grp1/Grp2',
+#'        xlab='sample no.',pch=16)
 #' lines(FactorSummary$fittedMeanRatio,lwd=2,col='blue')
-#' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),col=c('black','blue'),lwd=c(NA,2))
+#' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),
+#'         col=c('black','blue'),lwd=c(NA,2))
 pf.summary <- function(PF,taxonomy,factor=NULL,simplify.TaxaIDs=F){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(factor)){stop('need to input a factor')}

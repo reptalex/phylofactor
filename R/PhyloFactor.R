@@ -9,8 +9,10 @@
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
 #' @param quiet Logical, default is \code{FALSE}, indicating whether or not to display standard warnings. 
 #' @param trust.me Logical, default \code{FALSE}, indicating whether or not to trust the input Data to be compositional with no zeros.
+#' @param small.output Logical, indicating whether or not to trim output. If \code{TRUE}, output may not work with downstream summary and plotting wrappers.
 #' @param stop.fcn Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
+#' @param KS.Pthreshold Numeric between 0 and 1. P-value threshold for KS-test as default stopping-function.
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
 #' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
@@ -18,6 +20,7 @@
 #' @param smallglm Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false. 
 #' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally. 
 #' @param choice.fcn.dependencies Function called by cluster to load all dependencies for custom choice.fcn. e.g. \code{choice.fcn.dependencies <- function(){library(bayesm)}}
+#' @param ... optional input arguments for \code{\link{glm}}
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
 #' set.seed(2)
@@ -34,7 +37,7 @@
 #' tree <- drop.tip(tree,setdiff(tree$tip.label,sample(tree$tip.label,20)))
 #' 
 #' ### plot phylogeny ###
-#' plot.phylo(tree,use.edge.length=F,main='Community Phylogeny')
+#' plot.phylo(tree,use.edge.length=FALSE,main='Community Phylogeny')
 #' nodelabels()
 #' 
 #' Taxonomy <- Taxonomy[match(tree$tip.label,Taxonomy[,1]),]
@@ -62,22 +65,33 @@
 #' 
 #' 
 #' ######### Summary tools ##########
-#' PF$factors                                         # Notice that both of the groups at the first factor are labelled as "Monophyletic" due to the unrooting of the tree
+#' PF$factors                                         
+#' # Notice that both of the groups at the first factor are labelled as "Monophyletic"
+#' # due to the unrooting of the tree
 #' PF$ExplainedVar
-#' s <- pf.summary(PF,Taxonomy,factor=1)   ### A coarse summary tool
+#' 
+#' # A coarse summary tool
+#' s <- pf.summary(PF,Taxonomy,factor=1)   
 #' s$group1$IDs                                       # Grabbing group IDs
 #' s$group2$IDs
-#' td <- pf.tidy(s)                                 ### A tidier summary tool
-#' td$`group1, Monophyletic`                          # Simplified group IDs - the unique shortest unique prefixes separating the groups
+#' 
+#' # A tidier summary tool
+#' td <- pf.tidy(s)                                 
+#' td$`group1, Monophyletic`                          
+#' # Simplified group IDs - the unique shortest unique prefixes separating the groups
 #' td$`group2, Monophyletic`
+#' 
 #' ## Plotting with summary tools ##
 #' par(mfrow=c(1,1),mar=mar)
-#' plot(as.numeric(X),td$`Observed Ratio of group1/group2 geometric means`,ylab='Average ratio of Group1/Group2',pch=18,cex=2)
+#' plot(as.numeric(X),td$`Observed Ratio of group1/group2 geometric means`,
+#'        ylab='Average ratio of Group1/Group2',pch=18,cex=2)
 #' lines(td$`Predicted ratio of group1/group2`,lwd=2)
-#' legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),lty=c(NA,1),cex=2)
+#' legend(1,12,legend=c('Observed','Predicted'),pch=c(18,NA),lwd=c(NA,2),
+#'        lty=c(NA,1),cex=2)
 #' 
 #' ######### get and plot Phylogenetic info ####
-#' PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) %>% unlist   ## unlisting is unwise if any factor corresponds to more than one edge
+#' PFedges <- getFactoredEdgesPAR(ncores=2,PF=PF) %>% unlist   
+#' ## unlisting is unwise if any factor corresponds to more than one edge
 #' PFnodes <- tree$edge[PFedges,2]
 #' PFclades <- Descendants(tree,PFnodes,'tips')
 #' 
@@ -103,10 +117,13 @@
 #' ############### Other features: ##################
 #' 
 #' #### Stopping Function ###########################
-#' PF.stop <- PhyloFactor(Data,tree,X,stop.early=T)
-#' PF.stop$terminated #### TRUE - this indicates that the factorization was terminated when there was sufficiently low signal
-#' PF.stop$nfactors   #### 2 - the correct number of factors
-#' all(PF.stop$bins %in% Bins)   #### TRUE - the factors identified were the correct ones.
+#' PF.stop <- PhyloFactor(Data,tree,X,stop.early=TRUE)
+#' PF.stop$terminated 
+#' # TRUE - this indicates that the factorization was terminated
+#' # when there was sufficiently low signal
+#' PF.stop$nfactors   # 2 - the correct number of factors
+#' all(PF.stop$bins %in% Bins)   #
+#' # TRUE - the factors identified were the correct ones.
 #' 
 #' #### PhyloFactor has built-in parallelization ####
 #' PF.par  <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
@@ -127,7 +144,7 @@
 #' 
 #' 
 #' 
-#' ######################################## CUSTOMIZED CHOICE FUNCTIONS ##########################################
+#' ############################# CUSTOMIZED CHOICE FUNCTIONS ################################
 #' #PhyloFactor can also be used for generalized additive models by inputting choice.fcn 
 #' #and choice.fcn.dependencies to load required packages onto the cluster
 #' 
@@ -139,22 +156,29 @@
 #' a <- rnorm(n)
 #' b <- rnorm(n)
 #' X <- data.frame(a,b)
-#' Data[sigClades[[1]],] <- t(t(Data[sigClades[[1]],])*(20/(1+exp(5*b)))) ## This clade has a nonlinear response with b, decreasing for high values of b.
-#' Data[sigClades[[2]],] <- t(t(Data[sigClades[[2]],])*8*a^-2)  ## this clade is abundant only for intermediate values of a.
+#' 
+#' Data[sigClades[[1]],] <- t(t(Data[sigClades[[1]],])*(20/(1+exp(5*b)))) 
+#' ## This clade has a nonlinear response with b, decreasing for high values of b.
+#' 
+#' Data[sigClades[[2]],] <- t(t(Data[sigClades[[2]],])*8*a^-2)  
+#' ## this clade is abundant only for intermediate values of a.
+#' 
 #' Data <- t(clo(t(Data)))
 #' 
 #' par(mfrow=c(2,2))
-#' plot(a,geometricmeanCol(Data[sigClades[[1]],]),ylab='Group1 gMean')
-#' plot(b,geometricmeanCol(Data[sigClades[[1]],]),ylab='Group1 gMean')
-#' plot(a,geometricmeanCol(Data[sigClades[[2]],]),ylab='Group2 gMean')
-#' plot(b,geometricmeanCol(Data[sigClades[[2]],]),ylab='Group2 gMean')
+#' plot(a,gMean(Data[sigClades[[1]],],MARGIN=2),ylab='Group1 gMean')
+#' plot(b,gMean(Data[sigClades[[1]],],MARGIN=2),ylab='Group1 gMean')
+#' plot(a,gMean(Data[sigClades[[2]],],MARGIN=2),ylab='Group2 gMean')
+#' plot(b,gMean(Data[sigClades[[2]],],MARGIN=2),ylab='Group2 gMean')
 #' 
 #' 
-#' ############## To input a custom choice.fcn, it needs to take as input the vector of ILR coefficients 'y', the input meta-data 'X',
-#' ############## and a logical PF.output. The output of the custom choice function when PF.output=T will be returned in PF$custom.output.
+#' ######### To input a custom choice.fcn, it needs to take as input the vector of 
+#' ######### ILR coefficients 'y', the input meta-data 'X', and a logical PF.output.
+#' ######### The output of the custom choice function when PF.output=T 
+#' ######### will be returned in PF$custom.output.
 #' 
 #' ## Demo choice.fcn - generalized additive modelling ##
-#' GAM <- function(y,X,PF.output=F,...){
+#' GAM <- function(y,X,PF.output=FALSE,...){
 #'   dataset <- cbind(y,X)
 #'   gg <- mgcv::gam(y~s(a)+s(b),data=dataset,...)
 #' 
@@ -163,19 +187,23 @@
 #'     break
 #'   } else {
 #'     output <- NULL
-#'     output$objective <- getStats(gg)['ExplainedVar']  ## The output of the choice function for PF.output=F must contain two labelled numerics: an "objective" statistic and a "stopStatistics". 
+#'     
+#'     ## The output of the choice function for PF.output=F must contain two labelled numerics:
+#'     ## an "objective" statistic and a "stopStatistics". 
+#'     output$objective <- getStats(gg)['ExplainedVar']  
 #'     output$stopStatistics <- getStats(gg)['Pval']
 #'     return(output)
 #'   }
 #' }
 #' 
 #' load.dependencies <- function(){library(mgcv)}
-#' ############## For parallelization of customized choice function, we also need to define a function, 
-#' ############## choice.fcn,dependencies, which loads all dependencies to cluster.
-#' ############## The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
+#' ######### For parallelization of customized choice function, we also need to define a function, 
+#' ######### choice.fcn,dependencies, which loads all dependencies to cluster.
+#' ######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
 #' 
 #' 
-#' PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,choice.fcn.dependencies = load.dependencies,ncores=2,sp=1)
+#' PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,
+#'                           choice.fcn.dependencies = load.dependencies,ncores=2,sp=1)
 #' all(sigClades %in% PF.G.par$bins)
 #' PF.G.par$factors
 #' 
@@ -197,7 +225,9 @@
 #'   }
 #'   
 #'   y <- amalg.ILR(grp,log(Data))
-#'   plot(sort(x),y[order(x)],ylab='ILR Coefficient',xlab='dominant Independent Variable',main=paste('Factor',toString(ff),sep=' '))
+#'   plot(sort(x),y[order(x)],ylab='ILR Coefficient',
+#'         xlab='dominant Independent Variable',
+#'         main=paste('Factor',toString(ff),sep=' '))
 #'   lines(sort(x),pred[order(x)])
 #' }
 #' 
@@ -215,17 +245,27 @@
 #' Data[sigClades[[1]],] <- t(t(Data[sigClades[[1]],])*A*exp(-(((X-mu)^2)/(2*sigma^2))))
 #' Data <- t(clo(t(Data)))
 #' 
+#' y1 <- gMean(Data[sigClades[[1]],],MARGIN=2)
+#' y2 <- gMean(Data[setdiff(1:20,sigClades[[1]]),],MARGIN=2)
+#' ratios <- y1/y2
+#' 
 #' par(mfrow=c(1,1))
-#' plot(X,geometricmeanCol(Data[sigClades[[1]],])/geometricmeanCol(Data[setdiff(1:20,sigClades[[1]]),]),ylab='Group1/Group2 gMean',log='y',main='Identifying Gaussian-shaped Hutchinsonian Niches',xlab='Environmental Variable')
+#' plot(X,ratios,
+#'  ylab='Group1/Group2 gMean',log='y',
+#'  main='Identifying Gaussian-shaped Hutchinsonian Niches',
+#'  xlab='Environmental Variable')
 #' 
 #' frmla=Data~X+I(X^2) 
-#' PF.Gaus <- PhyloFactor(Data,tree,frmla=frmla,X,nfactors=1,ncores=7)
+#' PF.Gaus <- PhyloFactor(Data,tree,frmla=frmla,X,nfactors=1,ncores=2)
 #' 
 #' all.equal(sigClades[[1]],PF.Gaus$bins[[2]])
 #' y <- PF.Gaus$groups[[1]] %>% amalg.ILR(.,log(Data))
-#' plot(X,y,ylab='Group1/Group2 gMean',,main='Identifying Gaussian-shaped Hutchinsonian Niches',xlab='Environmental Variable')
+#' plot(X,y,ylab='Group1/Group2 gMean',
+#'      main='Identifying Gaussian-shaped Hutchinsonian Niches',
+#'      xlab='Environmental Variable')
 #' lines(sort(X),predict(PF.Gaus$glms[[1]])[order(X)],lwd=4,col='green')
-#' legend(-2.5,-3,legend=c('Observed','Predicted'),pch=c(1,NA),col=c('black','green'),lty=c(NA,1),lwd=c(NA,2))
+#' legend(-2.5,-3,legend=c('Observed','Predicted'),
+#'          pch=c(1,NA),col=c('black','green'),lty=c(NA,1),lwd=c(NA,2))
 #' 
 #' ### Because the regression is performed on an ILR coordinate, getting an estimate 
 #' ### about the optimal habitat preference and the width of habitat preferences
@@ -245,7 +285,8 @@
 #' names(mu.hat) <- NULL
 #' names(sigma.hat) <- NULL
 #' c('A'=A,'A.hat'=A.hat)
-#' c('mu'=mu,'mu.hat'=mu.hat)             #The optimal environment for this simulated organism is mu=-1
+#' c('mu'=mu,'mu.hat'=mu.hat)             
+#' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
 PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){

@@ -1,16 +1,18 @@
-#' Returns regression of x on y according to frmla
+#' Internal wrapper for \code{\link{glm}} for phylofactor
 #' @export
 #' @param y response variable
-#' @param x independent variable
+#' @param xx independent variable
 #' @param frmla Formula for dependence of y on x
+#' @param smallglm Logical. See \code{\link{PhyloFactor}}
+#' @param ... optional input arguments to \code{\link{glm}}
 #' @return glm object
 #' @examples
 #' x <- rnorm(10)
 #' y <- x+rnorm(10)
-#' phyloreg(y,x,y~x)
+#' pglm(y,x,y~x)
 
 ################# phyloreg ############################
-pglm <- function(y,xx,frmla,smallglm=F,...){
+pglm <- function(y,xx,frmla,smallglm=T,...){
   ##performs individual regression.
   dataset <- c(list(y),as.list(xx))
   names(dataset) <- c('Data',names(xx))

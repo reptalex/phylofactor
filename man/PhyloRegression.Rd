@@ -40,6 +40,8 @@ PhyloRegression(LogData, X, frmla, Grps = NULL, choice, treeList = NULL, cl,
 \item{smallglm}{Logical. See \code{\link{PhyloFactor}}}
 
 \item{choice.fcn}{optional customized choice function to choose 'best' edge; see \code{\link{PhyloFactor}}}
+
+\item{...}{optional input arguments for \code{\link{glm}}}
 }
 \description{
 PhyloFactor internal function to prep, find and summarize the best ILR coordinate

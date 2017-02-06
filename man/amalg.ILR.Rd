@@ -10,7 +10,7 @@ amalg.ILR(Grp, LogData)
 \arguments{
 \item{Grp}{List containing two non-overlapping vectors of positive, non-zero integers less than the number of rows in the Data matrix.}
 
-\item{Data}{Compositional data matrix whose rows are parts and whose columns are samples.}
+\item{LogData}{Logarithm of data matrix whose rows are parts and whose columns are samples.}
 }
 \description{
 amalgamate two groups in a compositional data matrix to obtain ILR vector

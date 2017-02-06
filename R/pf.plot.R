@@ -1,22 +1,22 @@
 #' Label and visualize phylofactors
 #'
-#'  @export
-#'  @param PF PhyloFactor object
-#'  @param tree Phylogeny used in generating PhyloFactor object. Default will scan PF for a tree.
-#'  @param Data Data used to generate PhyloFactor object. If Null, default will plot the phylofactor prediction of the dataset.
-#'  @param bg Background color for node labels, default 'white'
-#'  @param cex Size of node labels, default 2.
-#'  @param factors factors of phylofactor object to be labelled on tree and used in prediction.
-#'  @param compare Whether or not to compare the Data with phylofactor prediction. If compare = TRUE, two phylo-heatmaps will be produced for direct comparison.
-#'  @param ... additional arguments for phylo.heatmap
-#'  @return phylo.heatmap labelling the tree with phylofactors and optionally comparing data to phylofactor predictions.
-#'  @examples
+#' @export
+#' @param PF PhyloFactor object
+#' @param tree Phylogeny used in generating PhyloFactor object. Default will scan PF for a tree.
+#' @param Data Data used to generate PhyloFactor object. If Null, default will plot the phylofactor prediction of the dataset.
+#' @param bg Background color for node labels, default 'white'
+#' @param cex Size of node labels, default 2.
+#' @param factors factors of phylofactor object to be labelled on tree and used in prediction.
+#' @param compare Whether or not to compare the Data with phylofactor prediction. If compare = TRUE, two phylo-heatmaps will be produced for direct comparison.
+#' @param ... additional arguments for phylo.heatmap
+#' @return phylo.heatmap labelling the tree with phylofactors and optionally comparing data to phylofactor predictions.
+#' @examples
 #'  ### Create Data ###
 #'  set.seed(1)
 #' tree <- unroot(rtree(7))
 
 #' X <- as.factor(c(rep(0,5),rep(1,5)))
-#' sigClades <- Descendants(tree,c(9,12),type='tips')
+#' sigClades <- phangorn::Descendants(tree,c(9,12),type='tips')
 #' Data <- matrix(rlnorm(70,meanlog = 8,sdlog = .5),nrow=7)
 #' rownames(Data) <- tree$tip.label
 #' colnames(Data) <- X
@@ -27,7 +27,7 @@
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
 
 #' pf.plot(PF,factors=1)
-#' pf.plot(PF,factors=c(1,2),compare=T)
+#' pf.plot(PF,factors=c(1,2),Data=PF$Data,compare=TRUE)
 
 
 pf.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,...){
@@ -36,6 +36,7 @@ pf.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,
     if(is.null(PF$tree)){stop('Input Phylofactor object does not contain tree - must input tree')}
     tree <- PF$tree
   }
+  clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
 
   if (compare==F){
     #makes just one plot
@@ -46,9 +47,9 @@ pf.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,
       PData <- pf.predict(PF,factors)
       rownames(PData) <- row.names
       colnames(PData) <- colnames(PData)
-      phytools::phylo.heatmap(tree,t(compositions::clr(t(PData))),...)
+      phytools::phylo.heatmap(tree,clr(PData),...)
     } else {
-      phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))),...)
+      phytools::phylo.heatmap(tree,clr(Data),...)
     }
     # ape::nodelabels(text = as.list(factors),node=PF$nodes[factors],bg = bg,cex=cex)
   } else {
@@ -65,9 +66,9 @@ pf.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,
     rownames(PData) <- tree$tip.label
     colnames(PData) <- colnames(Data)
 
-    phytools::phylo.heatmap(tree,t(compositions::clr(t(Data))))
+    phytools::phylo.heatmap(tree,clr(Data))
     # ape::nodelabels(text = as.list(factors),node=PF$nodes[factors],bg = bg,cex=cex)
-    phytools::phylo.heatmap(tree,t(compositions::clr(t(PData))))
+    phytools::phylo.heatmap(tree,clr(PData))
     # ape::nodelabels(text = as.list(factors),node=PF$nodes[factors],bg = bg,cex=cex)
 
 

@@ -20,7 +20,7 @@ a list of bins - list of elements corresponding to minimal, unsplit groups given
 Outputs bins from a partition matrix, V, or from a list of groups G and their full set.
 }
 \examples{
-V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)
+V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=FALSE,ncol=2)
 bins(V)
 
 set=1:10

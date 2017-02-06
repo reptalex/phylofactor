@@ -13,6 +13,6 @@ find.unsplit.Grps(V)
 Finds unsplit groups in a signed partition matrix, V
 }
 \examples{
-V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=F,ncol=2)
+V <- matrix(c(1,1,-1,-1,1,-1,0,0),byrow=FALSE,ncol=2)
 find.unsplit.Grps(V)
 }

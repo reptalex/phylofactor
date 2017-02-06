@@ -8,6 +8,9 @@
 #' @param Legend Logical indicating if legend should be included. Must also have default.colors=T
 #' @param lx x location for legend. If \code{dimension} = 2, x must be a numeric. If \code{dimension} = 3, x must be an scatterplot3d()$xyz.convert list
 #' @param ly y location for legend, only applicable if \code{dimension}=2
+#' @param xlab X label for plot
+#' @param ylab Y label for plot
+#' @param zlab Z label for plot
 #' @param colorbar.name The name of the colorbar for quantitative independent variable, \code{X}. If independent variable is not a factor, \code{pf.visualization} assumes they are quantitative and will make a colorbar on the sorted independent variable.
 #' @param colorbar.ticks Number of ticks in colorbar
 #' @param ... Additional arguments. If \code{dimension==2}, these are arguments for \code{\link{plot}}. Otherwise, they are additional arguments for \code{\link{scatterplot3d}}
@@ -77,7 +80,7 @@ pf.ordination <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NUL
         } else {
           #including colorbar legend is more complicated...
 
-          layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
+          layout(matrix(1:2,ncol=2), widths = c(2,1),heights = c(1,1))
           plot(PROJ[1,],PROJ[2,],xlab=xlab,ylab=ylab,col=cols,pch=pch,cex=cex,...)
 
           legend_image <- as.raster(matrix(colfunc, ncol=1))
@@ -102,7 +105,7 @@ pf.ordination <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NUL
         if (xfactor){
         s3d <- scatterplot3d::scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,color = cols,pch=pch,cex.symbols = cex,...)
         } else {
-          layout(matrix(1:2,ncol=2), width = c(2,1),height = c(1,1))
+          layout(matrix(1:2,ncol=2), widths = c(2,1),heights = c(1,1))
           s3d <- scatterplot3d::scatterplot3d(PROJ[1,],PROJ[2,],PROJ[3,],xlab=xlab,ylab=ylab,zlab=zlab,color = cols,pch=pch,cex.symbols = cex)
           legend_image <- as.raster(matrix(colfunc, ncol=1))
           if (is.null(colorbar.name)){

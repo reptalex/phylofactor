@@ -9,6 +9,7 @@
 #' @param type type of phylogeny for plot.phylo. Default is unrooted.
 #' @param show.tip.label Logical. Whether or not to show tip labels. Default is False.
 #' @param legend.return Logical indicating whether or not to return legend labels and colors for making a legend.
+#' @param ... optional input arguments to \code{\link{plot.phylo}}
 #' @return plot.phylo where unique edges for each bin are different colors, with optional return of legend information
 #' @examples
 #' library(phylofactor)

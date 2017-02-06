@@ -1,5 +1,6 @@
 #' Computes geometric mean using logarithms
 #'
+#' @export
 #' @param Y matrix or vector
 #' @param MARGIN input for \code{\link{apply}}
 

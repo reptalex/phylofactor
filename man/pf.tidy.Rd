@@ -7,7 +7,7 @@
 pf.tidy(smry)
 }
 \arguments{
-\item{smry}{PF summary class object. see \code{\link{phylofactor.summary}}}
+\item{smry}{PF summary class object. see \code{\link{pf.summary}}}
 }
 \value{
 list containing concise taxa IDs of groups split, as well as their predicted ratios of abundances in different conditions

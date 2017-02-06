@@ -2,25 +2,29 @@
 % Please edit documentation in R/pglm.R
 \name{pglm}
 \alias{pglm}
-\title{Returns regression of x on y according to frmla}
+\title{Internal wrapper for \code{\link{glm}} for phylofactor}
 \usage{
-pglm(y, xx, frmla, smallglm = F, ...)
+pglm(y, xx, frmla, smallglm = T, ...)
 }
 \arguments{
 \item{y}{response variable}
 
+\item{xx}{independent variable}
+
 \item{frmla}{Formula for dependence of y on x}
 
-\item{x}{independent variable}
+\item{smallglm}{Logical. See \code{\link{PhyloFactor}}}
+
+\item{...}{optional input arguments to \code{\link{glm}}}
 }
 \value{
 glm object
 }
 \description{
-Returns regression of x on y according to frmla
+Internal wrapper for \code{\link{glm}} for phylofactor
 }
 \examples{
 x <- rnorm(10)
 y <- x+rnorm(10)
-phyloreg(y,x,y~x)
+pglm(y,x,y~x)
 }

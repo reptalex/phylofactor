@@ -15,6 +15,8 @@ getFactoredEdgesPAR(cl = NULL, ncores = NULL, tree = NULL, V = NULL,
 \item{tree}{phylo object}
 
 \item{V}{partition matrix whose columns contain +/- 1 indicating group membership}
+
+\item{PF}{phylofactor class object.}
 }
 \description{
 Parallelized version of getFactoredEdges
@@ -26,5 +28,5 @@ tree <- FTmicrobiome$PF$tree
 
 cl <- phyloFcluster(2)
 
-getFactoredEdges.par(cl,tree=tree,V=V[,1:10])
+getFactoredEdgesPAR(cl,tree=tree,V=V[,1:10])
 }

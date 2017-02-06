@@ -8,14 +8,13 @@ pf.ILRprojection <- function(PF,Data=NULL,nfactors=2){
 
 
   if (is.null(Data)){
-    output <- t(compositions::ilr(t(PF$Data),V=PF$basis[,1:nfactors]))
+    output <- lapply(PF$groups[1:nfactors],amalg.ILR,LogData=log(PF$Data)) %>% unlist %>% matrix(.,nrow=nfactors,byrow=T)
     colnames(output) <- colnames(PF$Data)
   }
   else {
-    if(!all(rownames(Data) %in% rownames(PF$Data))){stop('Not all rownames in data are found in Phylofactor tree')}
-    dum <- PF$Data
-    dum[match(rownames(Data),rownames(dum)),] <- Data
-    output <- t(compositions::ilr(t(Data),V=PF$basis[1:nfactors]))
+    if(!all(rownames(Data) %in% rownames(PF$Data))){stop('Not all rownames in data are found in PF$tree')}
+    Data <- Data[match(rownames(PF$Data),rownames(Data)),]
+    output <- lapply(PF$groups[1:nfactors],amalg.ILR,LogData=log(Data)) %>% unlist %>% matrix(.,nrow=nfactors,byrow=T)
     colnames(output) <- colnames(Data)
     rownames(output) <- rownames(Data)
   }

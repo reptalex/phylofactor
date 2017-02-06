@@ -23,6 +23,12 @@ pf.ordination(PF, X = NULL, dimension = 2, default.colors = T,
 
 \item{ly}{y location for legend, only applicable if \code{dimension}=2}
 
+\item{xlab}{X label for plot}
+
+\item{ylab}{Y label for plot}
+
+\item{zlab}{Z label for plot}
+
 \item{colorbar.name}{The name of the colorbar for quantitative independent variable, \code{X}. If independent variable is not a factor, \code{pf.visualization} assumes they are quantitative and will make a colorbar on the sorted independent variable.}
 
 \item{colorbar.ticks}{Number of ticks in colorbar}

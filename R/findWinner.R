@@ -5,10 +5,12 @@
 #' @param tree_map mapping cumulative number of nodes in treeList, used to map elements of nset to their appropriate tree in treeList.
 #' @param treeList list containing disjoint trees from phylofactor / PhyCA
 #' @param treetips number of tips in each tree
-#' @param LogData logarithm of data - taking logarithm beforehand allows us to compute the logarithm of big datasets only once. 
 #' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
 #' @param smallglm Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.
+#' @param frmla Formula for \code{\link{glm}}. See \code{\link{PhyloFactor}} for more details.
+#' @param xx data frame containing non-ILR (\code{Data}) variables used in \code{frmla}
 #' @param choice.fcn See \code{\link{PhyloFactor}}
+#' @param ... optional input arguments to \code{\link{glm}}
 findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,xx=NULL,choice.fcn=NULL,...){
   
   

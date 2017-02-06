@@ -19,6 +19,6 @@ Get list of groups defined by phylogeny
 tr <- rtree(8)
 tr$tip.label <- 1:8
 par(mfrow=c(1,1))
-plot.phylo(tr,use.edge.length=F);edgelabels()
+plot.phylo(tr,use.edge.length=FALSE);edgelabels()
 Grps <- getGroups(tr)
 }

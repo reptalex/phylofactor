@@ -11,6 +11,8 @@ getFactoredEdges(v = NULL, tree, M = NULL, grp1 = NULL, grp2 = NULL)
 
 \item{tree}{Phylo object}
 
+\item{M}{Most recent common ancestor matrix of \code{tree}, the output from \link{mrca}}
+
 \item{grp1}{Vector of the indexes for tips contained in group1 (also the nodes corresponding to the tips in group1)}
 
 \item{grp2}{same as grp1, but must be a disjoint group from grp1.}

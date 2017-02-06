@@ -15,11 +15,16 @@ crossVmap(Grps, tree, original_community, new_community,
 \item{original_community}{original community being factored (strings corresponding to tip-labels of \code{tree}. This helps us ID the new branches in the \code{new_community}}
 
 \item{new_community}{new community being cross-validated (strings corresponding to tip-labels of \code{tree})}
+
+\item{ignore.interruptions}{Logical on whether or not to ignore edges in new-community that interrupt the edges separating \code{Grps}}
 }
 \description{
 maps groups from old to new communities for phylofactor cross-validation
 }
 \examples{
+
+set.seed(1)
+tree <- ape::rtree(7)
 c1 <- c('t1','t2','t5','t6','t3','t4')
 c2 <- setdiff(tree$tip.label,c('t3','t4','t5'))
 
@@ -27,18 +32,21 @@ grp1 <- c('t1','t2')
 grp2 <- c('t5','t6')
 Grps <- list(grp1,grp2)
 
-factored.edges <- getFactoredEdges(grp1=match(grp1,tree$tip.label),grp2=match(grp2,tree$tip.label),tree=tree)
+factored.edges <- getFactoredEdges(grp1=match(grp1,tree$tip.label),
+                                  grp2=match(grp2,tree$tip.label),tree=tree)
 
 ecols <- rep('black',Nedge(tree))
 ecols[factored.edges] <- 'red'
-plot.phylo(tree,use.edge.length = F,type='unrooted',edge.width = 3,edge.color = ecols)
+plot.phylo(tree,use.edge.length = FALSE,type='unrooted',
+            edge.width = 3,edge.color = ecols)
 tiplabels(cex=3)
 # one clade interrupts our chain of branches: t7
 # another clade: [t3,t4], was factored out previously and is not in our Grps
 
-# We want an optional output "ignore.interruptions=T' which omits interruptions
+# We have an optional output "ignore.interruptions=T' which omits interruptions
 # in output of group comparisons. 
-# if ignore.interruptions=F, we want to output the list of possible groups for iteration and refinement of which edge along the chain holds an effect.
+# if ignore.interruptions=F, we want to output the list of possible groups
+# for iteration and refinement of which edge along the chain holds an effect.
 
 # the default is to ignore interruptions, and it should output
 # [[t1,t2]],[[t6]]
@@ -62,7 +70,7 @@ crossVmap(Grps,tree,c1,c2)
 # Now, suppose we wanted to use those interruptions to refine phylofactorization
 # to a subset of the original edges
 
-crossVmap(Grps,tree,c1,c2,ignore.interruptions = F)
+crossVmap(Grps,tree,c1,c2,ignore.interruptions = FALSE)
 
 #notice the output: the first and last entries are our output from crossVmap
 #when ignore.interruptions=T. The intervening elements are the interrupting clades

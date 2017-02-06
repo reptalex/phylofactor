@@ -4,6 +4,8 @@
 #' @param treeList list of trees
 #' @param binList list of bins corresponding to treeList
 #' @param grp two-element list corresponding to the splitting of an bin
+#' @param tree phylo class object
+#' @param skip.check Logical whether to skip checking if we grabbed the correct tree.
 #' @examples
 #' library(ape)
 #' set.seed(6)
@@ -11,7 +13,7 @@
 #' Groups <- getGroups(tree)
 #' treeList <- list(tree)
 #' binList <- list(1:10)
-#' factor <- 16
+#' factor <- 2
 #' grp <- getLabelledGrp(factor,tree,Groups)
 #' grp
 #' lapply(grp,FUN=function(g,tree){tree$tip.label[g]},tree=tree)
@@ -21,7 +23,7 @@
 #' treeList <- updateTreeList(treeList,binList,grp,tree)
 #' par(mfrow=c(1,3))
 #' plot.phylo(tree,main='Original Tree',cex=2)
-#' edgelabels('SPLIT',12,bg='red',cex=2)
+#' edgelabels('SPLIT',factor,bg='red',cex=2)
 #'
 #' plot.phylo(treeList[[1]],main='First Bin Tree',cex=2)
 #' plot.phylo(treeList[[2]],main='Second Bin Tree',cex=2)

@@ -2,7 +2,7 @@
 #' Must input the log of the data matrix
 #' @export
 #' @param Grp List containing two non-overlapping vectors of positive, non-zero integers less than the number of rows in the Data matrix.
-#' @param Data Compositional data matrix whose rows are parts and whose columns are samples.
+#' @param LogData Logarithm of data matrix whose rows are parts and whose columns are samples.
 
 amalg.ILR <- function(Grp,LogData){
     r = length(Grp[[1]])

@@ -1,7 +1,7 @@
 #' Concise summarization of phylofactor summary
 #'
 #' @export
-#' @param smry PF summary class object. see \code{\link{phylofactor.summary}}
+#' @param smry PF summary class object. see \code{\link{pf.summary}}
 #' @return list containing concise taxa IDs of groups split, as well as their predicted ratios of abundances in different conditions
 #' @examples
 #' library(phylofactor)
