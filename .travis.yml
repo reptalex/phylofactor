@@ -22,11 +22,12 @@ r_packages:
   - scatterplot3d 
   - biglm 
   - testthat
+
+bioc_packages:
   - Biostrings
 
 script:
-  - Rscript -e "source('https://bioconductor.org/biocLite.R'); biocLite('Biostrings')"
-  - Rscript -e "devtools::install_github('reptalex/phylofactor'); library(testthat); test_package('phylofactor')"
+  - Rscript -e "library(testthat); test_package('phylofactor')"
 
 notifications:
   email:
