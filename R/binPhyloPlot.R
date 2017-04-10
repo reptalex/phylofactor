@@ -22,15 +22,21 @@ binPhyloPlot <- function(X,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unroot
     tree <- X$tree
     X <- bins(X$basis[,1:factor,drop=F])
   } else {
-    if (is.null(tree)){stop('if input X is not a phylofactor object, must also input a phylo-class object in tree')}
+    if (is.null(tree)){stop('input, X, must be phylofactor class object')}
   }
 
-  otus <- sapply(X,FUN=function(ix,PF) tree$tip.label[ix],PF=PF)
+  otus <- sapply(X,FUN=function(ix) tree$tip.label[ix])
+
   if (is.null(n)){n=length(X)}
   Cols <- colorfcn(n)
   EdgeCols <- rep('black',Nedge(tree))
 
-
+  # The bin containing the root will have edges colored black
+  rt <- length(tree$tip.label)+1
+  
+  for (nn in 1:length(X)){
+    
+  }
   Edgs <- lapply(otus,FUN=function(x,tree) extractEdges(tree,x,type=3),tree=tree)
 
   for (nn in 1:length(X)){

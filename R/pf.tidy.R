@@ -17,31 +17,35 @@ pf.tidy <- function(smry){
     l <- list(unique(smry$TaxaSplit[[1]][,2]),unique(smry$TaxaSplit[[2]][,2]))
     Monophy <- c(smry$group1$is.monophyletic,smry$group2$is.monophyletic)+1
     names(l) <- mapply(list('group1','group2'),FUN=function(y,ix) paste(y,c(', Paraphyletic',', Monophyletic')[ix],sep=''),ix=Monophy)
-
+    i=2
 
     ### Be concise about their predicted effects ##
-    ### If 
+    
+    if (!is.null(smry$glm)){
       coef <- smry$glm$coefficients
       l <- c(l,list(coef))
-      names(l)[3] <- 'Coefficients'
+      i=i+1
+      names(l)[i] <- 'Coefficients'
       
       pp <- predict(smry$glm)
     
-    r <- dim(smry$group1$IDs)[1]
-    s <- dim(smry$group2$IDs)[1]
-    ratios <- exp(sqrt((r+s)/(r*s))*pp)
-    
-    
-
-    l <- c(l,list(ratios))
-    names(l)[4] <- 'Predicted ratio of group1/group2'
-
+      r <- dim(smry$group1$IDs)[1]
+      s <- dim(smry$group2$IDs)[1]
+      ratios <- exp(sqrt((r+s)/(r*s))*pp)
+      
+      
+  
+      l <- c(l,list(ratios))
+      i=i+1
+      names(l)[i] <- 'Predicted ratio of group1/group2'
+    }
 
     obsRatios <- gMean(smry$group1$otuData)/gMean(smry$group2$otuData)
     names(obsRatios) <- names(smry$glm$linear.predictors)
 
     l <- c(l,list(obsRatios))
-    names(l)[5] <- 'Observed Ratio of group1/group2 geometric means'
+    i=i+1
+    names(l)[i] <- 'Observed Ratio of group1/group2 geometric means'
 
     return(l)
 }

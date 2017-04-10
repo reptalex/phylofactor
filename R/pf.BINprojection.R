@@ -11,9 +11,9 @@
 #' @return Returns list containing the compositional dataset formed by the bins and the list of OTUs in each bin.
 
 
-pf.BINprojection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,uniques=T,prediction=F,rel.abund=F){
+pf.BINprojection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,uniques=T,prediction=F,rel.abund=F,minimum.tax='p'){
   
-  Bins <- bins(PF$basis[,1:factor])
+  Bins <- bins(PF$basis[,1:factor,drop=F])
   if (prediction){
     if (rel.abund){
       binned_Data <- lapply(Bins,FUN=function(ix,Y) colSums(Y[ix,,drop=F]),Y=pf.predict(PF,factors=factor))
@@ -33,7 +33,7 @@ pf.BINprojection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,u
   output$otus <- lapply(Bins,FUN=function(ix,Data) rownames(Data[ix,,drop=F]),Data=PF$Data)
   names(output$otus) <- sapply(as.list(1:(factor+1)),FUN = function(x) paste('Bin',x))
   if (!is.null(taxonomy)){
-    output$otus <- lapply(output$otus,FUN = function(otu,taxonomy,common.name,uniques) OTUtoTaxa(otu,taxonomy,common.name,uniques),taxonomy=taxonomy,common.name=common.name,uniques=uniques)
+    output$otus <- lapply(output$otus,FUN = function(otu,taxonomy,common.name,uniques,minimum.tax) OTUtoTaxa(otu,taxonomy,common.name,uniques,minimum.tax),taxonomy=taxonomy,common.name=common.name,uniques=uniques,minimum.tax=minimum.tax)
   }
   rownames(output$Data) <- names(output$otus)
   colnames(output$Data) <- colnames(PF$Data)

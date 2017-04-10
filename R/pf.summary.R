@@ -57,10 +57,13 @@ pf.summary <- function(PF,taxonomy,factor=NULL,simplify.TaxaIDs=F){
     output$IDs <- data.frame(otuIDs,TaxaIDs)
     
     output$otuData <- PF$Data[grp, ,drop=F]
-    output$PF.prediction <- pf.predict(PF,factors=1:factor)[grp, ,drop=F]
     output$is.monophyletic <- ape::is.monophyletic(tree,grp)
-    colnames(output$PF.prediction) <- colnames(PF$Data)
-    rownames(output$PF.prediction) <- rownames(PF$Data[grp, ,drop=F])
+    
+    if (!is.null(PF$glms)){
+      output$PF.prediction <- pf.predict(PF,factors=1:factor)[grp, ,drop=F]
+      colnames(output$PF.prediction) <- colnames(PF$Data)
+      rownames(output$PF.prediction) <- rownames(PF$Data[grp, ,drop=F])
+    }
     return(output)
   }
   

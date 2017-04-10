@@ -17,7 +17,7 @@ listTaxa <- function(taxonomy,level='p'){
 
   if (is.null(dim(taxonomy))==F){
     ntaxa <- dim(taxonomy)[1]
-  Taxa <- vector(mode='list',length=ntaxa)
+    Taxa <- vector(mode='list',length=ntaxa)
 
     for (tt in 1:ntaxa){
 
