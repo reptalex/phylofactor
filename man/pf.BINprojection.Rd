@@ -5,7 +5,8 @@
 \title{Projects phylofactored data onto bins defined by the factors 1:factor}
 \usage{
 pf.BINprojection(PF, factor = PF$nfactors, taxonomy = NULL,
-  common.name = F, uniques = T, prediction = F, rel.abund = F)
+  common.name = F, uniques = T, prediction = F, rel.abund = F,
+  minimum.tax = "p")
 }
 \arguments{
 \item{PF}{phylofactor object. See \link{PhyloFactor}}

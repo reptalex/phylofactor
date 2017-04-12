@@ -42,8 +42,7 @@ clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
 OTUTable[OTUTable==0]=0.65
 phytools::phylo.heatmap(tree,clr(OTUTable))
 
-
-PF <- PhyloFactor(OTUTable,tree,X,nfactors=2,choice='var')
+PF <- PhyloFactor(OTUTable,tree,X,nfactors=2,ncores=2,choice='var')
 
 FactorSummary <- pf.summary(PF,Taxonomy,factor=1)
 

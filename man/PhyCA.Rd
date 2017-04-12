@@ -42,9 +42,9 @@ phytools::phylo.heatmap(tree,clr(Data))
 
 
 phca <- PhyCA(Data,tree,ncomponents = 2)
-phcaPAR <- PhyCA(Data,tree,ncomponents=3,ncores=2)
+phcaPAR <- PhyCA(Data,tree,ncomponents=2,ncores=2)
 
-pf.ordination(phcaPAR,X=X,dimension=3)
+pf.ordination(phcaPAR,X=X,dimension=2)
 
 phytools::phylo.heatmap(tree,clr(Data))
 edgelabels(text=1:3,edge = unlist(phcaPAR$edges),cex=2)
