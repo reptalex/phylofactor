@@ -622,9 +622,18 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     output$Monophyletic.clades <- intersect(which(names(output$bins)=='Monophyletic'),which(binsize>1))
   }
   
+  ### Groups
   
-  ### Regression functions
+  names(output$groups) <- sapply(as.list(1:length(output$groups)),FUN=function(a) paste('factor',toString(a)))
+  for (nn in 1:length(output$groups)){
+    names(output$groups[[nn]]) <- c('Group1','Group2')
+  }
   
+  if (output$nfactors>1){
+    rownames(output$basis) <- tree$tip.label
+  } else {
+    names(output$basis) <- tree$tip.label
+  }
 
   
   ### ExplainedVar

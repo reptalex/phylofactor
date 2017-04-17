@@ -65,7 +65,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
             }
           }
         if (NoWarning==F){
-          warning(paste(paste('minimizing residual variance produced',toString(length(winner)),sep=' '),' groups, some of which were not identical. Will choose only the first group',sep=''))
+          warning(paste(paste('minimizing residual variance produced',toString(length(winner)),sep=' '),' groups, some of which were identical. Will choose only the first group',sep=''))
         }
         winner <- winner[1]
       }
