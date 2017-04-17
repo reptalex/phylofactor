@@ -24,6 +24,10 @@ Simulates brownian motion with HGT between random clades via poisson pt process
 library(phylofactor)
 library(ape)
 
-tree <- rtree(10)
-sim <- simHGT(tree,0.01,2,-3,0.5)
+set.seed(5)
+tree <- rtree(5)
+sim <- simHGT(tree,0.3)
+par(mfrow=c(2,1))
+plot.phylo(tree)
+HGTplot(sim,lwd=2,main='HGT Dynamics')
 }
