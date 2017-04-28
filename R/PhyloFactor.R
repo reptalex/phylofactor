@@ -13,6 +13,7 @@
 #' @param stop.fcn Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
 #' @param KS.Pthreshold Numeric between 0 and 1. P-value threshold for KS-test as default stopping-function.
+#' @param alternative alternative hypothesis input to \code{\link{ks.test}} if KS stopping function is used
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
 #' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
@@ -289,7 +290,7 @@
 #' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
+PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
   
   
   ######################################################## Housekeeping #################################################################################
@@ -515,7 +516,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     if (STOP){
       if (!is.null(stop.early)){  #early stop - don't add this factor
           if (default.stop){
-            ks <- ks.test(PhyloReg$p.values,'punif')$p.value
+            ks <- ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
               break
@@ -563,7 +564,7 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     if (STOP){
       if (is.null(stop.early)){
           if (default.stop){
-            ks <- ks.test(PhyloReg$p.values,'punif')$p.value
+            ks <- ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
               break
