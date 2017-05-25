@@ -10,15 +10,15 @@ citEntry(entry = "Article",
                                    as.person("Sayan Mukherjee"),
                                    as.person("Noah Fierer"),
                                    as.person("Lawrence A. David"),),
-         journal      = "PeerJ Preprints",
+         journal      = "PeerJ",
          year         = "2017",
-         volume       = "5:e2685v1",
-         url          = "https://doi.org/10.7287/peerj.preprints.2685v1",
+         volume       = "5:e2969",
+         url          = "https://doi.org/10.7717/peerj.2969",
          
          textVersion  =
            paste("Washburne AD, Silverman JD, Leff JW, Bennett DJ, Darcy JL, Mukherjee S, Fierer N, David LA (2017).",
                  "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
-                 "PeerJ Preprints")
+                 "PeerJ 5:e2969 https://doi.org/10.7717/peerj.2969")
 )
 
 citFooter("If you have any questions, please contact me at bigalculus@gmail.com")
