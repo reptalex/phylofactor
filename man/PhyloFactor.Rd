@@ -7,9 +7,9 @@
 PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
   nfactors = NULL, quiet = T, trust.me = F, small.output = F,
   stop.fcn = NULL, stop.early = NULL, KS.Pthreshold = 0.01,
-  ncores = NULL, clusterage = Inf, tolerance = 1e-10, delta = 0.65,
-  smallglm = T, choice.fcn = NULL, choice.fcn.dependencies = function() {
-  }, ...)
+  alternative = "greater", ncores = NULL, clusterage = Inf,
+  tolerance = 1e-10, delta = 0.65, smallglm = T, choice.fcn = NULL,
+  choice.fcn.dependencies = function() { }, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -37,6 +37,8 @@ PhyloFactor(Data, tree, X, frmla = NULL, choice = "var", Grps = NULL,
 \item{stop.early}{Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.}
 
 \item{KS.Pthreshold}{Numeric between 0 and 1. P-value threshold for KS-test as default stopping-function.}
+
+\item{alternative}{alternative hypothesis input to \code{\link{ks.test}} if KS stopping function is used}
 
 \item{ncores}{Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.}
 

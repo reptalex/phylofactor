@@ -8,6 +8,7 @@
 #' @param uniques Logical. If input taxonomy, will indicate whether to trim the taxonomic list to the unique names.
 #' @param prediction Logical. If true, will output the predictions for each bin instead of the observations.
 #' @param rel.abund Logical. If true, will return the total relative abundances in the bin. Default, F, returns the geometric mean of the relative abundances of each bin
+#' @param minimum.tax minimum taxonomic description - see \code{\link{OTUtoTaxa}}
 #' @return Returns list containing the compositional dataset formed by the bins and the list of OTUs in each bin.
 
 

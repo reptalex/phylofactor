@@ -25,7 +25,7 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=FALSE,colorfcn=NULL,l
   if (!level %in% c('k','p','c','o','f','g','s')){stop('unknown level - must be a string in the set {k,p,c,o,f,g,s}')}
   #This function produces a tree of the entire community in which the taxa at level "p" are
   #labelled by color.
-  if (is.rooted(tree)==FALSE){tree <- root(tree,node=Ntip(tree)+1)}
+  if (ape::is.rooted(tree)==FALSE){tree <- ape::root(tree,node=ape::Ntip(tree)+1)}
   #First, we grab the list of taxa
   taxn <- taxonomy[taxonomy[,1] %in% tree$tip.label,]
   Taxa <- listTaxa(taxn,level)
@@ -40,7 +40,7 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=FALSE,colorfcn=NULL,l
   }
   
   # Now we clean up the Edgelist a bit to remove redundant edges. 
-  atms <- bins(G=Edgelist,set=1:Nedge(tree))
+  atms <- bins(G=Edgelist,set=1:(ape::Nedge(tree)))
   keepers <- which(Edgelist %in% atms)
   fixers <- setdiff(1:nT,keepers)
   if (length(keepers)==0){stop('Consult Alex Washburne on a funky plot - you encountered No-Mans land')}
@@ -60,11 +60,11 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=FALSE,colorfcn=NULL,l
     colors <- colors[sample(nT)]
   }
   
-  edge_colors <- rep('black',Nedge(tree))
+  edge_colors <- rep('black',ape::Nedge(tree))
   for (n in 1:nT){
     edge_colors[Edgelist[[n]]] <- colors[n]
   }
-  edge_widths <- rep(2,Nedge(tree))
+  edge_widths <- rep(2,ape::Nedge(tree))
 
   # plot the tree
   ape::plot.phylo(tree,edge.color = edge_colors, edge.width = edge_widths,...)

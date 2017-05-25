@@ -1,5 +1,5 @@
 #' Finds interrupting edges along chain of edges
-#' @export
+#' 
 #' @param edges non-branching chain of edges
 #' @param tree phylo clas object
 #' @param original_community original community
@@ -35,7 +35,7 @@ findInterruptions <- function(edges,tree,original_community,new_community,old_ed
   tEdge <- tree$edge
   rownames(tEdge) <- 1:nrow(tEdge)
   
-  rt=Ntip(tree)+1
+  rt=ape::Ntip(tree)+1
   new_edges_with_root <- new_edges[which(apply(tEdge[new_edges,,drop=F],MARGIN=1,FUN=function(nds,rt) any(nds==rt),rt=rt))]
 
   ## Now we trim tEdge to contain only the possible interruptions and no other nodes

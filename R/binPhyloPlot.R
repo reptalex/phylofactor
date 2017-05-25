@@ -29,7 +29,7 @@ binPhyloPlot <- function(X,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unroot
 
   if (is.null(n)){n=length(X)}
   Cols <- colorfcn(n)
-  EdgeCols <- rep('black',Nedge(tree))
+  EdgeCols <- rep('black',ape::Nedge(tree))
 
   # The bin containing the root will have edges colored black
   rt <- length(tree$tip.label)+1
@@ -43,7 +43,7 @@ binPhyloPlot <- function(X,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unroot
     EdgeCols[Edgs[[nn]]] <- Cols[nn]
   }
 
-  plot.phylo(tree,edge.color=EdgeCols,type=type,show.tip.label = show.tip.label,...)
+  ape::plot.phylo(tree,edge.color=EdgeCols,type=type,show.tip.label = show.tip.label,...)
 
   l <- list(X,sapply(as.list(1:length(X)),FUN=function(x) paste('bin',x)),Cols)
   names(l) <- c('bins','Legend','Colors')

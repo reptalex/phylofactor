@@ -20,7 +20,7 @@
 #'factored.edges <- getFactoredEdges(grp1=match(grp1,tree$tip.label),
 #'                                   grp2=match(grp2,tree$tip.label),tree=tree)
 #'
-#'ecols <- rep('black',Nedge(tree))
+#'ecols <- rep('black',ape::Nedge(tree))
 #'ecols[factored.edges] <- 'red'
 #'plot.phylo(tree,use.edge.length = FALSE,type='unrooted',
 #'             edge.width = 3,edge.color = ecols)
@@ -89,7 +89,7 @@ if (length(factored.edges)>1){
   if (!all(tree$tip.label %in% new_community)){ #new community does not fill tree
     new_edges <- extractEdges(tree,new_community,type=1) %>% setdiff(.,old_edges)
   } else { #New community does fill tree - this means all edges are in new community
-    new_edges <- setdiff(1:Nedge(tree),old_edges)
+    new_edges <- setdiff(1:(ape::Nedge(tree)),old_edges)
   }
   
   if (length(new_edges)>0){
@@ -121,7 +121,7 @@ nds <- as.numeric(names(which(by(nds,nds,length)==1)))
 ## To ensure our comparisons are in the same direction (e.g. if birds/snakes in our phylofactor, we want birds/snakes in cross-validation)
 ## We need to ensure grp1 and grp2 line up, e.g. grp1 contains t2, and not grp2 contains t2.
 
-ROOT <- Ntip(tree)+1
+ROOT <- ape::Ntip(tree)+1
 np1 <- ape::nodepath(tree,nds[1],ROOT)
 if (nds[2] %in% np1){
   g1 <- tree$tip.label[phangorn::Descendants(tree,nds[1],type='tips')[[1]]]

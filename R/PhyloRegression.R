@@ -101,7 +101,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
     winner=which(objective==max(objective))
     if (length(winner)>1){
       if (!quiet){
-        warning(paste('There was a tie at step ',phcas,'. The first entry will be chosen.'))
+        warning(paste('There was a tie in objective functions - the first entry will be chosen.'))
       }
       winner <- winner[1]
     }

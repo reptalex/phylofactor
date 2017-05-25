@@ -1,6 +1,5 @@
 #' Internal PhyloRegression function for finding the winning edge.
 #'
-#' @export
 #' @param nset set of nodes
 #' @param tree_map mapping cumulative number of nodes in treeList, used to map elements of nset to their appropriate tree in treeList.
 #' @param treeList list containing disjoint trees from phylofactor / PhyCA

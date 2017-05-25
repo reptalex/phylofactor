@@ -17,6 +17,8 @@ HGTplot(sim, main = "Trait Evolution", cex = 1.5, lwd = 2, pch = 16,
 \item{lwd}{line width}
 
 \item{pch}{point choice, see \code{\link{plot}}}
+
+\item{...}{optional input arguments for \code{\link{plot}}}
 }
 \description{
 Visualize results form simHGT

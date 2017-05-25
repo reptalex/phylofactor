@@ -1,4 +1,4 @@
-citHeader("Thanks for using PhyloFactor! To cite phylofactor in publications use:")
+citHeader("Thanks for using PhyloFactor! To cite phylofactor in publications, use:")
 
 citEntry(entry = "Article",
          title        = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
@@ -20,3 +20,5 @@ citEntry(entry = "Article",
                  "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
                  "PeerJ Preprints")
 )
+
+citFooter("If you have any questions, please contact me at bigalculus@gmail.com")

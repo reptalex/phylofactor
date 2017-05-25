@@ -4,7 +4,7 @@
 #' @param factor integer to which factor the flow should detail
 
 pf.flow <- function(PF,factor=PF$nfactors){
-  b <- PF_OC$Var$basis[,1:factor,drop=F]
+  b <- PF$Var$basis[,1:factor,drop=F]
   bs <- bins(b)
   output <- NULL
   nt <- length(bs)

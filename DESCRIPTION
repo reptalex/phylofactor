@@ -1,9 +1,10 @@
 Package: phylofactor
 Type: Package
 Title: phylofactor
-Version: 0.1
+Version: 0.0.1
 Date: 2016-03-31
 Author: Alex Washburne
+Authors@R: person("Alex","Washburne",email="bigalculus@gmail.com",role=c("aut","cre"))
 Maintainer: Yours truly, Alex Washburne <bigalculus@gmail.com>
 Description:
   Phylofactorization of compositional data. This package allows users to identify clades of interest through a series of independent regressions on groups defined by phylogeny. There are many functions to assist the listing and visualization of phylofactorizations. See Washburne et al. (2016) for more details.
@@ -16,6 +17,8 @@ Depends:
 Imports:
   phangorn (>= 2.0.2),
   stats (>= 3.2.2),
+  graphics (>= 3.2.2),
+  grDevices(>= 3.2.2),
   phytools (>= 0.5.2),
   caper (>= 0.5.2),
   scatterplot3d (>= 0.3.36),

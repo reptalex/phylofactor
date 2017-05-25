@@ -6,6 +6,7 @@
 #' @param cex cex applied across plot, points and lines.
 #' @param lwd line width
 #' @param pch point choice, see \code{\link{plot}}
+#' @param ... optional input arguments for \code{\link{plot}}
 #' @examples
 #' library(phylofactor)
 #' 
@@ -52,7 +53,7 @@ hgtline <- function(hgt,tree){
 ix <- min(which(apply(X,MARGIN=1,FUN=function(x) sum(!is.na(x)))==ncol(X)))
 plot(tvec,X[tree$tip.label[ix],],type='l',ylim=c(min(X,na.rm=T),max(X,na.rm=T)),xlab='time',ylab='Trait Value',main=main,lwd=lwd,...)
 
-for (tip in 1:Ntip(tree)){
+for (tip in 1:(ape::Ntip(tree))){
   x <- X[tree$tip.label[tip],]
   if (any(is.na(x))){
     ix <- 1:min(which(is.na(x)))
