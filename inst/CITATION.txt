@@ -1,24 +1,9 @@
-citHeader("Thanks for using PhyloFactor! To cite phylofactor in publications, use:")
-
-citEntry(entry = "Article",
-         title        = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
-         author       = personList(as.person("Alex D. Washburne"),
-                                   as.person("Justin D. Silverman"),
-                                   as.person("Jonathan W. Leff"),
-                                   as.person("Dominic J Bennett"),
-                                   as.person("John L. Darcy"),
-                                   as.person("Sayan Mukherjee"),
-                                   as.person("Noah Fierer"),
-                                   as.person("Lawrence A. David"),),
-         journal      = "PeerJ",
-         year         = "2017",
-         volume       = "5:e2969",
-         url          = "https://doi.org/10.7717/peerj.2969",
-         
-         textVersion  =
-           paste("Washburne AD, Silverman JD, Leff JW, Bennett DJ, Darcy JL, Mukherjee S, Fierer N, David LA (2017).",
-                 "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
-                 "PeerJ 5:e2969 https://doi.org/10.7717/peerj.2969")
-)
-
-citFooter("If you have any questions, please contact me at bigalculus@gmail.com")
+bibentry(
+     bibtype = "article",
+     title = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
+     author = as.person("Alex D. Washburne [aut], Justin D. Silverman [aut], Jonathan W. Leff [aut], Dominic J Bennett [aut], John L. Darcy [aut], Sayan Mukherjee [aut], Noah Fierer [aut], Lawrence A. David [aut]"),
+     journal = "PeerJ",
+     year = "2017",
+     volume = "5:e2969",
+     url = "https://doi.org/10.7717/peerj.2969"
+   )
