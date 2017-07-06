@@ -21,7 +21,7 @@ Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*14
 Bins <- bins(G=sigClades,set=1:20)[c(3,2,1)]
 
 
-### PhylOFactor ###
+### PhyloFactor ###
 PF <- PhyloFactor(Data,tree,X,nfactors=2)
 PF$bins
 nms <- names(PF$bins)

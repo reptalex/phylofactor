@@ -35,7 +35,7 @@ Grps <- list(grp1,grp2)
 factored.edges <- getFactoredEdges(grp1=match(grp1,tree$tip.label),
                                   grp2=match(grp2,tree$tip.label),tree=tree)
 
-ecols <- rep('black',Nedge(tree))
+ecols <- rep('black',ape::Nedge(tree))
 ecols[factored.edges] <- 'red'
 plot.phylo(tree,use.edge.length = FALSE,type='unrooted',
             edge.width = 3,edge.color = ecols)
