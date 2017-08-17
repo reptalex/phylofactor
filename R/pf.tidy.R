@@ -41,7 +41,11 @@ pf.tidy <- function(smry){
     }
 
     obsRatios <- gMean(smry$group1$otuData)/gMean(smry$group2$otuData)
-    names(obsRatios) <- names(smry$glm$linear.predictors)
+    if (!is.null(smry$glm)){
+      names(obsRatios) <- names(smry$glm$linear.predictors)
+    } else {
+      names(obsRatios) <- colnames(smry$group1$otuData)
+    }
 
     l <- c(l,list(obsRatios))
     i=i+1

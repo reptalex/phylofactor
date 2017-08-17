@@ -52,8 +52,9 @@ pf.summary <- function(PF,taxonomy,factor=NULL,simplify.TaxaIDs=F){
     #summarizes the OTUids, taxonomic details, data and predictions for an input group of taxa up to a factor level factor.
     
     output <- NULL
-    otuIDs <- rownames(PF$Data)[grp]
-    TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name=simplify)
+    otuIDs <- rownames(PF$Data)[grp]    
+
+    TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name = simplify,minimum.tax = 'p')
     output$IDs <- data.frame(otuIDs,TaxaIDs)
     
     output$otuData <- PF$Data[grp, ,drop=F]
@@ -77,16 +78,16 @@ pf.summary <- function(PF,taxonomy,factor=NULL,simplify.TaxaIDs=F){
 
 
   output$TaxaSplit <- TaxaSplit(output)
-  output$glm <- PF$glms[[factor]]
-  output$ilr <- PF$glms[[factor]]$y
-  output$fitted.values <- PF$glms[[factor]]$fitted.values
-
-  r <- length(grp1)
-  s <- length(grp2)
-  output$MeanRatio <- exp(output$ilr/(sqrt(r*s/(r+s))))
-  output$fittedMeanRatio <- exp(output$fitted.values/(sqrt(r*s/(r+s))))
-
-
+  if (!is.null(PF$glms)){
+    output$glm <- PF$glms[[factor]]
+    output$ilr <- PF$glms[[factor]]$y
+    output$fitted.values <- PF$glms[[factor]]$fitted.values
+    r <- length(grp1)
+    s <- length(grp2)
+    output$MeanRatio <- exp(output$ilr/(sqrt(r*s/(r+s))))
+    output$fittedMeanRatio <- exp(output$fitted.values/(sqrt(r*s/(r+s))))
+  }
+  
   class(output) <- 'PF summary'
   return(output)
 

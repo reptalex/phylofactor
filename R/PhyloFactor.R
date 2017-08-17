@@ -5,6 +5,7 @@
 #' @param X independent variable. If performing multiple regression, X must be a data frame whose columns contain all the independent variables used in \code{frmla}
 #' @param frmla Formula for input in GLM. Default formula is Data ~ X. 
 #' @param choice Choice, or objective, function for determining the best edges at each iteration using default regression. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
+#' @param method Which default objective function to use either "glm", "max.var" or "gam".
 #' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
 #' @param quiet Logical, default is \code{FALSE}, indicating whether or not to display standard warnings. 
@@ -179,9 +180,9 @@
 #' ######### will be returned in PF$custom.output.
 #' 
 #' ## Demo choice.fcn - generalized additive modelling ##
-#' GAM <- function(y,X,PF.output=FALSE,...){
-#'   dataset <- cbind(y,X)
-#'   gg <- mgcv::gam(y~s(a)+s(b),data=dataset,...)
+#' my_gam <- function(y,X,PF.output=FALSE,...){
+#'   dataset <- cbind('Data'=y,X)
+#'   gg <- mgcv::gam(Data~s(a)+s(b),data=dataset,...)
 #' 
 #'   if (PF.output){
 #'     return(gg)
@@ -203,8 +204,10 @@
 #' ######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
 #' 
 #' 
-#' PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,
+#' PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=my_gam,
 #'                           choice.fcn.dependencies = load.dependencies,ncores=2,sp=1)
+#' ######### Or we can use the built-in method='gam'
+#' PF.G.par2 <- PhyloFactor(Data,tree,X,frmla=Data~s(a)+s(b),nfactors=2,method='gam',ncores=2,sp=1)
 #' all(sigClades %in% PF.G.par$bins)
 #' PF.G.par$factors
 #' 
@@ -290,14 +293,14 @@
 #' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
+PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofactor',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
   
   
   ######################################################## Housekeeping #################################################################################
-  if (typeof(Data) != 'double'){
-    warning(' typeof(Data) is not "double" - will coerce with as.matrix(), but recommend using output $data for downstream analysis')
-    Data <- as.matrix(Data)
-  }
+  # if (typeof(Data) != 'double'){
+  #   warning(' typeof(Data) is not "double" - will coerce with as.matrix(), but recommend using output $data for downstream analysis')
+  #   Data <- as.matrix(Data)
+  # }
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
   if (all(tree$tip.label %in% rownames(Data))==F){
     if(!quiet){
@@ -308,7 +311,6 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     warning('rows of data are in different order of tree tip-labels - use output$data for downstream analysis, or set Data <- Data[tree$tip.label,]')
     Data <- Data[tree$tip.label,]
   }
-  if (is.null(frmla)){frmla=Data ~ X}
   if (!is.null(choice.fcn)){
     choice='custom'
     if (is.null(choice.fcn.dependencies())){warning('Did not input choice.fcn dependencies - this may cause errors in parallelization due to unavailable dependencies in cluster')}
@@ -320,6 +322,24 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
         return(ch)
       }
   }
+  
+  if (method %in% c('max.var','gam')){
+    if (method=='max.var'){
+      choice.fcn <- phylofactor::VAR
+      choice='custom'
+    } else {
+      if (choice=='custom'){
+        stop('Cannot use customized choice function for built-in gam. Must be either "F" or "var". Use ? PhyloFactor for help building your own objective function')
+      }
+      choice.fcn <- function(y,X,PF.output=FALSE,frmla. =frmla,choice. =choice,...){
+        return(phylofactor::GAM(y,X,PF.output=PF.output,frmla=frmla,choice=choice,...))
+      }
+      choice.fcn.dependencies <- function(){library(mgcv)}
+      dataset <- cbind('Data'=numeric(nrow(Data)),X)
+      choice='custom'
+    }
+  }
+  
   if (!(choice %in% c('F','var','custom'))){stop('improper input "choice" - must be either "F" or "var"')}
   if(is.null(nfactors)){nfactors=Inf}
   if(ape::is.rooted(tree)){
@@ -383,22 +403,22 @@ PhyloFactor <- function(Data,tree,X,frmla = NULL,choice='var',Grps=NULL,nfactors
     ############################## Setting up phyloFcluster ################################
     cl <- phyloFcluster(ncores)
     Y <- numeric(ncol(Data))
-    if (choice != 'custom'){
-      if (is.null(ncol(X))){
-        dataset <- c(list(Y),as.list(X))
-      } else {
-        dataset <- cbind(Y,X)
-      }
-      names(dataset) <- c('Data',names(X))
-      dataset <- model.frame(frmla,data = dataset)
-      if (any(! colnames(X) %in% colnames(dataset))){
-        ix <- which(!colnames(X) %in% colnames(dataset))
-        for (nn in 1:length(ix)){
-        dataset <-cbind(dataset,X[,ix])
-        colnames(dataset)[ncol(dataset)] <- colnames(X)[ix[nn]]
+    if (!(choice == 'custom' | method=='gam')){
+        if (is.null(ncol(X))){
+          dataset <- c(list(Y),as.list(X))
+        } else {
+          dataset <- cbind(Y,X)
         }
+        names(dataset) <- c('Data',names(X))
+        dataset <- model.frame(frmla,data = dataset)
+        if (any(! colnames(X) %in% colnames(dataset))){
+          ix <- which(!colnames(X) %in% colnames(dataset))
+          for (nn in 1:length(ix)){
+          dataset <-cbind(dataset,X[,ix])
+          colnames(dataset)[ncol(dataset)] <- colnames(X)[ix[nn]]
+          }
+        gg <- glm(frmla,data=dataset,...)
       }
-      gg <- glm(frmla,data=dataset,...)
     } else {
       ################# export dependencies for choice.fcn ##################################
       gg=NULL
