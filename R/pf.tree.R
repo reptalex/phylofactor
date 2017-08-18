@@ -36,29 +36,26 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
       method='groups'
     }
   }
+  if (method=='bins'){
+    Grps <- pf$bins
+    method='groups'
+  }
   if (is.null(alphas)){
     alphas <- rep(0.5,max((pf$nfactors+1),length(Grps)))
   }
   
   n=Ntip(pf$tree)
   
-  if (method=='bins'){  
-    nd <- numeric(pf$nfactors+1)
-    for (i in 1:(pf$nfactors+1)){
-      nd[i] <- MRCA(pf$tree,pf$tree$tip.label[pf$bins[[i]]])
+  
+  nd <- numeric(m)
+  for (i in 1:(m)){
+    if (method=='factors'){
+      nd[i] <- MRCA(pf$tree,pf$tree$tip.label[pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]])
+    } else {
+      nd[i] <- MRCA(pf$tree,pf$tree$tip.label[Grps[[i]]])
     }
-    cols <- color.fcn(pf$nfactors+1)
-  } else {
-    nd <- numeric(m)
-    for (i in 1:(m)){
-      if (method=='factors'){
-        nd[i] <- MRCA(pf$tree,pf$tree$tip.label[pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]])
-      } else {
-        nd[i] <- MRCA(pf$tree,pf$tree$tip.label[Grps[[i]]])
-      }
-    }
-    cols <- color.fcn(m)
   }
+  cols <- color.fcn(m)
   
   ix <- order(nd)                ## this gives us a map of which node to which factor/bin
   nd <- sort(nd,decreasing = F)
