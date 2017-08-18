@@ -1,5 +1,5 @@
 
-pf.tree <- function(pf,method='groups',group.map=NA,Grps=NULL,bg.color=NA,bg.alpha=0.1,layout='circular',color.fcn=rainbow,return.ggplot=T,...){
+pf.tree <- function(pf,method='groups',group.map=NULL,Grps=NULL,bg.color=NA,bg.alpha=0.1,layout='circular',color.fcn=rainbow,return.ggplot=T,...){
   if (!(is.null(Grps) & is.null(group.map))){
     if (method=='bins'){
       warning('input Grps or group.map will override metohd="bins"')
@@ -8,7 +8,7 @@ pf.tree <- function(pf,method='groups',group.map=NA,Grps=NULL,bg.color=NA,bg.alp
   }
   if (method=='groups'){
     if (is.null(Grps)){
-      if (is.na(group.map)){
+      if (is.null(group.map)){
         group.map=data.frame('factor'=1:pf$nfactors,'group'=rep(1,pf$nfactors))
       }
       m <- nrow(group.map)
