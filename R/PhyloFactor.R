@@ -6,7 +6,7 @@
 #' @param frmla Formula for input in GLM. Default formula is Data ~ X. 
 #' @param choice Choice, or objective, function for determining the best edges at each iteration using default regression. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
 #' @param method Which default objective function to use either "glm", "max.var" or "gam".
-#' @param Grps Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups
+#' @param use.log.data Logical. Whether to perform phylofactorization on log-data or standandard data. \code{use.log.data=T} corresponds to an Aitchison geometry whereas \code{use.log.data=F} corresponds to a Euclidean geometry.
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
 #' @param quiet Logical, default is \code{FALSE}, indicating whether or not to display standard warnings. 
 #' @param trust.me Logical, default \code{FALSE}, indicating whether or not to trust the input Data to be compositional with no zeros.
@@ -15,8 +15,7 @@
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
 #' @param KS.Pthreshold Numeric between 0 and 1. P-value threshold for KS-test as default stopping-function.
 #' @param alternative alternative hypothesis input to \code{\link{ks.test}} if KS stopping function is used
-#' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.
-#' @param clusterage Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.
+#' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory.
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
 #' @param smallglm Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false. 
@@ -26,7 +25,7 @@
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
 #' set.seed(2)
-#' library(phylofactor)
+#' #library(phylofactor)
 #' library(ape)
 #' library(phangorn)
 #' library(phytools)
@@ -132,6 +131,10 @@
 #' all.equal(PF,PF.par)
 #' ##################################################
 #' 
+#' ######### Phylogenetic PCA - maximize variance ###
+#' 
+#' pf.var <- PhyloFactor(Data,tree,method='max.var',nfactors=2)
+#' 
 #' ######### Multiple regression ####################
 #' b <- rlnorm(ncol(Data))
 #' a <- as.factor(c(rep(0,5),rep(1,5)))
@@ -198,16 +201,15 @@
 #'   }
 #' }
 #' 
-#' load.dependencies <- function(){library(mgcv)}
+#' load.mgcv <- function(){library(mgcv)}
 #' ######### For parallelization of customized choice function, we also need to define a function, 
 #' ######### choice.fcn,dependencies, which loads all dependencies to cluster.
 #' ######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
 #' 
 #' 
-#' PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=my_gam,
-#'                           choice.fcn.dependencies = load.dependencies,ncores=2,sp=1)
-#' ######### Or we can use the built-in method='gam'
-#' PF.G.par2 <- PhyloFactor(Data,tree,X,frmla=Data~s(a)+s(b),nfactors=2,method='gam',ncores=2,sp=1)
+#' PF.G.par <- PhyloFactor(Data,tree,X,choice.fcn=my_gam,sp=c(1,1),choice.fcn.dependencies = load.mgcv,nfactors=2,ncores=2)
+#' ######### Or we can use the built-in method='gam' and input e.g. smoothing penalty sp
+#' PF.G.par2 <- PhyloFactor(Data,tree,X,method='gam',frmla=Data~s(a)+s(b),sp=c(1,1),nfactors=2,ncores=2)
 #' all(sigClades %in% PF.G.par$bins)
 #' PF.G.par$factors
 #' 
@@ -293,14 +295,12 @@
 #' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofactor',Grps=NULL,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,clusterage=Inf,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){},...){
+PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='var',method='glm',use.log.data=T,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){NULL},...){
   
   
   ######################################################## Housekeeping #################################################################################
-  # if (typeof(Data) != 'double'){
-  #   warning(' typeof(Data) is not "double" - will coerce with as.matrix(), but recommend using output $data for downstream analysis')
-  #   Data <- as.matrix(Data)
-  # }
+  
+  ############ Matching Data to tree
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
   if (all(tree$tip.label %in% rownames(Data))==F){
     if(!quiet){
@@ -311,73 +311,83 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
     warning('rows of data are in different order of tree tip-labels - use output$data for downstream analysis, or set Data <- Data[tree$tip.label,]')
     Data <- Data[tree$tip.label,]
   }
+  
+  
+  ######## checking choice, choice.fcn and choice.fcn.dependencies
+  if (!(choice %in% c('F','var','custom'))){stop('improper input "choice" - must be either "F", "var" or "custom"')}
   if (!is.null(choice.fcn)){
+    if (!method=='glm'){warning('Input choice.fcn will override non-default method, i.e. phylofactorization will use choice.fcn.')}
     choice='custom'
+    method='glm'
     if (is.null(choice.fcn.dependencies())){warning('Did not input choice.fcn dependencies - this may cause errors in parallelization due to unavailable dependencies in cluster')}
   } else {
-      choice.fcn <- function(y=NULL,X=NULL,PF.output=NULL){
-        ch <- NULL
-        ch$objective <- 1
-        ch$stopStatistics <- 1
-        return(ch)
-      }
-  }
-  
-  if (method %in% c('max.var','gam')){
-    if (method=='max.var'){
-      choice.fcn <- phylofactor::VAR
-      choice='custom'
-    } else {
-      if (choice=='custom'){
-        stop('Cannot use customized choice function for built-in gam. Must be either "F" or "var". Use ? PhyloFactor for help building your own objective function')
-      }
-      choice.fcn <- function(y,X,PF.output=FALSE,frmla. =frmla,choice. =choice,...){
-        return(phylofactor::GAM(y,X,PF.output=PF.output,frmla=frmla,choice=choice,...))
-      }
-      choice.fcn.dependencies <- function(){library(mgcv)}
-      dataset <- cbind('Data'=numeric(nrow(Data)),X)
-      choice='custom'
+    choice.fcn <- function(y=NULL,X=NULL,PF.output=NULL){
+      ch <- NULL
+      ch$objective <- 1
+      ch$stopStatistics <- 1
+      return(ch)
     }
   }
   
-  if (!(choice %in% c('F','var','custom'))){stop('improper input "choice" - must be either "F" or "var"')}
-  if(is.null(nfactors)){nfactors=Inf}
-  if(ape::is.rooted(tree)){
-    tree <- ape::unroot(tree)}
-  
-  ###################### Default treatment of Data ##################################
-  if (any(colSums(Data)<=0)){
-    stop('all columns of input data must have sum greater than 0')
-  }
-  if (!trust.me){
-    if (any(Data==0)){
-      if (delta==0.65){
-        if (!quiet){
-          warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
+  ########### Checking & initializing non-default phylofactorization
+  default.phylofactorization= (choice %in% c('F','var') & method=='glm')
+  if (!default.phylofactorization){
+    ############ Checking method 
+    if (method %in% c('max.var','gam')){
+      if (method=='max.var'){
+        choice.fcn <- phylofactor::VAR
+        choice='custom'
+      } else {
+        if (choice=='custom'){
+          stop('Cannot use customized choice function for built-in gam. Must be either "F" or "var". Use ? PhyloFactor for help building your own objective function')
         }
+        choice.fcn <- function(y,X,PF.output=FALSE,frmla. =frmla,choice. =choice,...){
+          return(phylofactor::GAM(y,X,PF.output=PF.output,frmla=frmla,choice=choice,...))
+        }
+        choice.fcn.dependencies <- function(){library(mgcv)}
+        dataset <- cbind('Data'=numeric(nrow(Data)),X)
+        choice='custom'
       }
-      rplc <- function(x,delta){
-        x[x==0]=min(x[x>0])*delta
-        return(x)
-      }
-      
-      Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
-      
     }
-    if (any(abs(colSums(Data)-1)>tolerance)){
-      if (!quiet){
-        warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
+  }
+  
+  ###################### Default treatment of Data #################################
+  
+  if (use.log.data){
+    if (any(c(Data)<=0)){
+      stop('For log-transformed data analysis, all entries of Data must be greater than or equal to 0')
+    }
+    if (!trust.me){
+      if (any(Data==0)){
+        if (delta==0.65){
+          if (!quiet){
+            warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
+          }
+        }
+        rplc <- function(x,delta){
+          x[x==0]=min(x[x>0])*delta
+          return(x)
+        }
+        
+        Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
+        
       }
-      Data <- t(clo(t(Data)))
-      
       if (any(abs(colSums(Data)-1)>tolerance)){
         if (!quiet){
-          warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+          warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
+        }
+        Data <- t(clo(t(Data)))
+        
+        if (any(abs(colSums(Data)-1)>tolerance)){
+          if (!quiet){
+            warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+          }
         }
       }
     }
   }
   #####################################################################################
+  ## small.output warning
   if (small.output){
     warning('For downstream phylofactor functions, you may need to add pf$X, compositional pf$Data <- clo(OTUTable[tree$tip.labels],) and pf$tree (see beginning of PhyloFactor code for how to reproduce these tags). Information on bins can be found by bins(pf$basis).')
   }
@@ -385,11 +395,19 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
   
   
   
-  ##################################### Pre-Allocation ##################################
+  ##################################### Pre-Allocation & initialization ##################################
+  if(is.null(nfactors)){nfactors=Inf}
+  if(ape::is.rooted(tree)){
+    tree <- ape::unroot(tree)}
   treeList <- list(tree)
   binList <- list(1:ape::Ntip(tree))
   nms <- rownames(Data)
-  LogData = log(Data)
+  if (use.log.data){
+    LogData = log(Data)
+  } else {
+    LogData=Data
+    rm('Data')
+  }
   
   ix_cl=NULL
   treetips=NULL
@@ -403,7 +421,8 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
     ############################## Setting up phyloFcluster ################################
     cl <- phyloFcluster(ncores)
     Y <- numeric(ncol(Data))
-    if (!(choice == 'custom' | method=='gam')){
+    gg <- NULL
+    if (!(choice == 'custom' | (method %in% c('gam','max.var')))){
         if (is.null(ncol(X))){
           dataset <- c(list(Y),as.list(X))
         } else {
@@ -444,14 +463,17 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
   ### Get OTUs from tree
   OTUs <- tree$tip.label
   n <- length(tree$tip.label)
-  if (choice=='var'){
+  if (choice=='var' | method=='max.var'){
     totalvar= Data %>% apply(.,MARGIN=2,function(x) log(x)-mean(log(x))) %>% apply(.,MARGIN=1,var) %>% sum
   } else {
     totalvar=NULL
   }
   
-  ################ OUTPUT ###################
+  ################ OUTPUT Initialization ###################
   output <- NULL
+  if (method=='max.var'){
+    output$total.variance=totalvar
+  }
   if (!small.output){
     output$Data <- Data
     output$X <- X
@@ -482,21 +504,17 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
   
   ####### On your marks.... Get set.... #######
   pfs=0
-  age=1
   output$terminated=F
-  
+  age=0
   
   ########## GO! ##############################
   while (pfs < min(length(OTUs)-1,nfactors)){
     
     
-    if (is.null(ncores)==F && age==0){
-      cl <- phyloFcluster(ncores)
-      parallel::clusterExport(cl,varlist=c('xx','X','LogData','Y','gg','dataset'),envir=environment())
-      if (choice=='custom'){
-        parallel::clusterEvalQ(cl,choice.fcn.dependencies())
-      }
-    }
+    # if (is.null(ncores)==F && age==0){
+    #   cl <- phyloFcluster(ncores)
+    #   parallel::clusterExport(cl,varlist=c('xx','X','LogData','Y','gg','dataset'),envir=environment())
+    # }
     
     
     if (pfs>=1){
@@ -519,17 +537,6 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
     PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn=choice.fcn,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
-    
-    age=age+1
-    
-    if (is.null(ncores)==F && age>=clusterage){
-      parallel::stopCluster(cl)
-      if (exists('cl') && is.null(cl)==F){
-        rm(cl)
-      }
-      gc()
-      age=0
-    }
     
     
     #################### STOP FUNCTIONS ####################
@@ -600,6 +607,7 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
     ########################################################
     
     pfs=pfs+1
+    age=age+1
     gc()
   }
   
@@ -660,6 +668,10 @@ PhyloFactor <- function(Data,tree,X,frmla = Data~X,choice='var',method='phylofac
   ### ExplainedVar
   if (choice=='var'){
     names(output$ExplainedVar) <- sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
+  }
+  if (method=='max.var'){
+    names(output)[names(output)=='custom.output']='ExplainedVar'
+    output$ExplainedVar <- unlist(output$ExplainedVar)/output$total.variance
   }
   
   

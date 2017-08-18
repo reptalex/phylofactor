@@ -5,11 +5,11 @@
 \title{Performs phylofactorization of a compositional dataset}
 \usage{
 PhyloFactor(Data, tree, X, frmla = Data ~ X, choice = "var",
-  method = "phylofactor", Grps = NULL, nfactors = NULL, quiet = T,
+  method = "phylofactor", use.log.data = T, nfactors = NULL, quiet = T,
   trust.me = F, small.output = F, stop.fcn = NULL, stop.early = NULL,
   KS.Pthreshold = 0.01, alternative = "greater", ncores = NULL,
-  clusterage = Inf, tolerance = 1e-10, delta = 0.65, smallglm = T,
-  choice.fcn = NULL, choice.fcn.dependencies = function() { }, ...)
+  tolerance = 1e-10, delta = 0.65, smallglm = T, choice.fcn = NULL,
+  choice.fcn.dependencies = function() { }, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -24,7 +24,7 @@ PhyloFactor(Data, tree, X, frmla = Data ~ X, choice = "var",
 
 \item{method}{Which default objective function to use either "glm", "max.var" or "gam".}
 
-\item{Grps}{Optional input of groups to be used in analysis to override the groups used in Tree. for correct format of groups, see output of getGroups}
+\item{use.log.data}{Logical. Whether to perform phylofactorization on log-data or standandard data. \code{use.log.data=T} corresponds to an Aitchison geometry whereas \code{use.log.data=F} corresponds to a Euclidean geometry.}
 
 \item{nfactors}{Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T}
 
@@ -42,9 +42,7 @@ PhyloFactor(Data, tree, X, frmla = Data ~ X, choice = "var",
 
 \item{alternative}{alternative hypothesis input to \code{\link{ks.test}} if KS stopping function is used}
 
-\item{ncores}{Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory, so see clusterage for how to control the return of memory from clusters.}
-
-\item{clusterage}{Age, i.e. number of iterations, for which a phyloFcluster should be used before returning its memory to the system. Default age=Inf - if having troubles with memory, consider a lower clusterage to return memory to system.}
+\item{ncores}{Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory.}
 
 \item{tolerance}{Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.}
 
@@ -220,9 +218,9 @@ plot(b,gMean(Data[sigClades[[2]],],MARGIN=2),ylab='Group2 gMean')
 ######### will be returned in PF$custom.output.
 
 ## Demo choice.fcn - generalized additive modelling ##
-GAM <- function(y,X,PF.output=FALSE,...){
-  dataset <- cbind(y,X)
-  gg <- mgcv::gam(y~s(a)+s(b),data=dataset,...)
+my_gam <- function(y,X,PF.output=FALSE,...){
+  dataset <- cbind('Data'=y,X)
+  gg <- mgcv::gam(Data~s(a)+s(b),data=dataset,...)
 
   if (PF.output){
     return(gg)
@@ -244,8 +242,10 @@ load.dependencies <- function(){library(mgcv)}
 ######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
 
 
-PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,
+PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=my_gam,
                           choice.fcn.dependencies = load.dependencies,ncores=2,sp=1)
+######### Or we can use the built-in method='gam'
+PF.G.par2 <- PhyloFactor(Data,tree,X,frmla=Data~s(a)+s(b),nfactors=2,method='gam',ncores=2,sp=1)
 all(sigClades \%in\% PF.G.par$bins)
 PF.G.par$factors
 

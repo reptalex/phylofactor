@@ -4,7 +4,7 @@
 \alias{VAR}
 \title{Computes variance for \code{\link{PhyloFactor}} method='max.var'}
 \usage{
-VAR(y, X, PF.output = FALSE, ...)
+VAR(y, X, PF.output = FALSE)
 }
 \arguments{
 \item{y}{ILR coordinate, y}
@@ -12,8 +12,6 @@ VAR(y, X, PF.output = FALSE, ...)
 \item{X}{data frame, X}
 
 \item{PF.output}{logical, if true will return customized output for phylofactor object}
-
-\item{frmla}{formula for regression}
 }
 \description{
 Computes variance for \code{\link{PhyloFactor}} method='max.var'

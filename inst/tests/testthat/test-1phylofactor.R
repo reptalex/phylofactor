@@ -48,3 +48,16 @@ PF.stop <- PhyloFactor(Data,tree,X,stop.early=F,KS.Pthreshold=0.05)
 options(warn=0)
 
 test_that('Stop Late works',expect_true(PF.stop$nfactors==3))
+
+###### non-default methods: method=='max.var'
+pf.var <- PhyloFactor(Data,tree,method='max.var')
+test_that('method="max.var" works',expect_true(pf.var$nfactors==19))
+pf.var <- PhyloFactor(Data,tree,method='max.var',ncores=2,nfactors=2)
+test_that('method="max.var" works in parallel',expect_true(pf.var$nfactors==2))
+
+###### method='gam'
+X <- data.frame('a'=rnorm(10))
+pf.gam <- PhyloFactor(Data,tree,X=X,method='gam',frmla=Data~s(a),nfactors=2,sp=1)
+test_that('method="gam" works',expect_true(pf.gam$nfactors==2))
+pf.gam <- PhyloFactor(Data,tree,X=X,method='gam',frmla=Data~s(a),nfactors=2,ncores=2,sp=1)
+test_that('method="gam" works in parallel',expect_true(pf.gam$nfactors==2))
