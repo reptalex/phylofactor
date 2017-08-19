@@ -25,8 +25,8 @@ Imports:
   Biostrings (>= 2.38.4),
   biglm (>= 0.9.1),
   mgcv (>= 1.8-16),
-  ggplot2 (>=2.2.1),
-  ggtree (>=1.8.1),
+  ggplot2 (>= 2.2.1),
+  ggtree (>= 1.8.1),
   parallel (>= 3.2.2)
 Suggests: 
   testthat (>= 1.0.2)
