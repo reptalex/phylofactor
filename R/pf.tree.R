@@ -51,9 +51,9 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
   nd <- numeric(m)
   for (i in 1:(m)){
     if (method=='factors'){
-      nd[i] <- MRCA(pf$tree,pf$tree$tip.label[pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]])
+      nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]])
     } else {
-      nd[i] <- MRCA(pf$tree,pf$tree$tip.label[Grps[[i]]])
+      nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[Grps[[i]]])
     }
   }
   cols <- color.fcn(m)
