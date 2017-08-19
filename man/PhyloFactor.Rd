@@ -4,12 +4,12 @@
 \alias{PhyloFactor}
 \title{Performs phylofactorization of a compositional dataset}
 \usage{
-PhyloFactor(Data, tree, X, frmla = Data ~ X, choice = "var",
-  method = "phylofactor", use.log.data = T, nfactors = NULL, quiet = T,
-  trust.me = F, small.output = F, stop.fcn = NULL, stop.early = NULL,
-  KS.Pthreshold = 0.01, alternative = "greater", ncores = NULL,
-  tolerance = 1e-10, delta = 0.65, smallglm = T, choice.fcn = NULL,
-  choice.fcn.dependencies = function() { }, ...)
+PhyloFactor(Data, tree, X = rep(NA, ncol(Data)), frmla = Data ~ X,
+  choice = "var", method = "glm", use.log.data = T, nfactors = NULL,
+  quiet = T, trust.me = F, small.output = F, stop.fcn = NULL,
+  stop.early = NULL, KS.Pthreshold = 0.01, alternative = "greater",
+  ncores = NULL, tolerance = 1e-10, delta = 0.65, smallglm = T,
+  choice.fcn = NULL, choice.fcn.dependencies = function() {     NULL }, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -64,7 +64,7 @@ Performs phylofactorization of a compositional dataset
 }
 \examples{
 set.seed(2)
-library(phylofactor)
+#library(phylofactor)
 library(ape)
 library(phangorn)
 library(phytools)
@@ -170,6 +170,10 @@ PF.par  <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
 all.equal(PF,PF.par)
 ##################################################
 
+######### Phylogenetic PCA - maximize variance ###
+
+pf.var <- PhyloFactor(Data,tree,method='max.var',nfactors=2)
+
 ######### Multiple regression ####################
 b <- rlnorm(ncol(Data))
 a <- as.factor(c(rep(0,5),rep(1,5)))
@@ -236,16 +240,15 @@ my_gam <- function(y,X,PF.output=FALSE,...){
   }
 }
 
-load.dependencies <- function(){library(mgcv)}
+load.mgcv <- function(){library(mgcv)}
 ######### For parallelization of customized choice function, we also need to define a function, 
 ######### choice.fcn,dependencies, which loads all dependencies to cluster.
 ######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
 
 
-PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=my_gam,
-                          choice.fcn.dependencies = load.dependencies,ncores=2,sp=1)
-######### Or we can use the built-in method='gam'
-PF.G.par2 <- PhyloFactor(Data,tree,X,frmla=Data~s(a)+s(b),nfactors=2,method='gam',ncores=2,sp=1)
+PF.G.par <- PhyloFactor(Data,tree,X,choice.fcn=my_gam,sp=c(1,1),choice.fcn.dependencies = load.mgcv,nfactors=2,ncores=2)
+######### Or we can use the built-in method='gam' and input e.g. smoothing penalty sp
+PF.G.par2 <- PhyloFactor(Data,tree,X,method='gam',frmla=Data~s(a)+s(b),sp=c(1,1),nfactors=2,ncores=2)
 all(sigClades \%in\% PF.G.par$bins)
 PF.G.par$factors
 
