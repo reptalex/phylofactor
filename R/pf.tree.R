@@ -1,4 +1,5 @@
 #' ggtree-based plotting of phylofactor bins or factors
+#'
 #' @export
 #' @param pf phylofactor class object
 #' @param method either "factors" or "bins", based on whether to use factors (and \code{factor.map} or resultant bins from phylofactorization)
