@@ -23,13 +23,13 @@ pf.tree(pf, method = "factors", factor.map = NULL, Grps = NULL,
 
 \item{alphas}{vector, of length = \code{nrow(factor.map)} or \code{length(Grps)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade}
 
+\item{layout}{See \code{\link{ggtree}}. Default is "circular"}
+
 \item{rootnode}{Logical. If true, will fill in the root node. Default controls root only with bg.color}
 
 \item{color.fcn}{Color function for plotting. Default is rainbow.}
 
 \item{...}{optional arguments for ggtree}
-
-\item{layout.}{See \code{\link{ggtree}}. Default is "circular"}
 }
 \description{
 ggtree-based plotting of phylofactor bins or factors
