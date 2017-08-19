@@ -51,9 +51,19 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
   nd <- numeric(m)
   for (i in 1:(m)){
     if (method=='factors'){
-      nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]])
+      grp <- pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]
+      if (length(grp)>1){
+        nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[grp])
+      } else {
+        nd[i] <- grp
+      }
     } else {
-      nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[Grps[[i]]])
+      grp <- Grps[[i]]
+      if (length(grp)>1){
+        nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[grp])
+      } else {
+        nd[i] <- grp
+      }
     }
   }
   cols <- color.fcn(m)
@@ -74,5 +84,6 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
     }
   }
   
-  return(list('map'=ix,'colors'=cols,'ggplot'=gg))
+  legend <- data.frame('bin/factor'=ix,'col'=cols[ix])
+  return(list('legend'=legend,'ggplot'=gg))
 }
