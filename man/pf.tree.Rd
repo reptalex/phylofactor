@@ -37,8 +37,11 @@ ggtree-based plotting of phylofactor bins or factors
 \examples{
 library(phylofactor)
 data(FTmicrobiome)
-PF <- FTmicrobiome$PF
-gg <- pf.tree(PF,factor.map=data.frame('factors'=1:3,'groups'=rep(1,3)),layout='circular')
+Data <- FTmicrobiome$PF$Data
+tree <- FTmicrobiome$PF$tree
+X <- FTmicrobiome$PF$X
+pf <- PhyloFactor(Data,tree,X,nfactors=3,ncores=2)
+gg <- pf.tree(pf,layout='circular')
 gg$ggplot
-## legend: PF$groups[gg$map] <--> gg$colors
+gg$legend
 }

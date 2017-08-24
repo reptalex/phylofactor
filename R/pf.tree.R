@@ -15,10 +15,13 @@
 #' @examples 
 #' library(phylofactor)
 #' data(FTmicrobiome)
-#' PF <- FTmicrobiome$PF
-#' gg <- pf.tree(PF,factor.map=data.frame('factors'=1:3,'groups'=rep(1,3)),layout='circular')
+#' Data <- FTmicrobiome$PF$Data
+#' tree <- FTmicrobiome$PF$tree
+#' X <- FTmicrobiome$PF$X
+#' pf <- PhyloFactor(Data,tree,X,nfactors=3,ncores=2)
+#' gg <- pf.tree(pf,layout='circular')
 #' gg$ggplot
-#' ## legend: PF$groups[gg$map] <--> gg$colors
+#' gg$legend
 pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,color.fcn=rainbow,...){
   if (!(is.null(Grps) & is.null(factor.map))){
     if (method=='bins'){
@@ -32,9 +35,13 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
         factor.map=data.frame('factor'=1:pf$nfactors,'group'=rep(1,pf$nfactors))
       }
       m <- nrow(factor.map)
+      cols <- color.fcn(m)
+      factor.map$colors <- cols
     } else {
       m <- length(Grps)
       method='groups'
+      cols <- color.fcn(m)
+      factor.map <- data.frame('Groups'=numeric(m),'colors'=cols)
     }
   }
   if (method=='bins'){
@@ -42,7 +49,7 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
     method='groups'
   }
   if (is.null(alphas)){
-    alphas <- rep(0.5,max((pf$nfactors+1),length(Grps)))
+    alphas <- rep(1,max((pf$nfactors+1),length(Grps)))
   }
   
   n=Ntip(pf$tree)
@@ -66,7 +73,7 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
       }
     }
   }
-  cols <- color.fcn(m)
+  
   
   ix <- order(nd)                ## this gives us a map of which node to which factor/bin
   nd <- sort(nd,decreasing = F)
@@ -84,6 +91,7 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
     }
   }
   
-  legend <- data.frame('bin/factor'=ix,'col'=cols[ix])
-  return(list('legend'=legend,'ggplot'=gg))
+  gg <- gg+ggtree::geom_tree()
+  
+  return(list('legend'=factor.map,'ggplot'=gg))
 }
