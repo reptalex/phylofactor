@@ -1,5 +1,4 @@
 language: r
-cache: packages
 sudo: required
 before_install:
   - sudo mkdir -p /usr/lib/R/library
