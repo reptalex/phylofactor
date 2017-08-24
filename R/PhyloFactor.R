@@ -474,7 +474,7 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
   
   ################ OUTPUT Initialization ###################
   output <- NULL
-  if (method=='max.var' | choice='var'){
+  if (method=='max.var' | choice=='var'){
     output$total.variance=totalvar
   }
   if (!small.output){

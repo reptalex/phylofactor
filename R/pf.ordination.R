@@ -29,11 +29,9 @@ pf.ordination <- function(PF,X=NULL,dimension=2,default.colors=T,Legend=T,lx=NUL
   
   if (!(dimension %in% c(2,3))){stop('dimension must be either 2 or 3')}
   
-  if (class(PF)=='phylofactor'){
-    PROJ <- pf.ILRprojection(PF,nfactors=dimension)
-  } else{
-    PROJ <- PF$projection
-  }
+  
+  PROJ <- pf.ILRprojection(PF,nfactors=dimension)
+  
   
   if (is.null(X)){
     if (!is.null(PF$X)){
