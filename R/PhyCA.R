@@ -39,6 +39,7 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
   if (output.edges){
     if (!is.null(ncores)){
       output$edges <- getFactoredEdgesPAR(PF=output,ncores=ncores)
+      names(output$edges) <- sapply(as.list(1:length(output$groups)),FUN=function(a) paste('factor',a,sep=' '))
     } else {
       output$edges <- lapply(output$groups,FUN=function(grps,tree) getFactoredEdges(grp1=grps[[1]],grp2=grps[[2]],tree=tree),tree=output$tree)
     }
