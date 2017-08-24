@@ -1,5 +1,9 @@
 language: r
 cache: packages
+before_install:
+sudo mkdir -p /usr/lib/R/library
+echo 'R_LIBS=/usr/lib/R/library:/usr/lib/R/site-library/' > ~/.Renviron
+sudo chmod 2777 /usr/lib/R/library
 
 r:
   - release
