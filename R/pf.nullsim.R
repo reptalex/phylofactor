@@ -45,7 +45,7 @@ pf.nullsim <- function(PF,reps,seed=NULL,method='Gaussian',output='ExpVar',...){
   Y <- vector(mode='list',length=reps)
   
   if (!is.null(seed)){
-    set.seed(seed)
+    base::set.seed(seed)
   }
   
   Data <- PF$Data
