@@ -40,7 +40,7 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
     if (!is.null(ncores)){
       output$edges <- getFactoredEdgesPAR(PF=output,ncores=ncores)
     } else {
-      output$edges <- apply(output$groups,MARGIN=2,FUN=function(grps,tree) getFactoredEdges(grp1=grps[[1]],grp2=grps[[2]],tree=tree),tree=output$tree)
+      output$edges <- lapply(output$groups,FUN=function(grps,tree) getFactoredEdges(grp1=grps[[1]],grp2=grps[[2]],tree=tree),tree=output$tree)
     }
   }
   class(output) <- 'phyca'

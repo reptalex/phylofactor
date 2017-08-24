@@ -1,7 +1,7 @@
 #' Color bins on a plot of a phylogeny
 #'
 #' @export
-#' @param X Either a phylofactor object or a list of bins. See \code{\link{bins}} or \code{\link{PhyloFactor}}
+#' @param X Either a phylofactor/phyca object or a list of bins. See \code{\link{bins}} or \code{\link{PhyloFactor}}
 #' @param factor Integer. Bins will be the set of bins defined by factors up to the input \code{factor} in phylofactor object.
 #' @param tree phylo-class tree. If input \code{X} is a list of bins, tree must be input, otherwise it will be extracted from phylofactor object.
 #' @param n Size of total set to use for colorfcn - this enables multiple plots with differnent numbers of bins to have the same color order.
@@ -18,7 +18,7 @@
 #' binPhyloPlot(FTmicrobiome$PF,factor=3)
 binPhyloPlot <- function(X,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unrooted',show.tip.label=F,legend.return=F,...){
 
-  if (class(X)=='phylofactor'){
+  if (class(X)=='phylofactor' | class(X)=='phyca'){
     tree <- X$tree
     X <- bins(X$basis[,1:factor,drop=F])
   } else {

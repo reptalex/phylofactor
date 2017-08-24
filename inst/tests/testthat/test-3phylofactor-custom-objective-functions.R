@@ -52,17 +52,19 @@ load.dependencies <- function(){library(mgcv)}
 ############## The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
 
 options(warn=-1)
-PF.G <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,choice.fcn.dependencies = load.dependencies,sp=1)
-PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,choice.fcn.dependencies = load.dependencies,ncores=2,sp=1)
+PF.G <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,choice.fcn.dependencies = load.dependencies,sp=c(1,1))
+PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,choice.fcn.dependencies = load.dependencies,ncores=2,sp=c(1,1))
 options(warn=0)
 test_that('Parellelized & serialized customized objective function - GAM - are not equal',expect_true(all.equal(PF.G,PF.G.par)))
 names(PF.G$bins) <- NULL
 test_that('GAM phylofactorization did not extract correct clades',expect_true(all.equal(unlist(sigClades),unlist(PF.G$bins[2:3]))))
 
+PF.G$custom.output
 
+pf.gg <- PhyloFactor(Data,tree,X,nfactors=2,frmla=Data~s(a)+s(b),method='gam',sp=c(1,1))
 
-
-
+test_that('built-in method="gam" is equal to customized GAM',
+          expect_equal(lapply(PF.G$custom.output,coef),lapply(pf.gg$custom.output,coef)))
  ######################## Finding Hutchisonian Niches #####################################
  ### Example of how to use PhyloFactor to identify Gaussian-shapped Hutchinsonian niches ###
  set.seed(1)
@@ -80,3 +82,6 @@ test_that('GAM phylofactorization did not extract correct clades',expect_true(al
  PF.Gaus <- PhyloFactor(Data,tree,frmla=frmla,X,nfactors=1,ncores=7)
 
  test_that('Correctly identified Clade with Gaussian-shaped Niche',expect_true(all.equal(sigClades[[1]],PF.Gaus$bins[[2]])))
+
+
+ 

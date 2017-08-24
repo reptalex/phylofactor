@@ -62,7 +62,7 @@ pf.nullsim <- function(PF,reps,seed=NULL,method='Gaussian',output='ExpVar',...){
     }
     rownames(Data) <- tree$tip.label
     
-    pf <- PhyloFactor(Data,tree,X,...)
+    pf <- PhyloFactor(Data,tree,X,nfactors=pf$nfactors,...)
       
     if (! output == 'All'){
       if (ytype=='stat'){
