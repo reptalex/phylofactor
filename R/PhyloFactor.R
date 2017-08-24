@@ -29,6 +29,7 @@
 #' library(ape)
 #' library(phangorn)
 #' library(phytools)
+#' library(mgcv)
 #' mar <- par('mar')
 #' 
 #' ## Example with pseudo-simulated data: real tree with real taxonomy, but fake abundance patterns.
@@ -207,9 +208,11 @@
 #' ######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
 #' 
 #' 
-#' PF.G.par <- PhyloFactor(Data,tree,X,choice.fcn=my_gam,sp=c(1,1),choice.fcn.dependencies = load.mgcv,nfactors=2,ncores=2)
+#' PF.G.par <- PhyloFactor(Data,tree,X,choice.fcn=my_gam,sp=c(1,1),
+#'            choice.fcn.dependencies = load.mgcv,nfactors=2,ncores=2)
 #' ######### Or we can use the built-in method='gam' and input e.g. smoothing penalty sp
-#' PF.G.par2 <- PhyloFactor(Data,tree,X,method='gam',frmla=Data~s(a)+s(b),sp=c(1,1),nfactors=2,ncores=2)
+#' PF.G.par2 <- PhyloFactor(Data,tree,X,method='gam',
+#'               frmla=Data~s(a)+s(b),sp=c(1,1),nfactors=2,ncores=2)
 #' all(sigClades %in% PF.G.par$bins)
 #' PF.G.par$factors
 #' 
