@@ -39,7 +39,7 @@ phyca.tidy <- function(phca,Taxonomy,ncomponents=NULL,taxa.split=F,common.name=F
   output <- NULL
   output$taxa <- vector(mode='list',length=ncomponents)
   
-  output$summary <- data.frame('Group 1' = numeric(ncomponents),'Group 2'=numeric(ncomponents),'Percent Variance'=phca$PercentVariance[1:ncomponents])
+  output$summary <- data.frame('Group 1' = numeric(ncomponents),'Group 2'=numeric(ncomponents),'Percent Variance'=phca$ExplainedVar[1:ncomponents])
   rownames(output$summary) <- lapply(as.list(1:ncomponents),FUN=function(s) paste('phyComp ',toString(s),':',sep=''))
   if (getEdges){
     output$edges <- vector(mode='list',length=ncomponents)
