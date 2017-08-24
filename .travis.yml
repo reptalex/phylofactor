@@ -21,11 +21,13 @@ r_packages:
   - scatterplot3d 
   - biglm 
   - testthat
+  - devtools
 
 bioc_packages:
   - Biostrings
 
 script:
+  - Rscript -e "devtools::install_github('reptalex/phylofactor',INSTALL_opts = "--install-tests")"
   - Rscript -e "library(testthat); test_package('phylofactor')"
 
 notifications:
