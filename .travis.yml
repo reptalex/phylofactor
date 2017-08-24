@@ -1,5 +1,6 @@
 language: r
 cache: packages
+sudo: required
 before_install:
   - sudo mkdir -p /usr/lib/R/library
   - echo 'R_LIBS=/usr/lib/R/library:/usr/lib/R/site-library/' > ~/.Renviron
@@ -8,8 +9,6 @@ before_install:
 r:
   - release
   - bioc-release
-
-sudo: false
 
 addons:
   apt:
