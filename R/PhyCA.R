@@ -8,6 +8,7 @@
 #' @param output.edges Logical, whether or not to output the edges in the input \code{tree} corresponding to phylogenetic components
 #' @param tol tolerance for compositional matrix. Rounding error in large datasets can lead to columns of compositional data not summing to 1. 
 #' @param quiet Logical, whether or not to quiet warnings.
+#' @param ... additional input arguments to \code{\link{PhyloFactor}}
 #' @return PhyCA object containing Data, tree, basis, and edges of the phylogeny corresponding to each split.
 #' @examples 
 #' 

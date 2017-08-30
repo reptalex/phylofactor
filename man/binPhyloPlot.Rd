@@ -8,7 +8,7 @@ binPhyloPlot(X, factor, tree = NULL, n = NULL, colorfcn = rainbow,
   type = "unrooted", show.tip.label = F, legend.return = F, ...)
 }
 \arguments{
-\item{X}{Either a phylofactor object or a list of bins. See \code{\link{bins}} or \code{\link{PhyloFactor}}}
+\item{X}{Either a phylofactor/phyca object or a list of bins. See \code{\link{bins}} or \code{\link{PhyloFactor}}}
 
 \item{factor}{Integer. Bins will be the set of bins defined by factors up to the input \code{factor} in phylofactor object.}
 

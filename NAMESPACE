@@ -46,10 +46,10 @@ export(updateBinList)
 export(updateTreeList)
 importFrom("grDevices", "as.raster", "colorRampPalette", "rainbow")
 importFrom("graphics", "layout", "legend", "lines", "par", "plot",
-             "points", "rasterImage", "text")
+           "points", "rasterImage", "text")
 importFrom("stats", "dist", "glm", "hclust", "ks.test", "model.frame",
-             "phyper", "predict", "rlnorm", "rnorm", "rpois",
-             "runif", "var")
+           "phyper", "predict", "rlnorm", "rnorm", "rpois",
+           "runif", "var")
 importFrom("utils", "combn")
 importFrom("mgcv","gam")
 importFrom("magrittr","%>%")

@@ -5,7 +5,7 @@
 \title{Performs Phylogenetic Principal Components Analysis}
 \usage{
 PhyCA(Data, tree, ncores = NULL, ncomponents = NULL, output.edges = T,
-  tol = 1e-05, quiet = T)
+  tol = 1e-05, quiet = T, ...)
 }
 \arguments{
 \item{Data}{Positive-valued data matrix whose rownames are tip-labels in the input \code{tree}.}
@@ -21,6 +21,8 @@ PhyCA(Data, tree, ncores = NULL, ncomponents = NULL, output.edges = T,
 \item{tol}{tolerance for compositional matrix. Rounding error in large datasets can lead to columns of compositional data not summing to 1.}
 
 \item{quiet}{Logical, whether or not to quiet warnings.}
+
+\item{...}{additional input arguments to \code{\link{PhyloFactor}}}
 }
 \value{
 PhyCA object containing Data, tree, basis, and edges of the phylogeny corresponding to each split.

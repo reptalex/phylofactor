@@ -54,5 +54,11 @@ getFactoredEdgesPAR <- function(cl=NULL,ncores=NULL,tree=NULL,V=NULL,PF=NULL){
   for (pp in 1:length(ix)){
     edgs[ix[[pp]]] <- edgsPAR[[pp]]
   }
+  
+  if (!is.null(cl)){
+    parallel::stopCluster(cl)
+    rm('cl')
+  }
+  
   return(edgs)
 }

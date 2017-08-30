@@ -357,7 +357,7 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
   ###################### Default treatment of Data #################################
   
   if (use.log.data){
-    if (any(c(Data)<=0)){
+    if (any(c(Data)<0)){
       stop('For log-transformed data analysis, all entries of Data must be greater than or equal to 0')
     }
     if (!trust.me){
