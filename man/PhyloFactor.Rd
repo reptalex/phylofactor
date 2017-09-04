@@ -2,7 +2,7 @@
 % Please edit documentation in R/PhyloFactor.R
 \name{PhyloFactor}
 \alias{PhyloFactor}
-\title{Performs phylofactorization of a compositional dataset}
+\title{Regression-based phylofactorization}
 \usage{
 PhyloFactor(Data, tree, X = rep(NA, ncol(Data)), frmla = Data ~ X,
   choice = "var", method = "glm", use.log.data = T, nfactors = NULL,
@@ -60,7 +60,7 @@ PhyloFactor(Data, tree, X = rep(NA, ncol(Data)), frmla = Data ~ X,
 Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}.
 }
 \description{
-Performs phylofactorization of a compositional dataset
+Regression-based phylofactorization
 }
 \examples{
 set.seed(2)
