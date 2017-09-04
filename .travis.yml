@@ -25,6 +25,7 @@ r_packages:
 
 bioc_packages:
   - Biostrings
+  - ggtree
 
 script:
   - Rscript -e "devtools::install_github('reptalex/phylofactor',INSTALL_opts = "--install-tests")"

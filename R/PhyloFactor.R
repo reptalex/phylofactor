@@ -1,4 +1,4 @@
-#' Performs phylofactorization of a compositional dataset
+#' Performs phylofactorization
 #' @export
 #' @param Data Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1
 #' @param tree Phylogeny whose tip-labels are row-names in Data.
