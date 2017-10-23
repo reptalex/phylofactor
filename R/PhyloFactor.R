@@ -348,7 +348,7 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
           return(phylofactor::GAM(y,X,PF.output=PF.output,frmla=frmla,choice=choice,...))
         }
         choice.fcn.dependencies <- function(){library(mgcv)}
-        dataset <- cbind('Data'=numeric(nrow(Data)),X)
+        dataset <- cbind('Data'=numeric(ncol(Data)),X)
         choice='custom'
       }
     }
