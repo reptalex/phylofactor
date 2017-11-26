@@ -10,7 +10,7 @@
 #' @param xx data frame containing non-ILR (\code{Data}) variables used in \code{frmla}
 #' @param choice.fcn See \code{\link{PhyloFactor}}
 #' @param ... optional input arguments to \code{\link{glm}}
-findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=NULL,xx=NULL,choice.fcn=NULL,...){
+findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',smallglm=F,frmla=NULL,xx=NULL,choice.fcn=NULL,...){
   
   
   ########### set-up and prime variables #############
@@ -21,7 +21,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
     gg <- NULL #This will be our GLM
   }
 
-  if (choice %in% c('var','F')){
+  if (choice %in% c('var','F') & method!='max.var'){
     output$p.values <- numeric(length(nset))
   } else {
     output$stopStatistics <- vector(mode='list',length=length(nset))
@@ -31,9 +31,6 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
   }
   if (choice=='F'){
     output$Fstat=0
-  }
-  if (choice=='phyca'){
-    output$var=0
   }
   if (choice=='custom'){
     output$objective=-Inf
@@ -101,16 +98,15 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
       
       #################### Applying Choice Function to Y #############################
       ########### And updating output if objective > output$objective ################
-      if (choice %in% c('var','F')){ ########### 2 of 3 default choice.fcns
-          
-          ################ Making data frame for regression #######
-          if (!exists('dataset')){
-            dataset <- c(list(Y),as.list(xx))
-            names(dataset) <- c('Data',names(xx))
-            dataset <- model.frame(frmla,data = dataset)
-          } else {  #dataset already exists - we just need to update Data
-            dataset$Data <- Y
-          }
+      if (choice %in% c('var','F') & method!='max.var'){ ########### 2 of 3 default choice.fcns
+        ################ Making data frame for regression #######
+            if (!exists('dataset')){
+              dataset <- c(list(Y),as.list(xx))
+              names(dataset) <- c('Data',names(xx))
+              dataset <- model.frame(frmla,data = dataset)
+            } else {  #dataset already exists - we just need to update Data
+              dataset$Data <- Y
+            }
         #########################################################
         
         ############ Performing Regression ######################
@@ -138,11 +134,11 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
         #########################################################
         
         
-      } else if (choice=='phyca'){ #PhyCA
+      } else if (method=='max.var'){ #PhyCA
         v=var(Y)
-        if (v>output$var){
+        if (v>output$ExplainedVar){
           output$grp <- grp
-          output$var <- v
+          output$ExplainedVar <- v
           output$Y <- Y
         }
       } else {
@@ -163,14 +159,12 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,smallglm=F,frmla=N
   
   
   ################## modify output glm for default choices #################
-  if (choice %in% c('var','F') && !smallglm){ #convert bigglm to glm
+  if (choice %in% c('var','F') & !smallglm & method!='max.var'){ #convert bigglm to glm
     Y <- amalg.ILR(output$grp,LogData=LogData)
     dataset <- c(list(Y),as.list(xx))
     names(dataset) <- c('Data',names(xx))
     dataset <- model.frame(frmla,data = dataset)
     output$glm <- glm(frmla,data = dataset,...)
-  } else {
-    output$glm <- gg
   }
   ##########################################################################
   

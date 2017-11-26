@@ -27,7 +27,7 @@
 #' for (nn in 1:10){lines(nullsim[[nn]],col='grey')}
 #' legend('center',c('Original Data','Null Data'),col=c('black','gray'),lty=c(1,1))
 
-pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,method='Gaussian',output='ExpVar',...){
+pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,method='Gaussian',output='ExpVar',col.shuffle=T,row.shuffle=T,...){
   if (! method %in% c('Gaussian','Shuffle')){
     stop('input "method" must be either "Gaussian" or "Shuffle"')
   }
@@ -62,11 +62,22 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,method='Gaussian',output=
     if (method=='Gaussian'){
       Data <- rlnorm(m*n) %>% matrix(.,nrow=m)
     } else {
-      Data <- PF$Data[sample(1:m),sample(1:n)]
+      if (col.shuffle){
+        if (row.shuffle){
+          Data <- PF$Data[sample(1:m),sample(1:n)]
+        } else {
+          Data <- PF$Data[,sample(1:n)]
+        }
+      } else {
+        if (row.shuffle){
+          Data <- PF$Data[sample(1:m),]
+        }
+      }
     }
     rownames(Data) <- tree$tip.label
     
-    pf <- PhyloFactor(Data,tree,X,nfactors=nf,...)
+    
+    pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
       
     if (! output == 'All'){
       if (ytype=='stat'){

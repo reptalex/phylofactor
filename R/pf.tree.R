@@ -22,10 +22,10 @@
 #' gg <- pf.tree(pf,layout='circular')
 #' gg$ggplot
 #' gg$legend
-pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,color.fcn=rainbow,...){
+pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=rainbow,...){
   if (!(is.null(Grps) & is.null(factor.map))){
     if (method=='bins'){
-      warning('input Grps or factor.map will override metohd="bins"')
+      warning('input Grps or factor.map will override method="bins"')
       method='factors'
     }
   }
@@ -35,13 +35,15 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
         factor.map=data.frame('factor'=1:pf$nfactors,'group'=rep(1,pf$nfactors))
       }
       m <- nrow(factor.map)
-      cols <- color.fcn(m)
-      factor.map$colors <- cols
+      if (is.null(factor.map$colors)){
+        cols <- color.fcn(m)
+        factor.map$colors <- cols
+      }
     } else {
       m <- length(Grps)
       method='groups'
       cols <- color.fcn(m)
-      factor.map <- data.frame('Groups'=numeric(m),'colors'=cols)
+      factor.map <- data.frame('Groups'=1:m,'colors'=cols)
     }
   }
   if (method=='bins'){
@@ -80,6 +82,9 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
   
   gg <- ggtree::ggtree(pf$tree,layout=layout,...)
   if (nd[1]==(n+1) | !is.na(bg.color)){
+    if (is.na(bg.color)){
+      bg.color=cols[1]
+    }
     gg <- gg+ggtree::geom_hilight(n+1,fill=bg.color,alpha=bg.alpha)
   }
   
@@ -92,6 +97,16 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
   }
   
   gg <- gg+ggtree::geom_tree()
+  
+  if (top.layer){
+    i=0
+    for (ndd in nd){
+      i=i+1
+      if (!ndd==(n+1) | rootnode){
+        gg <- gg+ggtree::geom_hilight(ndd,fill=cols[ix[i]],alpha=top.alpha)
+      }
+    }
+  }
   
   return(list('legend'=factor.map,'ggplot'=gg))
 }

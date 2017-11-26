@@ -4,7 +4,8 @@
 \alias{OTUtoTaxa}
 \title{Input OTUs and outputs their taxonomic detail, optinally trimmed to their common taxonomic levels.}
 \usage{
-OTUtoTaxa(otus, Taxonomy, common.name = F, uniques = F, minimum.tax = "p")
+OTUtoTaxa(otus, Taxonomy, common.name = F, uniques = F,
+  minimum.level = Inf)
 }
 \arguments{
 \item{otus}{Species IDs found in first column of Taxonomy}

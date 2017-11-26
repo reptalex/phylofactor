@@ -12,12 +12,12 @@ uniqueTaxa <- function(x,y){
   for (nt in 1:ntaxa){
     tx <- x[nt]
     gg <- gregexpr(';',tx)[[1]]
-    nl <- length(gg) #Number of semicolons. This will accept semicolon-delimited taxonomies that do not have a terminal semicolon.
+    nl <- length(gg)
     for (ll in 1:nl){
       # ID <- listTaxa(tx,level=lvls[ll])[[1]]
       ID <- substr(tx,1,gg[ll])
       if (length(grep(ID,y))==0){
-        output[[nt]] <- as.factor(ID)
+        output[[nt]] <- ID
         break
       } else {
         if (ll==nl){
@@ -26,6 +26,11 @@ uniqueTaxa <- function(x,y){
       }
     }
   }
-
-  return(unlist(output))
+  
+  ## remove final semicolons
+  output <- unlist(output)
+  ix <- endsWith(unlist(output),';')
+  output[ix] <- substr(output[ix],1,nchar(output[ix])-1)
+  
+  return(output)
 }

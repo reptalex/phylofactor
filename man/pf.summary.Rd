@@ -4,7 +4,7 @@
 \alias{pf.summary}
 \title{Summary of pf object for a given node or factor number}
 \usage{
-pf.summary(PF, taxonomy, factor = NULL, simplify.TaxaIDs = F)
+pf.summary(PF, taxonomy, factor = NULL, minimum.level = Inf)
 }
 \arguments{
 \item{PF}{PhyloFactor object}
@@ -13,7 +13,7 @@ pf.summary(PF, taxonomy, factor = NULL, simplify.TaxaIDs = F)
 
 \item{factor}{Factor number to summarize.}
 
-\item{simplify.TaxaIDs}{Logical, whether or not to simplify IDs of group taxonomy to their shorest unique prefix (for each OTU in each group, this is taxonomy down to the coarsest taxonomic level unique to the OTU's group)}
+\item{minimum.level}{Integer. Lowest taxonomic level (high: kingdom, low: subspecies) to used to summarize species.}
 }
 \value{
 summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction

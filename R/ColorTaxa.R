@@ -21,14 +21,12 @@
 #'
 #' lims <- par('usr')
 #' legend(lims[1],lims[4],legend=L$Taxa,fill=L$colors,cex=.6)
-ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=FALSE,colorfcn=NULL,legend=FALSE,scramble=FALSE,...){
-  if (!level %in% c('k','p','c','o','f','g','s')){stop('unknown level - must be a string in the set {k,p,c,o,f,g,s}')}
-  #This function produces a tree of the entire community in which the taxa at level "p" are
-  #labelled by color.
+ColorTaxa <- function(tree,taxonomy,minimum.level=2,outputlegend=FALSE,colorfcn=NULL,legend=FALSE,scramble=FALSE,...){
+
   if (ape::is.rooted(tree)==FALSE){tree <- ape::root(tree,node=ape::Ntip(tree)+1)}
   #First, we grab the list of taxa
   taxn <- taxonomy[taxonomy[,1] %in% tree$tip.label,]
-  Taxa <- listTaxa(taxn,level)
+  Taxa <- listTaxa(taxn[,2],minimum.level,uniques = T)
 
   #Second, for each taxon we grab the OTUids and the unique edges
   nT <- length(Taxa)
@@ -71,7 +69,7 @@ ColorTaxa <- function(tree,taxonomy,level='p',outputlegend=FALSE,colorfcn=NULL,l
 
   if (legend==TRUE){
     lims <- par('usr')
-    legend(.99*lims[1],.99*lims[4],gsub(paste(level,'__',sep=''),'',Taxa),fill=colors)
+    legend(.7*lims[2],.99*lims[4],Taxa,fill=colors)
   }
   if (outputlegend){
     output <- list(unlist(Taxa),colors)

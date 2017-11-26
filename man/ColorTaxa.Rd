@@ -4,15 +4,13 @@
 \alias{ColorTaxa}
 \title{Colors tree edges based on taxanomic ID}
 \usage{
-ColorTaxa(tree, taxonomy, level = "p", outputlegend = FALSE,
+ColorTaxa(tree, taxonomy, minimum.level = 2, outputlegend = FALSE,
   colorfcn = NULL, legend = FALSE, scramble = FALSE, ...)
 }
 \arguments{
 \item{tree}{phylogenetic tree}
 
 \item{taxonomy}{list whose first column is OTUs and second column is green-genes style taxonomy, e.g. k__Bacteria; p__Bacteroidetes}
-
-\item{level}{String indicating taxonomic level for coloring. Must be in set {k,p,c,o,f,g,s}}
 
 \item{outputlegend}{Logical indicating whether or not to output the list of taxa and their corresponding colors for manual generation of a legend}
 
@@ -23,6 +21,8 @@ ColorTaxa(tree, taxonomy, level = "p", outputlegend = FALSE,
 \item{scramble}{Logical - whether or not to scramble the order of taxa-color associations by a random draw. Useful for re-drawing colors in case closely related taxa are difficult to distinguish because of adjacent colors in colorfcn.}
 
 \item{...}{additional arguments for plot.phylo}
+
+\item{level}{String indicating taxonomic level for coloring. Must be in set {k,p,c,o,f,g,s}}
 }
 \description{
 Colors tree edges based on taxanomic ID

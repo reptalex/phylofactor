@@ -34,7 +34,8 @@ test_that('Parellelization works, but Serial and Parellel PhyloFactorizations ar
 
 smry <- pf.summary(PF,Taxonomy,factor=1)
 
-test_that('pf.summary incorrectly correctly summarizes split taxa',expect_true('k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Ruminococcaceae; g__; s__' %in% smry$TaxaSplit[[1]]$TaxaIDs & 'k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Ruminococcaceae; g__Faecalibacterium;' %in% smry$TaxaSplit[[2]]$TaxaIDs))
+test_that('pf.summary incorrectly correctly summarizes split taxa',
+          expect_true('k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Ruminococcaceae; g__; s__' %in% smry$TaxaSplit[[1]]$TaxaIDs & 'k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Ruminococcaceae; g__Faecalibacterium' %in% smry$TaxaSplit[[2]]$TaxaIDs))
 
 
 options(warn=-1)

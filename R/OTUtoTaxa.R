@@ -5,34 +5,25 @@
 #'@param common.name Logical indicating whether or not to trim the output to the longest common prefix in the taxonomic strings of all otus
 #'@param uniques Logical whether or not to trim list to only unique entries
 #'@param minimum.tax string indicating the minimum taxonomic detail to include. 
-OTUtoTaxa <- function(otus,Taxonomy,common.name=F,uniques=F,minimum.tax='p'){
-  if (! minimum.tax %in% c('k','p','c','o','f','g','s')){stop('minimum.tax must be a greengenes taxonomic letter, i.e. k, p, c,...')}
+OTUtoTaxa <- function(otus,Taxonomy,common.name=F,uniques=F,minimum.level=Inf){
 
-    if(typeof(otus)!='character'){otus <- as.character(otus)}
-      notus <- length(otus)
-      ind <- match(otus,Taxonomy[,1])
-      taxa <- sapply(as.list(Taxonomy[ind,2]),FUN=toString)
-
-    mins <- listTaxa(data.frame(otus,taxa),minimum.tax)
-    mins <- unique(mins)
-    mins[is.na(mins)] <- 'Unassigned'
-  
-  if(common.name){
-    taxa <- substr(taxa[1], start = 1, stop = Biostrings::lcprefix(taxa[1], taxa[length(taxa)]))
+  if(class(otus)!='character'){otus <- as.character(otus)}
+  if (ncol(Taxonomy)>2){
+    warning('Taxonomy has more than two columns. Assuming columns 2:ncol(taxonomy) are taxonomic IDs and creating semicolon-delimited taxonomy')
+    otus <- Taxonomy[,1]
+    tax <- apply(Taxonomy[,2:ncol(taxonomy)],1,paste,sep=';')
+    Taxonomy <- data.frame(otus,'taxonomy'=tax)
+  }
+  if (!class(Taxonomy[,1])=='character'){
+    Taxonomy[,1] <- as.character(Taxonomy[,1])
+  }
+  if (!class(Taxonomy[,2])=='character'){
+    Taxonomy[,2] <- as.character(Taxonomy[,2])
   }
   
+  notus <- length(otus)
+  ind <- match(otus,Taxonomy[,1])
   
-  if(!any(sapply(mins,FUN=function(a,b) grepl(a,b),b=taxa))){taxa <- NULL}
-  
-  for (s in unlist(mins)){
-    if (!any(grepl(s,taxa))){
-      taxa <- c(taxa,s)
-    }
-  }
-  
-  if (uniques){
-    taxa <- unique(taxa)
-  }
-  
-      return(taxa)
+  taxa <- listTaxa(Taxonomy[ind,2],minimum.level,common.name,uniques)
+  return(taxa)
 }

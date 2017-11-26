@@ -26,11 +26,7 @@ edgs <- apply(PF$basis,MARGIN=2,getFactoredEdges,tree=tree)
 
 test_that('Did not correctly extract factored edges from phylofactor basis',expect_true(all.equal(edgs,c(11,31))))
 
-cl <- phyloFcluster(2)
-edgs.par <- getFactoredEdgesPAR(ncores=2,tree=tree,PF=PF,cl=cl) %>% unlist
-parallel::stopCluster(cl)
-rm('cl')
+edgs.par <- getFactoredEdgesPAR(ncores=2,tree=tree,PF=PF) %>% unlist
 
 test_that('getFactoredEdgesPAR can extract edges from phylofactor object',expect_true(exists('edgs.par')))
-
 test_that('getFactoredEdgesPAR extracts correct edges from phylofactor object',expect_true(all.equal(edgs.par,c(11,31))))

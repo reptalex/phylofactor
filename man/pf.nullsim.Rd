@@ -4,8 +4,8 @@
 \alias{pf.nullsim}
 \title{Null Simulation of phylofactor object}
 \usage{
-pf.nullsim(PF, reps, seed = NULL, method = "Gaussian", output = "ExpVar",
-  ...)
+pf.nullsim(PF, reps, nfactors = NULL, seed = NULL, method = "Gaussian",
+  output = "ExpVar", col.shuffle = T, row.shuffle = T, ...)
 }
 \arguments{
 \item{PF}{class phylofactor object from \code{\link{PhyloFactor}}}

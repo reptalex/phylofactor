@@ -4,12 +4,12 @@
 \alias{PhyloFactor}
 \title{Regression-based phylofactorization}
 \usage{
-PhyloFactor(Data, tree, X = rep(NA, ncol(Data)), frmla = Data ~ X,
-  choice = "var", method = "glm", use.log.data = T, nfactors = NULL,
-  quiet = T, trust.me = F, small.output = F, stop.fcn = NULL,
-  stop.early = NULL, KS.Pthreshold = 0.01, alternative = "greater",
-  ncores = NULL, tolerance = 1e-10, delta = 0.65, smallglm = T,
-  choice.fcn = NULL, choice.fcn.dependencies = function() {     NULL }, ...)
+PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
+  method = "glm", use.log.data = T, nfactors = NULL, quiet = T,
+  trust.me = F, small.output = F, stop.fcn = NULL, stop.early = NULL,
+  KS.Pthreshold = 0.01, alternative = "greater", ncores = NULL,
+  tolerance = 1e-10, delta = 0.65, smallglm = T, choice.fcn = NULL,
+  choice.fcn.dependencies = function() {     NULL }, ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}

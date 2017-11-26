@@ -13,6 +13,7 @@ LazyData: TRUE
 Depends:
   ape (>= 3.4),
   magrittr (>= 1.5),
+  data.table (>= 1.10.4),
   R (>= 2.10)
 Imports:
   phangorn (>= 2.0.2),

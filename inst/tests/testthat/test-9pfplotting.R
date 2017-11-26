@@ -30,5 +30,7 @@ test_that('pf.ordination dimension=3 does not error',
           expect_error(pf.ordination(pf,dimension = 3),NA))
 test_that('binPhyloPlot dimension=3 does not error',
           expect_error(binPhyloPlot(pf,factor = 3),NA))
+test_that('pf.tree does not error',
+          expect_error(pf.tree(pf),NA))
 test_that('ColorTaxa works',
           expect_error(ColorTaxa(tree,Taxonomy,legend = T,outputlegend = T),NA))

@@ -5,10 +5,18 @@
 
 
 TaxaSplit <- function(Summary){
+  
+  taxG <- as.data.frame(lapply(Summary$group1$IDs,as.character),stringsAsFactors = F)
+  taxC <- as.data.frame(lapply(Summary$group2$IDs,as.character),stringsAsFactors = F)
 
-  taxG <- Summary$group1$IDs
-  taxC <- Summary$group2$IDs
-
+  if (is.null(dim(taxG))){
+    nms <- names(taxG)
+    taxG <- data.frame('otuIDs'=taxG[1],'TaxaIDs'=taxG[2])
+  }
+  if (is.null(dim(taxC))){
+    nms <- names(taxC)
+    taxC <- data.frame('otuIDs'=taxC[1],'TaxaIDs'=taxC[2])
+  }
   #### Grab the first unique taxonomic category for the Group and Complement ###
 
  taxG[,2] <- uniqueTaxa(taxG[,2],taxC[,2])

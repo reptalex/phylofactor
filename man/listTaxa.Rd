@@ -4,12 +4,14 @@
 \alias{listTaxa}
 \title{Lists all unique taxonomic names in a Taxonomy at a given level}
 \usage{
-listTaxa(taxonomy, level = "p")
+listTaxa(s, minimum.level = 1, common.name = F, uniques = F)
 }
 \arguments{
-\item{taxonomy}{Taxonomy. First row is species IDs, second row is their taxonomy. This function assumes greengenes-compatible taxonomic strings}
+\item{s}{Character vector of taxonomic names. First row is species IDs, second row is their taxonomy. This function assumes greengenes-compatible taxonomic strings}
 
-\item{level}{Taxonomic level from set {'k','p','c','o','f','g'}}
+\item{common.name}{whether or not to return the common name in the list of taxa}
+
+\item{minimum.levels}{Integer. Minimum number of taxonomic levels to include counting from highest to lowest.}
 }
 \value{
 list of taxonomic strings for all taxa up to speficied level.

@@ -298,12 +298,23 @@
 #' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='var',method='glm',use.log.data=T,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){NULL},...){
+PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm',use.log.data=T,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){NULL},...){
   
   
   ######################################################## Housekeeping #################################################################################
   
   ############ Matching Data to tree
+  if (is.null(X)){
+    if (!(method=='max.var'|(!is.null(choice.fcn)))){
+      stop('Must input X')
+    } else {
+      if (!is.null(dim(Data))){
+        X <- rnorm(ncol(Data))
+      } else {
+        X <- 1
+      }
+    }
+  }
   if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
   if (all(tree$tip.label %in% rownames(Data))==F){
     if(!quiet){
@@ -339,13 +350,13 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
     if (method %in% c('max.var','gam')){
       if (method=='max.var'){
         choice.fcn <- phylofactor::VAR
-        choice='custom'
+        choice='var'
       } else {
         if (choice=='custom'){
           stop('Cannot use customized choice function for built-in gam. Must be either "F" or "var". Use ? PhyloFactor for help building your own objective function')
         }
-        choice.fcn <- function(y,X,PF.output=FALSE,frmla. =frmla,choice. =choice,...){
-          return(phylofactor::GAM(y,X,PF.output=PF.output,frmla=frmla,choice=choice,...))
+        choice.fcn <- function(y,X,PF.output=FALSE,ff=frmla,cc=choice,...){
+          return(phylofactor::GAM(y,X,PF.output=PF.output,gamfrmla=ff,gamchoice=cc,...))
         }
         choice.fcn.dependencies <- function(){library(mgcv)}
         dataset <- cbind('Data'=numeric(ncol(Data)),X)
@@ -392,7 +403,7 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
   #####################################################################################
   ## small.output warning
   if (small.output){
-    warning('For downstream phylofactor functions, you may need to add pf$X, compositional pf$Data <- clo(OTUTable[tree$tip.labels],) and pf$tree (see beginning of PhyloFactor code for how to reproduce these tags). Information on bins can be found by bins(pf$basis).')
+    warning('For downstream phylofactor functions, you may need to add pf$X, compositional pf$Data <- OTUTable[tree$tip.labels,], and pf$tree (see beginning of PhyloFactor code for how to reproduce these tags). Information on bins can be found by bins(pf$basis).')
   }
   ######################################################## Housekeeping #################################################################################
   
@@ -483,7 +494,9 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
     output$tree <- tree
   }
   if (choice != 'custom'){
-    output$glms <- list()
+    if (method != 'max.var'){
+      output$glms <- list()
+    }
   } else {
     output$custom.output <- list()
   }
@@ -538,7 +551,7 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
     # PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn)
-    PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn=choice.fcn,...)
+    PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn=choice.fcn,method,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     
@@ -575,7 +588,9 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
     output$factors <- cbind(output$factors,grpInfo)
     
     if (choice != 'custom'){
-      output$glms[[length(output$glms)+1]] <- PhyloReg$glm
+      if (method != 'max.var'){
+        output$glms[[length(output$glms)+1]] <- PhyloReg$glm
+      }
     } else {
       output$custom.output[[length(output$custom.output)+1]] <- PhyloReg$custom.output
     }
@@ -630,9 +645,13 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
   output$factors <- t(output$factors) %>% as.data.frame
   
   if (choice != 'custom'){
-    summary.statistics <- sapply(output$glms,FUN=function(gg) getStats(gg)) %>% t %>% as.data.frame()
-    colnames(summary.statistics) <- c('Pr(>F)','F','ExpVar')
-    summary.statistics <- summary.statistics[,c(3,2,1)]
+    if (method != 'max.var'){
+      summary.statistics <- sapply(output$glms,FUN=function(gg) getStats(gg)) %>% t %>% as.data.frame()
+      colnames(summary.statistics) <- c('Pr(>F)','F','ExpVar')
+      summary.statistics <- summary.statistics[,c(3,2,1)]
+    } else {
+      summary.statistics <- data.frame('ExpVar'=numeric(output$nfactors))
+    }
     summary.statistics$ExpVar <- output$ExplainedVar
     output$factors <- cbind(output$factors,summary.statistics)
   }
@@ -676,6 +695,9 @@ PhyloFactor <- function(Data,tree,X=rep(NA,ncol(Data)),frmla = Data~X,choice='va
   if (method=='max.var'){
     names(output)[names(output)=='custom.output']='ExplainedVar'
     output$ExplainedVar <- unlist(output$ExplainedVar)/output$total.variance
+  }
+  if (method=='max.var'){
+    output$X <- NULL
   }
   
   

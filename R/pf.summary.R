@@ -3,7 +3,7 @@
 #' @param PF PhyloFactor object
 #' @param taxonomy Taxonomy, first column is OTU ids in tree, second column is greengenes taxonomic string
 #' @param factor Factor number to summarize.
-#' @param simplify.TaxaIDs Logical, whether or not to simplify IDs of group taxonomy to their shorest unique prefix (for each OTU in each group, this is taxonomy down to the coarsest taxonomic level unique to the OTU's group)
+#' @param minimum.level Integer. Lowest taxonomic level (high: kingdom, low: subspecies) to used to summarize species.
 #' @return summary object. List containing $group and $complement info, each containing summary.group output for that group -  $IDs, $otuData and $PF.prediction
 #' @examples
 #' data("FTmicrobiome")
@@ -44,17 +44,17 @@
 #' lines(FactorSummary$fittedMeanRatio,lwd=2,col='blue')
 #' legend(x=1,y=-5,list('data','prediction'),pch=c(16,NA),lty=c(NA,1),
 #'         col=c('black','blue'),lwd=c(NA,2))
-pf.summary <- function(PF,taxonomy,factor=NULL,simplify.TaxaIDs=F){
+pf.summary <- function(PF,taxonomy,factor=NULL,minimum.level=Inf){
   #summarizes the IDs of taxa for a given node identified as important by PhyloFactor. If subtree==T, will also plot a subtree showing the taxa
   if (is.null(factor)){stop('need to input a factor')}
   
-  summary.group <- function(PF,tree,taxonomy,factor,grp,simplify=F){
+  summary.group <- function(PF,tree,taxonomy,factor,grp){
     #summarizes the OTUids, taxonomic details, data and predictions for an input group of taxa up to a factor level factor.
     
     output <- NULL
     otuIDs <- rownames(PF$Data)[grp]    
 
-    TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name = simplify,minimum.tax = 'p')
+    TaxaIDs <- OTUtoTaxa(otuIDs,taxonomy,common.name = F,uniques = F,minimum.level)
     output$IDs <- data.frame(otuIDs,TaxaIDs)
     
     output$otuData <- PF$Data[grp, ,drop=F]
@@ -73,8 +73,8 @@ pf.summary <- function(PF,taxonomy,factor=NULL,simplify.TaxaIDs=F){
 
   
   output <- NULL
-  output$group1 <- summary.group(PF,PF$tree,taxonomy,factor = factor,grp1,simplify=simplify.TaxaIDs)
-  output$group2 <- summary.group(PF,PF$tree,taxonomy,factor = factor,grp2,simplify=simplify.TaxaIDs)
+  output$group1 <- summary.group(PF,PF$tree,taxonomy,factor = factor,grp1)
+  output$group2 <- summary.group(PF,PF$tree,taxonomy,factor = factor,grp2)
 
 
   output$TaxaSplit <- TaxaSplit(output)

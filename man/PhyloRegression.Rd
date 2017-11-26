@@ -6,7 +6,8 @@
 \usage{
 PhyloRegression(LogData, X, frmla, Grps = NULL, choice, treeList = NULL, cl,
   totalvar = NULL, ix_cl, treetips = NULL, grpsizes = NULL,
-  tree_map = NULL, quiet = T, nms = NULL, smallglm = F, choice.fcn, ...)
+  tree_map = NULL, quiet = T, nms = NULL, smallglm = F, choice.fcn,
+  method = "glm", ...)
 }
 \arguments{
 \item{LogData}{Logarithm of Compositional data matrix whose rows are parts and columns are samples.}

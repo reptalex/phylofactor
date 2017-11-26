@@ -6,16 +6,16 @@
 #' @param choice Either "var" or "F". Determines which statistic to choose from gam for objective function
 #' @param ... additional arguments for \code{\link{gam}}
 #' @export
-GAM <- function(y,X,PF.output=FALSE,frmla,choice,...){
+GAM <- function(y,X,PF.output=FALSE,gamfrmla,gamchoice,...){
   dataset <- cbind('Data'=y,X)
-  gg <- mgcv::gam(frmla,data=dataset,...)
+  gg <- mgcv::gam(gamfrmla,data=dataset,...)
   
   if (PF.output){
     return(gg)
     break
   } else {
     output <- NULL
-    if (choice=='var'){
+    if (gamchoice=='var'){
       output$objective <- getStats(gg)['ExplainedVar']  
     } else {
       output$objective <- getStats(gg)['F']

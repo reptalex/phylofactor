@@ -6,7 +6,8 @@
 \usage{
 pf.tree(pf, method = "factors", factor.map = NULL, Grps = NULL,
   bg.color = NA, bg.alpha = 0.1, alphas = NULL, layout = "circular",
-  rootnode = FALSE, color.fcn = rainbow, ...)
+  rootnode = FALSE, top.layer = F, top.alpha = 0.1, color.fcn = rainbow,
+  ...)
 }
 \arguments{
 \item{pf}{phylofactor class object}

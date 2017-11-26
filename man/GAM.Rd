@@ -4,7 +4,7 @@
 \alias{GAM}
 \title{internal generalized additive model method for \code{\link{PhyloFactor}} method='gam'}
 \usage{
-GAM(y, X, PF.output = FALSE, frmla, choice, ...)
+GAM(y, X, PF.output = FALSE, gamfrmla, gamchoice, ...)
 }
 \arguments{
 \item{y}{ILR coordinate, y}
@@ -13,11 +13,11 @@ GAM(y, X, PF.output = FALSE, frmla, choice, ...)
 
 \item{PF.output}{logical, if true will return customized output for phylofactor object}
 
+\item{...}{additional arguments for \code{\link{gam}}}
+
 \item{frmla}{formula for regression}
 
 \item{choice}{Either "var" or "F". Determines which statistic to choose from gam for objective function}
-
-\item{...}{additional arguments for \code{\link{gam}}}
 }
 \description{
 internal generalized additive model method for \code{\link{PhyloFactor}} method='gam'
