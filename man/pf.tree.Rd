@@ -4,25 +4,29 @@
 \alias{pf.tree}
 \title{ggtree-based plotting of phylofactor bins or factors}
 \usage{
-pf.tree(pf, method = "factors", factor.map = NULL, Grps = NULL,
-  bg.color = NA, bg.alpha = 0.1, alphas = NULL, layout = "circular",
-  rootnode = FALSE, top.layer = F, top.alpha = 0.1, color.fcn = rainbow,
-  ...)
+pf.tree(pf, method = "factors", factors = NULL, groups = NULL,
+  colors = NULL, GroupList = NULL, bg.color = NA, bg.alpha = 0.1,
+  alphas = NULL, layout = "circular", rootnode = FALSE, top.layer = F,
+  top.alpha = 0.1, color.fcn = viridis::viridis, ...)
 }
 \arguments{
 \item{pf}{phylofactor class object}
 
-\item{method}{either "factors" or "bins", based on whether to use factors (and \code{factor.map} or resultant bins from phylofactorization)}
+\item{method}{either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.}
 
-\item{factor.map}{data frame with two columns. The first column is the factor number and the second is which group (1 or 2) should be highlighted}
+\item{factors}{vector of factor numbers to be plotted}
 
-\item{Grps}{optional list of groups for plotting}
+\item{groups}{vector of groups (1 or 2) to be plotted for each factor. Default is 1}
+
+\item{colors}{colors for each \code{factors x groups} pair, or each member of \code{GroupList}}
+
+\item{GroupList}{optional list of groups for plotting}
 
 \item{bg.color}{background color}
 
 \item{bg.alpha}{background alpha}
 
-\item{alphas}{vector, of length = \code{nrow(factor.map)} or \code{length(Grps)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade}
+\item{alphas}{vector, of length = \code{nrow(factor.map)} or \code{length(GroupList)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade}
 
 \item{layout}{See \code{\link{ggtree}}. Default is "circular"}
 
@@ -38,11 +42,8 @@ ggtree-based plotting of phylofactor bins or factors
 \examples{
 library(phylofactor)
 data(FTmicrobiome)
-Data <- FTmicrobiome$PF$Data
-tree <- FTmicrobiome$PF$tree
-X <- FTmicrobiome$PF$X
-pf <- PhyloFactor(Data,tree,X,nfactors=3,ncores=2)
-gg <- pf.tree(pf,layout='circular')
+pf <- FTmicrobiome$PF
+gg <- pf.tree(pf,factors=1:3,layout='circular')
 gg$ggplot
 gg$legend
 }

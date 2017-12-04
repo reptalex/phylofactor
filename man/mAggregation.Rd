@@ -4,7 +4,7 @@
 \alias{mAggregation}
 \title{marginally stable aggregation of binomial data}
 \usage{
-mAggregation(DF, grp, tree, X, size = 1, SampleFrame = NULL)
+mAggregation(DF, grp, tree, X, binom.size, expfamily)
 }
 \arguments{
 \item{DF}{data table containing "Species", "sample", and "N" (N= counts of species in sample)}
@@ -15,7 +15,9 @@ mAggregation(DF, grp, tree, X, size = 1, SampleFrame = NULL)
 
 \item{X}{meta-data table containing "sample" and variables found in formula}
 
-\item{SampleFrame}{Data table containing "sample" and "G" indicating all possible combinations of samples and groups.}
+\item{binom.size}{Size of binomial (binom.size=1 for Bernoulli)}
+
+\item{expfamily}{Character, currently either "binomial" or "gaussian", indicating family of exponential family for marginally-stable aggregation.}
 }
 \description{
 marginally stable aggregation of binomial data

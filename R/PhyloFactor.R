@@ -21,7 +21,7 @@
 #' @param smallglm Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false. 
 #' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally. 
 #' @param choice.fcn.dependencies Function called by cluster to load all dependencies for custom choice.fcn. e.g. \code{choice.fcn.dependencies <- function(){library(bayesm)}}
-#' @param ... optional input arguments for \code{\link{glm}}
+#' @param ... optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
 #' set.seed(2)
@@ -142,7 +142,7 @@
 #' X <- data.frame('a'=a,'b'=b)
 #' frmla <- Data~a+b
 #' PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
-#' PF.M$glms[[1]]
+#' PF.M$models[[1]]
 #' PF.M.par <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2,ncores=2)
 #' all.equal(PF.M,PF.M.par)
 #' ##################################################
@@ -272,7 +272,7 @@
 #' plot(X,y,ylab='Group1/Group2 gMean',
 #'      main='Identifying Gaussian-shaped Hutchinsonian Niches',
 #'      xlab='Environmental Variable')
-#' lines(sort(X),predict(PF.Gaus$glms[[1]])[order(X)],lwd=4,col='green')
+#' lines(sort(X),predict(PF.Gaus$models[[1]])[order(X)],lwd=4,col='green')
 #' legend(-2.5,-3,legend=c('Observed','Predicted'),
 #'          pch=c(1,NA),col=c('black','green'),lty=c(NA,1),lwd=c(NA,2))
 #' 
@@ -282,7 +282,7 @@
 #' grp <- PF.Gaus$groups[[1]]
 #' r <- length(grp[[1]])
 #' s <- length(grp[[2]])
-#' coefs <- PF.Gaus$glms[[1]]$coefficients
+#' coefs <- PF.Gaus$models[[1]]$coefficients
 #' a <- coefs['I(X^2)']
 #' b <- coefs['X']
 #' c <- coefs['(Intercept)']
@@ -495,7 +495,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   }
   if (choice != 'custom'){
     if (method != 'max.var'){
-      output$glms <- list()
+      output$models <- list()
     }
   } else {
     output$custom.output <- list()
@@ -522,17 +522,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   ####### On your marks.... Get set.... #######
   pfs=0
   output$terminated=F
-  age=0
-  
+  tm <- Sys.time()
   ########## GO! ##############################
   while (pfs < min(length(OTUs)-1,nfactors)){
-    
-    
-    # if (is.null(ncores)==F && age==0){
-    #   cl <- phyloFcluster(ncores)
-    #   parallel::clusterExport(cl,varlist=c('xx','X','LogData','Y','gg','dataset'),envir=environment())
-    # }
-    
     
     if (pfs>=1){
       treeList <- updateTreeList(treeList,binList,grp,tree,skip.check=T)
@@ -589,7 +581,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
     
     if (choice != 'custom'){
       if (method != 'max.var'){
-        output$glms[[length(output$glms)+1]] <- PhyloReg$glm
+        output$models[[length(output$models)+1]] <- PhyloReg$model
       }
     } else {
       output$custom.output[[length(output$custom.output)+1]] <- PhyloReg$custom.output
@@ -626,8 +618,21 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
     ########################################################
     
     pfs=pfs+1
-    age=age+1
     gc()
+    tm2 <- Sys.time()
+    time.elapsed <- signif(difftime(tm2,tm,units = 'mins'),3)
+    if (pfs==1){
+      GUI.notification <- paste('\r',pfs,'factor completed in',time.elapsed,'minutes.   ')
+    } else {
+      GUI.notification <- paste('\r',pfs,'factors completed in',time.elapsed,'minutes.    ')
+    }
+    if (!is.null(nfactors)){
+      GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
+                                as.character(tm+difftime(tm2,tm)*nfactors/pfs),
+                                '  \r')
+    }
+    cat(GUI.notification)
+    flush.console()
   }
   
   
@@ -646,7 +651,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   
   if (choice != 'custom'){
     if (method != 'max.var'){
-      summary.statistics <- sapply(output$glms,FUN=function(gg) getStats(gg)) %>% t %>% as.data.frame()
+      summary.statistics <- sapply(output$models,FUN=function(gg) getStats(gg)) %>% t %>% as.data.frame()
       colnames(summary.statistics) <- c('Pr(>F)','F','ExpVar')
       summary.statistics <- summary.statistics[,c(3,2,1)]
     } else {

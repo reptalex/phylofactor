@@ -123,7 +123,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
     ############ DEFAULT ##########
     if (choice != 'custom'){
       if (method != 'max.var'){
-        output$glm <- GLMs[[winner]] ## this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
+        output$model <- GLMs[[winner]] ## this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
         output$p.values <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
         output$explainedvar <- stats[winner,'ExplainedVar']/totalvar
       } else {
@@ -147,7 +147,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
     ######## Default ##############
     if (choice != 'custom'){
       if (!method=='max.var'){
-        output$glm <- gg[[winner]]
+        output$model <- gg[[winner]]
         output$p.values <- unlist(c(sapply(Winners,FUN=function(x) x$p.values)))
       }
       if (choice=='var'){
@@ -164,9 +164,9 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
       for (nn in 1:length(Winners)){
         output$stopStatistics <- c(output$stopStatistics,Winners[[nn]]$stopStatistics)
       }
-      # output$stopStatistics <- lapply(Winners,FUN=function(x) x$stopStatistics)
-      output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
-      ###############################
+        # output$stopStatistics <- lapply(Winners,FUN=function(x) x$stopStatistics)
+        output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
+        ###############################
     }
     
     output$grp <- lapply(grps[[winner]],FUN=function(x,nms) which(nms %in% x),nms=nms)

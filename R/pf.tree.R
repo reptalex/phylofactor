@@ -2,12 +2,14 @@
 #'
 #' @export
 #' @param pf phylofactor class object
-#' @param method either "factors" or "bins", based on whether to use factors (and \code{factor.map} or resultant bins from phylofactorization)
-#' @param factor.map data frame with two columns. The first column is the factor number and the second is which group (1 or 2) should be highlighted
-#' @param Grps optional list of groups for plotting
+#' @param method either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.
+#' @param factors vector of factor numbers to be plotted
+#' @param groups vector of groups (1 or 2) to be plotted for each factor. Default is 1
+#' @param colors colors for each \code{factors x groups} pair, or each member of \code{GroupList} 
+#' @param GroupList optional list of groups for plotting
 #' @param bg.color background color
 #' @param bg.alpha background alpha
-#' @param alphas vector, of length = \code{nrow(factor.map)} or \code{length(Grps)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade
+#' @param alphas vector, of length = \code{nrow(factor.map)} or \code{length(GroupList)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade
 #' @param layout See \code{\link{ggtree}}. Default is "circular"
 #' @param rootnode Logical. If true, will fill in the root node. Default controls root only with bg.color 
 #' @param color.fcn Color function for plotting. Default is rainbow.
@@ -15,48 +17,62 @@
 #' @examples 
 #' library(phylofactor)
 #' data(FTmicrobiome)
-#' Data <- FTmicrobiome$PF$Data
-#' tree <- FTmicrobiome$PF$tree
-#' X <- FTmicrobiome$PF$X
-#' pf <- PhyloFactor(Data,tree,X,nfactors=3,ncores=2)
-#' gg <- pf.tree(pf,layout='circular')
+#' pf <- FTmicrobiome$PF
+#' gg <- pf.tree(pf,factors=1:3,layout='circular')
 #' gg$ggplot
 #' gg$legend
-pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=rainbow,...){
-  if (!(is.null(Grps) & is.null(factor.map))){
+pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
+  if (!(is.null(GroupList) & is.null(factors))){
     if (method=='bins'){
-      warning('input Grps or factor.map will override method="bins"')
+      warning('input GroupList or factors will override method="bins"')
       method='factors'
     }
   }
   if (method=='factors'){
-    if (is.null(Grps)){
-      if (is.null(factor.map)){
-        factor.map=data.frame('factor'=1:pf$nfactors,'group'=rep(1,pf$nfactors))
+    if (is.null(GroupList)){
+      if (is.null(factors)){
+        if (is.null(groups)){
+          factor.map=data.frame('factor'=1:pf$nfactors,'group'=rep(1,pf$nfactors))
+        } else {
+          factor.map=data.frame('factor'=1:pf$nfactors,'group'=groups)
+        }
+      } else {
+        if (is.null(groups)){
+          factor.map <- data.frame('factor'=factors,'group'=1)
+        } else {
+          if (length(groups) != length(factors)){
+            stop('length of groups is not equal to length of factors')
+          } else {
+            factor.map <- data.frame('factor'=factors,'group'=groups)
+          }
+        }
       }
       m <- nrow(factor.map)
-      if (is.null(factor.map$colors)){
+      if (is.null(colors)){
         cols <- color.fcn(m)
         factor.map$colors <- cols
+      } else {
+        factor.map$colors <- colors
       }
     } else {
-      m <- length(Grps)
+      m <- length(GroupList)
       method='groups'
       cols <- color.fcn(m)
       factor.map <- data.frame('Groups'=1:m,'colors'=cols)
     }
   }
+  
   if (method=='bins'){
-    Grps <- pf$bins
+    GroupList <- pf$bins
     method='groups'
   }
   if (is.null(alphas)){
-    alphas <- rep(1,max((pf$nfactors+1),length(Grps)))
+    alphas <- rep(1,max((pf$nfactors+1),length(GroupList)))
   }
   
   n=Ntip(pf$tree)
   
-  
+  if (is.null(names)){names <- sapply(1:m,FUN=function(s) paste('Clade',s))}
   nd <- numeric(m)
   for (i in 1:(m)){
     if (method=='factors'){
@@ -67,7 +83,7 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
         nd[i] <- grp
       }
     } else {
-      grp <- Grps[[i]]
+      grp <- GroupList[[i]]
       if (length(grp)>1){
         nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[grp])
       } else {
@@ -107,6 +123,6 @@ pf.tree <- function(pf,method='factors',factor.map=NULL,Grps=NULL,bg.color=NA,bg
       }
     }
   }
-  
+
   return(list('legend'=factor.map,'ggplot'=gg))
 }

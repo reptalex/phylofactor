@@ -21,13 +21,13 @@ pf.tidy <- function(smry){
 
     ### Be concise about their predicted effects ##
     
-    if (!is.null(smry$glm)){
-      coef <- smry$glm$coefficients
+    if (!is.null(smry$model)){
+      coef <- smry$model$coefficients
       l <- c(l,list(coef))
       i=i+1
       names(l)[i] <- 'Coefficients'
       
-      pp <- predict(smry$glm)
+      pp <- predict(smry$model)
     
       r <- dim(smry$group1$IDs)[1]
       s <- dim(smry$group2$IDs)[1]
@@ -41,8 +41,8 @@ pf.tidy <- function(smry){
     }
 
     obsRatios <- gMean(smry$group1$otuData)/gMean(smry$group2$otuData)
-    if (!is.null(smry$glm)){
-      names(obsRatios) <- names(smry$glm$linear.predictors)
+    if (!is.null(smry$model)){
+      names(obsRatios) <- names(smry$model$linear.predictors)
     } else {
       names(obsRatios) <- colnames(smry$group1$otuData)
     }

@@ -4,18 +4,28 @@
 \alias{gpf}
 \title{Generalized phylofactorization - currently skeleton for binomial glm}
 \usage{
-gpf(DF, X, tree, frmla, nfactors, ncores = NULL, size = 1)
+gpf(Data, tree, X, frmla, nfactors = NULL, ncores = NULL, binom.size = 1,
+  expfamily = "gaussian", model.fcn = stats::glm,
+  PartitioningVariables = "", ...)
 }
 \arguments{
-\item{DF}{data table containing columns of "Species", 'N' (counts, 0<=N<=3), "sample".}
+\item{Data}{data table containing columns of "Species", 'N' (counts, 0<=N<=3), "Sample".}
 
-\item{X}{meta-data containing "sample" and variables found in \code{frmla}}
+\item{X}{meta-data containing "Sample" and variables found in \code{frmla}}
+
+\item{frmla}{Formula. If \code{expfamily='binomial'}, must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~phylo}. Explanatory variables used for phylofactorization must interact with the variable \code{phylo}, e.g. partitioning by pH and not N requires \code{Data~N+phylo*pH}}
 
 \item{nfactors}{integer for number of factors to find}
 
 \item{ncores}{integers for number of cores to use for parallelization}
 
-\item{size}{size of binomial samples for each species. Size=1 for presence/absence data.}
+\item{binom.size}{binom.size of binomial samples for each species. binom.size=1 for presence/absence data.}
+
+\item{expfamily}{Either "gaussian" or "binomial" - determines the aggregation method.}
+
+\item{model.fcn}{Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.}
+
+\item{PartitioningVariables}{Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.}
 }
 \description{
 Generalized phylofactorization - currently skeleton for binomial glm

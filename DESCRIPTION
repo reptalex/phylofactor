@@ -27,8 +27,10 @@ Imports:
   biglm (>= 0.9.1),
   mgcv (>= 1.8-16),
   ggplot2 (>= 2.2.1),
-  ggtree (>= 1.8.1),
-  parallel (>= 3.2.2)
+  ggtree (>= 1.8.2),
+  parallel (>= 3.2.2),
+  viridis (>= 0.4.0),
+  tidyverse (>= 1.2.1)
 Suggests: 
   testthat (>= 1.0.2),
 RoxygenNote: 6.0.1

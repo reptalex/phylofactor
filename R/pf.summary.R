@@ -60,7 +60,7 @@ pf.summary <- function(PF,taxonomy,factor=NULL,minimum.level=Inf){
     output$otuData <- PF$Data[grp, ,drop=F]
     output$is.monophyletic <- ape::is.monophyletic(tree,grp)
     
-    if (!is.null(PF$glms)){
+    if (!is.null(PF$models)){
       output$PF.prediction <- pf.predict(PF,factors=1:factor)[grp, ,drop=F]
       colnames(output$PF.prediction) <- colnames(PF$Data)
       rownames(output$PF.prediction) <- rownames(PF$Data[grp, ,drop=F])
@@ -78,10 +78,10 @@ pf.summary <- function(PF,taxonomy,factor=NULL,minimum.level=Inf){
 
 
   output$TaxaSplit <- TaxaSplit(output)
-  if (!is.null(PF$glms)){
-    output$glm <- PF$glms[[factor]]
-    output$ilr <- PF$glms[[factor]]$y
-    output$fitted.values <- PF$glms[[factor]]$fitted.values
+  if (!is.null(PF$models)){
+    output$model <- PF$models[[factor]]
+    output$ilr <- PF$models[[factor]]$y
+    output$fitted.values <- PF$models[[factor]]$fitted.values
     r <- length(grp1)
     s <- length(grp2)
     output$MeanRatio <- exp(output$ilr/(sqrt(r*s/(r+s))))

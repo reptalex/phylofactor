@@ -13,9 +13,9 @@
 ############################# getP #####################################
 getStats <- function(GLM,y=NULL){
   #extract P value and F statistic from analysis of variance for an input glm
-  if (!(class(GLM)[1] %in% c('lm','gam','glm','bigglm'))){stop('unknown input class - need glm or bigglm')}
+  if (!(any(c('lm','gam','glm','bigglm') %in% class(GLM)))){stop('unknown input class - need glm or bigglm')}
 
-  if (class(GLM)[1] %in% c('lm','gam','glm')){
+  if (!'bigglm' %in% class(GLM)){
     dfr <- GLM$df.residual
     dfx <- GLM$df.null-dfr
     ssq <- (GLM$null.deviance-GLM$deviance)

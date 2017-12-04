@@ -4,16 +4,17 @@
 \alias{getObjective}
 \title{objective function for \code{\link{gpf}}}
 \usage{
-getObjective(grp, tree, DF, X, SampleFrame, size = 1, frmla)
+getObjective(grp, tree, Data, X, binom.size, frmla, expfamily = "gaussian",
+  model.fcn = stats::glm, PartitioningVariables = "", ...)
 }
 \arguments{
 \item{grp}{list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}}
 
 \item{tree}{phylo class object}
 
-\item{DF}{data table containing Species, observations (N), and sample}
-
 \item{X}{meta-data containing variables in formula}
+
+\item{DF}{data table containing Species, observations (N), and sample}
 }
 \description{
 objective function for \code{\link{gpf}}

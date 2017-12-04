@@ -20,7 +20,7 @@ Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*9
 Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*14
 Bins <- bins(G=sigClades,set=1:20)[c(3,2,1)]
 
-PF <- PhyloFactor(Data,tree,X,nfactors=2)
+invisible(capture.output(PF <- PhyloFactor(Data,tree,X,nfactors=2)))
 
 edgs <- apply(PF$basis,MARGIN=2,getFactoredEdges,tree=tree)
 

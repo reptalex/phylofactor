@@ -81,18 +81,6 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
       
       ####################### ILR-transform the data ################################
       Y <- amalg.ILR(grp,LogData)
-      # rr = length(grp[[1]])
-      # ss = length(grp[[2]])
-      # if (rr>1){
-      #   Y <- colSums(LogData[grp[[1]],])*(sqrt(ss/(rr*(rr+ss))))
-      # } else {
-      #   Y <- LogData[grp[[1]],]*(sqrt(ss/(rr*(rr+ss))))
-      # }
-      # if (ss>1){
-      #   Y <- Y-colSums(LogData[grp[[2]],])*sqrt(rr/(ss*(rr+ss)))
-      # } else {
-      #   Y <- Y-LogData[grp[[2]],]*sqrt(rr/(ss*(rr+ss)))
-      # }
       ################################################################################
       
       
@@ -164,7 +152,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
     dataset <- c(list(Y),as.list(xx))
     names(dataset) <- c('Data',names(xx))
     dataset <- model.frame(frmla,data = dataset)
-    output$glm <- glm(frmla,data = dataset,...)
+    output$model <- glm(frmla,data = dataset,...)
   }
   ##########################################################################
   

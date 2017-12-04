@@ -24,8 +24,8 @@ b <- rnorm(length(X))
 A <- data.frame(a,b)
 frmla <- Data ~ a + b^2
 
-PF <- PhyloFactor(Data,tree,A,frmla,nfactors=2)
-PF.par <- PhyloFactor(Data,tree,A,frmla,nfactors=2,ncores=2)
+invisible(capture.output(PF <- PhyloFactor(Data,tree,A,frmla,nfactors=2)))
+invisible(capture.output(PF.par <- PhyloFactor(Data,tree,A,frmla,nfactors=2,ncores=2)))
 
 test_that('Multiple Regression Data ~ a + b^2 works, serial & parallel',expect_true(all.equal(PF,PF.par)))
 

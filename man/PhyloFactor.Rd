@@ -54,7 +54,7 @@ PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
 
 \item{choice.fcn.dependencies}{Function called by cluster to load all dependencies for custom choice.fcn. e.g. \code{choice.fcn.dependencies <- function(){library(bayesm)}}}
 
-\item{...}{optional input arguments for \code{\link{glm}}}
+\item{...}{optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}}
 }
 \value{
 Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}.
@@ -181,7 +181,7 @@ a <- as.factor(c(rep(0,5),rep(1,5)))
 X <- data.frame('a'=a,'b'=b)
 frmla <- Data~a+b
 PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
-PF.M$glms[[1]]
+PF.M$models[[1]]
 PF.M.par <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2,ncores=2)
 all.equal(PF.M,PF.M.par)
 ##################################################
@@ -311,7 +311,7 @@ y <- PF.Gaus$groups[[1]] \%>\% amalg.ILR(.,log(Data))
 plot(X,y,ylab='Group1/Group2 gMean',
      main='Identifying Gaussian-shaped Hutchinsonian Niches',
      xlab='Environmental Variable')
-lines(sort(X),predict(PF.Gaus$glms[[1]])[order(X)],lwd=4,col='green')
+lines(sort(X),predict(PF.Gaus$models[[1]])[order(X)],lwd=4,col='green')
 legend(-2.5,-3,legend=c('Observed','Predicted'),
          pch=c(1,NA),col=c('black','green'),lty=c(NA,1),lwd=c(NA,2))
 
@@ -321,7 +321,7 @@ legend(-2.5,-3,legend=c('Observed','Predicted'),
 grp <- PF.Gaus$groups[[1]]
 r <- length(grp[[1]])
 s <- length(grp[[2]])
-coefs <- PF.Gaus$glms[[1]]$coefficients
+coefs <- PF.Gaus$models[[1]]$coefficients
 a <- coefs['I(X^2)']
 b <- coefs['X']
 c <- coefs['(Intercept)']

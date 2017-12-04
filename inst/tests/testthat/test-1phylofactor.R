@@ -22,13 +22,13 @@ Bins <- bins(G=sigClades,set=1:20)[c(3,2,1)]
 
 
 ### PhyloFactor ###
-PF <- PhyloFactor(Data,tree,X,nfactors=2)
+invisible(capture.output(PF <- PhyloFactor(Data,tree,X,nfactors=2)))
 PF$bins
 nms <- names(PF$bins)
 names(PF$bins) <- NULL
 test_that('PhyloFactor bins are not correct', expect_true( all.equal(unlist(PF$bins),unlist(Bins))))
 names(PF$bins) <- nms
-PF.par <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
+invisible(capture.output(PF.par <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)))
 
 test_that('Parellelization works, but Serial and Parellel PhyloFactorizations are not equal',expect_true(all.equal(PF,PF.par)))
 
@@ -39,26 +39,26 @@ test_that('pf.summary incorrectly correctly summarizes split taxa',
 
 
 options(warn=-1)
-PF.stop <- PhyloFactor(Data,tree,X,stop.early = T,KS.Pthreshold = 0.05)
+invisible(capture.output(PF.stop <- PhyloFactor(Data,tree,X,stop.early = T,KS.Pthreshold = 0.05)))
 PF.stop$terminated <- FALSE
 options(warn=0)
 
 test_that('Default stop function works',expect_true(all.equal(PF.stop,PF)))
 options(warn=-1)
-PF.stop <- PhyloFactor(Data,tree,X,stop.early=F,KS.Pthreshold=0.05)
+invisible(capture.output(PF.stop <- PhyloFactor(Data,tree,X,stop.early=F,KS.Pthreshold=0.05)))
 options(warn=0)
 
 test_that('Stop Late works',expect_true(PF.stop$nfactors==3))
 
 ###### non-default methods: method=='max.var'
-pf.var <- PhyloFactor(Data,tree,method='max.var')
+invisible(capture.output(suppressWarnings(pf.var <- PhyloFactor(Data,tree,method='max.var'))))
 test_that('method="max.var" works',expect_true(pf.var$nfactors==19))
-pf.var <- PhyloFactor(Data,tree,method='max.var',ncores=2,nfactors=2)
+invisible(capture.output(pf.var <- PhyloFactor(Data,tree,method='max.var',ncores=2,nfactors=2)))
 test_that('method="max.var" works in parallel',expect_true(pf.var$nfactors==2))
 
 ###### method='gam'
 X <- data.frame('a'=rnorm(10))
-pf.gam <- PhyloFactor(Data,tree,X=X,method='gam',frmla=Data~s(a),nfactors=2,sp=1)
+invisible(capture.output(pf.gam <- suppressWarnings(PhyloFactor(Data,tree,X=X,method='gam',frmla=Data~s(a),nfactors=2,sp=1))))
 test_that('method="gam" works',expect_true(pf.gam$nfactors==2))
-pf.gam <- PhyloFactor(Data,tree,X=X,method='gam',frmla=Data~s(a),nfactors=2,ncores=2,sp=1)
+invisible(capture.output(pf.gam <- suppressWarnings(PhyloFactor(Data,tree,X=X,method='gam',frmla=Data~s(a),nfactors=2,ncores=2,sp=1))))
 test_that('method="gam" works in parallel',expect_true(pf.gam$nfactors==2))

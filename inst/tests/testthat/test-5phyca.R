@@ -23,8 +23,13 @@ Bins <- bins(G=sigClades,set=1:20)[c(3,2,1)]
 
 
 ############### PhyCA Testing #############
-phca <- PhyCA(Data,tree,ncomponents=2)
-phca.par <- PhyCA(Data,tree,ncomponents = 2,ncores=2)
+invisible(capture.output(phca <- PhyCA(Data,tree,ncomponents=2)))
+test_that('PhyCA captures correct bins',
+          expect_true(all(all.equal(phca$bins[[3]],sigClades[[1]]),all.equal(phca$bins[[2]],sigClades[[2]]))))
+invisible(capture.output(suppressWarnings(phca <- PhyCA(Data[sample(nrow(Data)),],tree,ncomponents=2))))
+test_that('PhyCA works with scrambled data',
+          expect_true(all(all.equal(phca$bins[[3]],sigClades[[1]]),all.equal(phca$bins[[2]],sigClades[[2]]))))
+invisible(capture.output(phca.par <- PhyCA(Data,tree,ncomponents = 2,ncores=2)))
 
 test_that('PhyCA serial & parellel work and are equal',expect_true(all.equal(phca,phca.par)))
 

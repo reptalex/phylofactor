@@ -21,8 +21,8 @@ Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*14
 Bins <- bins(G=sigClades,set=1:20)[c(3,2,1)]
 X[3] <- X[6]
 X[6] <- X[4]
-PF <- PhyloFactor(Data,tree,X,frmla=X~Data,family=binomial(link='logit'),nfactors=1,choice='F')
-PF <- PhyloFactor(Data,tree,X,frmla=X~Data,family=binomial(link='logit'),nfactors=1,choice='var')
+invisible(capture.output(PF <- PhyloFactor(Data,tree,X,frmla=X~Data,family=binomial(link='logit'),nfactors=1,choice='F')))
+invisible(capture.output(PF <- PhyloFactor(Data,tree,X,frmla=X~Data,family=binomial(link='logit'),nfactors=1,choice='var')))
 test_that('Prediction X~Data failed',expect_true(TRUE))
 
 s <- pf.summary(PF,Taxonomy,1)
@@ -37,6 +37,6 @@ a <- rnorm(length(X))
 A <- data.frame('a'=a,'Sample_Site'=X)
 rm('PF')
 
-PF <- PhyloFactor(Data,tree,X=A,frmla=Sample_Site~a+Data,family=binomial(link='logit'),nfactors=1,choice='var')
+invisible(capture.output(PF <- PhyloFactor(Data,tree,X=A,frmla=Sample_Site~a+Data,family=binomial(link='logit'),nfactors=1,choice='var')))
 
 test_that('X~Data+a multiple regression works',expect_true(exists('PF')))

@@ -1,9 +1,13 @@
 *.Rproj
 .Rproj.user
 .Rhistory
-.RData
+.Rdata
 *.so
 *.o
+PF_Mult_Hot_Springs
+..Rcheck
+.gitignore
 src/phylofactor.dll
-Phylofactor_Benchmark_Times_2
 src-i386/phylofactor.dll
+.R*
+demo_workspace

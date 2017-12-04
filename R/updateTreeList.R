@@ -29,7 +29,7 @@
 #' plot.phylo(treeList[[2]],main='Second Bin Tree',cex=2)
 
 updateTreeList <- function(treeList,binList,grp,tree,skip.check=F){
-  ix <- whichBinSplit(grp,binList)
+  ix <- phylofactor:::whichBinSplit(grp,binList)
   tips=sum(grepl('tip',names(grp))) ## How many tips are there? They will be removed from BinList and recalculated later.
   tr <- treeList[[ix]]  #this is the sub-tree being split
   leaves <- tr$tip.label

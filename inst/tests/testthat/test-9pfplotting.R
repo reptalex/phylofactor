@@ -1,5 +1,5 @@
 context('Testing phylofactor plotting tools')
-
+options(warn=-1)
 set.seed(2)
 data("FTmicrobiome",package = 'phylofactor')
 tree <- FTmicrobiome$tree
@@ -20,17 +20,14 @@ Data[sigClades[[1]],X==0] <- Data[sigClades[[1]],X==0]*9
 Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*14
 Bins <- bins(G=sigClades,set=1:20)[c(3,2,1)]
 
-pf <- PhyloFactor(Data,tree,X,nfactors=3)
+invisible(capture.output(pf <- PhyloFactor(Data,tree,X,nfactors=3)))
 
 test_that('pf.plot does not error',
           expect_error(pf.plot(pf),NA))
-test_that('pf.ordination does not error',
-          expect_error(pf.ordination(pf),NA))
-test_that('pf.ordination dimension=3 does not error',
-          expect_error(pf.ordination(pf,dimension = 3),NA))
 test_that('binPhyloPlot dimension=3 does not error',
           expect_error(binPhyloPlot(pf,factor = 3),NA))
 test_that('pf.tree does not error',
           expect_error(pf.tree(pf),NA))
 test_that('ColorTaxa works',
           expect_error(ColorTaxa(tree,Taxonomy,legend = T,outputlegend = T),NA))
+options(warn=0)
