@@ -9,4 +9,5 @@ PF_Mult_Hot_Springs
 .gitignore
 src/phylofactor.dll
 src-i386/phylofactor.dll
-
+.R*
+demo_workspace

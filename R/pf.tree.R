@@ -70,7 +70,7 @@ pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,Gro
     alphas <- rep(1,max((pf$nfactors+1),length(GroupList)))
   }
   
-  n=Ntip(pf$tree)
+  n=ape::Ntip(pf$tree)
   
   if (is.null(names)){names <- sapply(1:m,FUN=function(s) paste('Clade',s))}
   nd <- numeric(m)
