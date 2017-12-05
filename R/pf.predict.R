@@ -36,7 +36,7 @@ pf.predict <- function(PF,factors=NULL,...){
   #additional arguments '...' are for function predict()
 
   if (is.null(factors)){factors=1:(PF$nfactors)}
-  if (pf$method!='gpf'){
+  if (PF$method!='gpf'){
     if (max(factors)>1 && length(factors)==1){factors=1:factors}
   
       coefs <- NULL
