@@ -9,7 +9,7 @@ mAggregation(DF, grp, tree, X, binom.size, expfamily)
 \arguments{
 \item{DF}{data table containing "Species", "sample", and "N" (N= counts of species in sample)}
 
-\item{grp}{see output of \code{\link{getGroups}}}
+\item{grp}{see output of \code{\link{getPhyloGroups}}}
 
 \item{tree}{phylo object}
 

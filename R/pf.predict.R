@@ -36,23 +36,46 @@ pf.predict <- function(PF,factors=NULL,...){
   #additional arguments '...' are for function predict()
 
   if (is.null(factors)){factors=1:(PF$nfactors)}
-
-  if (max(factors)>1 && length(factors)==1){factors=1:factors}
-
-    coefs <- NULL
-    d=1
-    for (nn in factors){
-      pp <- predict(PF$models[[nn]],...)
-      coefs <- matrix(c(coefs,pp),ncol=d,byrow=F)
-      d=d+1
+  if (pf$method!='gpf'){
+    if (max(factors)>1 && length(factors)==1){factors=1:factors}
+  
+      coefs <- NULL
+      d=1
+      for (nn in factors){
+        pp <- predict(PF$models[[nn]],...)
+        coefs <- matrix(c(coefs,pp),ncol=d,byrow=F)
+        d=d+1
+      }
+      
+      Dat <- ilrInv(coefs,PF$basis[,factors,drop=F])
+      
+      rownames(Dat) <- rownames(PF$Data)
+  } else {
+    m=nrow(PF$Data)
+    n=ncol(PF$Data)
+    frmla <- PF$models[[1]]$formula
+    family <- PF$models[[1]]$family
+    if (family$family!='binomial'){
+      Dat <- data.table('Data'=c(PF$Data),
+                       'Sample'=rep(colnames(PF$Data),each=m),
+                       'phylo'=rep(phylobin(PF$bins),times=n),
+                                   key='Sample')[PF$X] %>%
+                PF$model.fcn(frmla,family=family,data=.) %>%
+                predict %>%
+                matrix(nrow=m,ncol=n,byrow=F)
+    } else {
+      Dat <- data.table('Successes'=c(PF$Data),
+                        'Failures'=PF$binom.size-c(PF$Data),
+                        'Sample'=rep(colnames(PF$Data),each=m),
+                        'phylo'=rep(phylobin(PF$bins),times=n),
+                        key='Sample')[PF$X] %>%
+        PF$model.fcn(frmla,family=family,data=.) %>%
+        predict %>%
+        matrix(nrow=m,ncol=n,byrow=F)
     }
-    
-    Dat <- ilrInv(coefs,PF$basis[,factors,drop=F])
-    
+    colnames(Dat) <- colnames(PF$Data)
     rownames(Dat) <- rownames(PF$Data)
-#     if (!is.null(newdata)){
-#       colnames(Dat) <- colnames(PF$Data)
-#     }
-
+                     
+  }
   return(Dat)
 }

@@ -11,14 +11,11 @@ Now, you're ready to download the \code{phylofactor} packsage using \code{devtoo
 
 ```{r install}
 devtools::install_github('reptalex/phylofactor')
+```
+The help functions in this package contain a decent amount of detail for how to perform phylofactorization.
+
+```{r PhyloFactor}
 ? PhyloFactor
 ```
 
-For detailed information, a tutorial is available online [here](http://media.wix.com/ugd/0119a1_951b32eb0abe4f228f0d6fd4ae11a0e8.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to post issues and contact me!
-
-```{r plot}
-library(phylofactor)
-data('FTmicrobiome')
-pf <- FTmicrobiome$PF
-pf.tree(pf,factors=1:3)
-```
+For more detailed information, a tutorial is available online [here](http://media.wix.com/ugd/0119a1_951b32eb0abe4f228f0d6fd4ae11a0e8.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to post issues and contact me!

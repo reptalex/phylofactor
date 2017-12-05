@@ -24,7 +24,7 @@ internal Phylofactor function - splits the tree corresponding to the split bin
 library(ape)
 set.seed(6)
 tree <- rtree(10)
-Groups <- getGroups(tree)
+Groups <- getPhyloGroups(tree)
 treeList <- list(tree)
 binList <- list(1:10)
 factor <- 2

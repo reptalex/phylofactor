@@ -2,9 +2,9 @@
 #' 
 #' @export
 #' @param PF phylofactor class object from \code{\link{PhyloFactor}}
-#' @param factor factor level of interest, must be greater than 1. For factor=1, use \code{\link{getGroups}}. A list of paired groups considered at that level will be returned.
-#' @return output similar to \code{\link{getGroups}}
-pf.getGroups <- function(PF,factor){
+#' @param factor factor level of interest, must be greater than 1. For factor=1, use \code{\link{getPhyloGroups}}. A list of paired groups considered at that level will be returned.
+#' @return output similar to \code{\link{getPhyloGroups}}
+pf.getPhyloGroups <- function(PF,factor){
   Grps <- phylofactor::getGroups(tree)
   PFgrps <- PF$groups[1:(factor-1)]
   tree <- PF$tree

@@ -9,11 +9,11 @@
 #' tr$tip.label <- 1:8
 #' par(mfrow=c(1,1))
 #' plot.phylo(tr,use.edge.length=FALSE);edgelabels()
-#' Grps <- getGroups(tr)
+#' Grps <- getPhyloGroups(tr)
 
-######################### getGroups ######################################
+######################### getPhyloGroups ######################################
 
-getGroups <- function(tree) {
+getPhyloGroups <- function(tree) {
   .fillInRes <- function(i) {
     res <- vector('list', length=2)
     res[[1]] <- which(edge.tips[i, ] == 1)

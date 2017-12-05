@@ -6,7 +6,7 @@
 #' @return List of groups for amalgamation. For example, see \code{updateBinList}
 getNewGroups <- function(tree,treeList,binList){
 
-  g = lapply(treeList,FUN=getGroups)
+  g = lapply(treeList,FUN=getPhyloGroups)
 
   #Now we need to write g - which has indexes corresponding to its treeList tip-labels - to have indexes corresponding to the global tree tiplabels
   # For every tree in treeList, there is a "tmap" mapping the tip-numbers in g to the tip-numbers in our global tree.

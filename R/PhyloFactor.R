@@ -428,7 +428,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   grpsizes=NULL
   tree_map=NULL
   if (is.null(ncores)){
-    Grps <- phylofactor::getGroups(tree)
+    Grps <- phylofactor::getPhyloGroups(tree)
     cl=NULL
   } else {
     

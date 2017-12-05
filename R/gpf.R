@@ -10,6 +10,83 @@
 #' @param expfamily Either "gaussian" or "binomial" - determines the aggregation method.
 #' @param model.fcn Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.
 #' @param PartitioningVariables Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.
+#' @examples 
+#' library(phylofactor)
+#' 
+#' set.seed(1)
+#' m <- 50
+#' n <- 200
+#' tree <- rtree(m)
+#' X <- data.table('y'=rnorm(n),
+#'                 'z'=rnorm(n,sd=0.5),
+#'                 'Sample'=sapply(1:n,FUN=function(s) paste('Sample',s)),
+#'                 key='Sample')
+#' #we'll partition by 'y'.
+#' binom.size=3
+#' clade <- phangorn::Descendants(tree,75,'tips')[[1]]
+#' clade2 <- phangorn::Descendants(tree,53,'tips')[[1]]
+#' 
+#' ######## presence/absence dataset with affected clade #######
+#' ## most species have higher P{present} with y
+#' ilogit <- function(eta) 1/(1+exp(-eta))
+#' eta <- X$z+X$y
+#' p <- ilogit(eta)
+#' M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=T)
+#' rownames(M) <- tree$tip.label
+#' colnames(M) <- X$Sample
+#' 
+#' #### the first clade decreases with y ####
+#' eta1 <- X$z-X$y
+#' p1 <- ilogit(eta1)
+#' for (species in clade){
+#'    M[species,] <- rbinom(n,binom.size,p1)
+#' }
+#' #### the second clade weakly decreases with y ####
+#' eta2 <- X$z-.3*X$y
+#' p2 <- ilogit(eta2)
+#' for (species in clade2){
+#'    M[species,] <- rbinom(n,binom.size,p2)
+#' }
+#' 
+#' ####################### to partition on y, must have phylo* #########
+#' pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,binom.size=binom.size,family=binomial(link='logit'))
+#' all.equal(pf$groups[[1]][[1]],clade)
+#' 
+#' pf.tree(pf)
+#' par(mfrow=c(2,1))
+#' phytools::phylo.heatmap(tree,M[,order(X$y)])
+#' phytools::phylo.heatmap(tree,ilogit(pf.predict(pf)[,order(X$y)]))
+#' 
+#' ################# Poisson Regression
+#' eta <- .3*X$z
+#' lambda <- exp(eta)
+#' M <- matrix(rpois(m*n,rep(lambda,times=m)),nrow=m,ncol=n,byrow=T)
+#' rownames(M) <- tree$tip.label
+#' colnames(M) <- X$Sample
+#' 
+#' #### the first clade decreases with y ####
+#' eta1 <- .3*X$z-X$y
+#' lambda1 <- exp(eta1)
+#' for (species in clade){
+#'    M[species,] <- rpois(n,lambda1)
+#' }
+#' #### the second clade strongly increases with y ####
+#' eta2 <- .3*X$z-0.3*X$y
+#' lambda2 <- exp(eta2)
+#' for (species in clade2){
+#'    M[species,] <- rpois(n,lambda2)
+#' }
+#' 
+#' 
+#' 
+#' ##For non-binomial, use "Data" as response variable #########
+#' pf <- gpf(M,tree,X,frmla=Data~z+phylo*y,nfactors=2,family=poisson)
+#' list(clade,clade2)
+#' pf$bins
+#' 
+#' par(mfrow=c(2,1))
+#' phytools::phylo.heatmap(tree,M[,order(X$y)])
+#' phytools::phylo.heatmap(tree,exp(pf.predict(pf)[,order(X$y)]))
 gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',...){
   
   output <- NULL
@@ -18,6 +95,7 @@ gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfami
   output$X <- X
   output$model.fcn <- model.fcn
   output$additional.arguments <- list(...)
+  output$binom.size=binom.size
   
   ############## Checking Data and X compatibility ####################
   if (!'data.table'%in%class(X)){
@@ -82,7 +160,7 @@ gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfami
   
   treeList <- list(tree)
   binList <- list(1:ape::Ntip(tree))
-  Grps=getGroups(tree)
+  Grps=getPhyloGroups(tree)
   pfs=0
   tm <- Sys.time()
   while (pfs<nfactors){

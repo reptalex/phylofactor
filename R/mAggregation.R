@@ -1,7 +1,7 @@
 #' marginally stable aggregation of binomial data
 #' 
 #' @export
-#' @param grp see output of \code{\link{getGroups}}
+#' @param grp see output of \code{\link{getPhyloGroups}}
 #' @param tree phylo object
 #' @param DF data table containing "Species", "sample", and "N" (N= counts of species in sample)
 #' @param X meta-data table containing "sample" and variables found in formula
