@@ -1,9 +1,15 @@
-bibentry(
-     bibtype = "article",
-     title = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
-     author = as.person("Alex D. Washburne [aut], Justin D. Silverman [aut], Jonathan W. Leff [aut], Dominic J Bennett [aut], John L. Darcy [aut], Sayan Mukherjee [aut], Noah Fierer [aut], Lawrence A. David [aut]"),
-     journal = "PeerJ",
-     year = "2017",
-     volume = "5:e2969",
-     url = "https://doi.org/10.7717/peerj.2969"
-   )
+bibentry(bibtype = "article",
+         title = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
+         author = c(person("Washburne", "Alex D."),
+                    person("Silverman", "Justin D."),
+                    person("Leff", "Jonathan W."),
+                    person("Bennett", "Dominic J."),
+                    person("Darcy", "John L."),
+		    person("Mukherjee", "Sayan"),
+		    person("Fierer", "Noah"),
+                    person("David", "Lawrence A."))
+         journal = "PeerJ",
+         year = "2017",
+         volume = "5:e2969",
+         url = "https://doi.org/10.7717/peerj.2969"
+)
