@@ -179,7 +179,7 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
   
   V <- NULL
   for (i in 1:length(output$groups)){
-    V <- cbind(V,ilrvec(output$groups[[i]],Ntip(tree)))
+    V <- cbind(V,ilrvec(output$groups[[i]],ape::Ntip(tree)))
   }
   
   output$basis <- V
