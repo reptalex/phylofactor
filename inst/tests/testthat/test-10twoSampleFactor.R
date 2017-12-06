@@ -12,7 +12,7 @@ Z[sigClades[[1]]] <- 1
 Z[sigClades[[2]]] <- 1
 
 test_that('twoSampleFactor with method="Fisher" works',
-          expect_error(invisible(capture.output(pf <- twoSampleFactor(Z,tree,2,method='Fisher')))))
+          expect_error(invisible(capture.output(pf <- twoSampleFactor(Z,tree,2,method='Fisher'))),NA))
 
 invisible(capture.output(pf <- twoSampleFactor(Z,tree,2,method='Fisher')))
 
