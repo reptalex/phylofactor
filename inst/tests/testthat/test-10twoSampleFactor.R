@@ -21,7 +21,7 @@ test_that('twoSampleFactor with method="Fisher" captures correct clades',
 
 set.seed(1)
 D <- 300
-tree <- rtree(D)
+tree <- ape::rtree(D)
 n1 <- 477
 n2 <- 332
 c1 <- phangorn::Descendants(tree,n1,'tips')[[1]]
