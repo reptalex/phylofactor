@@ -30,4 +30,10 @@ test_that('setting seed in pf.nullsim works',
           expect_error(invisible(capture.output(pf.nullsim(PF,reps=2,seed=1))),NA))
 
 test_that('pf.nullsim method="Shuffle" works',
-          expect_error(invisible(capture.output(pf.nullsim(PF,reps=1,seed=1,method='Shuffle'))),NA))
+          expect_error(invisible(capture.output(pf.nullsim(PF,reps=1,seed=1,nullsimFcn='shuffle'))),NA))
+
+Z <- rbinom(20,1,.5)
+pf <- twoSampleFactor(Z,tree,2)
+
+test_that('pf.nullsim works for twoSample phylofactor objects',
+          expect_error(invisible(capture.output(pf.nullsim(pf,reps=1))),NA))
