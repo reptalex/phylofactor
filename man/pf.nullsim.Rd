@@ -4,7 +4,7 @@
 \alias{pf.nullsim}
 \title{Null Simulation of phylofactor object}
 \usage{
-pf.nullsim(PF, reps, nfactors = NULL, seed = NULL, method = "Gaussian",
+pf.nullsim(PF, reps, nfactors = NULL, seed = NULL, nullsimFcn = NULL,
   output = "ExpVar", col.shuffle = T, row.shuffle = T, ...)
 }
 \arguments{
@@ -12,13 +12,21 @@ pf.nullsim(PF, reps, nfactors = NULL, seed = NULL, method = "Gaussian",
 
 \item{reps}{number of replicate null simulations}
 
+\item{nfactors}{number of factors to run for null simulation}
+
 \item{seed}{optional seed for \code{\link{set.seed}}}
 
-\item{method}{string, either "Gaussian" or "Shuffle". If "Gaussian", simulations will be standard log-normal datasets. Otherwise, simulations will be original data with reshuffled rows and columns}
+\item{nullsimFcn}{Either NULL, the string "shuffle", or a function taking class "phylofactor" object and producing null dataset. Default for \code{twoSampleFactor} output is to resample data with replacement. If "shuffle" will shuffle rows and columns of PF$Data. Default otherwise is to simulate standard Gaussian null data.}
 
 \item{output}{output to return from each simulation. Must be in \code{names(PF)} or \code{c('ExpVar','F','All')}. If 'All', will output phylofactor object from each sim (may be memory intensive)}
 
-\item{...}{optional arguments to \code{\link{PhyloFactor}}}
+\item{col.shuffle}{Logical. Whether or not to shuffle the columns of data. Only used if \code{nullsimFcn=='shuffle'}}
+
+\item{row.shuffle}{Logical. Whether or not to shuffle the rows of data. Only used if \code{nullsimFcn=='shuffle'}}
+
+\item{...}{optional arguments to \code{\link{PhyloFactor}} or \code{\link{twoSampleFactor}}}
+
+\item{method}{string, either "Gaussian" or "Shuffle". If "Gaussian", simulations will be standard log-normal datasets. Otherwise, simulations will be original data with reshuffled rows and columns}
 }
 \description{
 Null Simulation of phylofactor object

@@ -135,7 +135,8 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
     }
     
     if (!Metropolis){
-      best.grp <- Grps[[which.max(omegas)]]
+      ix <- which.max(omegas)
+      best.grp <- Grps[[ix]]
       P <- TestFunction(best.grp,Z=Z,p.value=T,...)
     } else {
       ix <- sampleFcn(omegas,lambda)
@@ -144,6 +145,7 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
     }
     
     output$pvals <- c(output$pvals,P)
+    output$objective <- c(output$objective,omegas[ix])
     grp <- getLabelledGrp(tree=tree,Groups=best.grp)
     output$groups <- c(output$groups,list(best.grp))
     
@@ -187,6 +189,7 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
   output$Data <- matrix(Z,ncol=1)
   output$model.fcn <- TestFunction
   output$method <- 'twoSample'
+  output$choice <- method
   names(output$Data) <- tree$tip.label
   class(output) <- 'phylofactor'
   

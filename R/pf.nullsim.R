@@ -3,10 +3,14 @@
 #' @export
 #' @param PF class phylofactor object from \code{\link{PhyloFactor}}
 #' @param reps number of replicate null simulations
+#' @param nfactors number of factors to run for null simulation
+#' @param nullsimFcn Either NULL, the string "shuffle", or a function taking class "phylofactor" object and producing null dataset. Default for \code{twoSampleFactor} output is to resample data with replacement. If "shuffle" will shuffle rows and columns of PF$Data. Default otherwise is to simulate standard Gaussian null data.
 #' @param seed optional seed for \code{\link{set.seed}}
 #' @param method string, either "Gaussian" or "Shuffle". If "Gaussian", simulations will be standard log-normal datasets. Otherwise, simulations will be original data with reshuffled rows and columns
 #' @param output output to return from each simulation. Must be in \code{names(PF)} or \code{c('ExpVar','F','All')}. If 'All', will output phylofactor object from each sim (may be memory intensive)
-#' @param ... optional arguments to \code{\link{PhyloFactor}}
+#' @param col.shuffle Logical. Whether or not to shuffle the columns of data. Only used if \code{nullsimFcn=='shuffle'}
+#' @param row.shuffle Logical. Whether or not to shuffle the rows of data. Only used if \code{nullsimFcn=='shuffle'}
+#' @param ... optional arguments to \code{\link{PhyloFactor}} or \code{\link{twoSampleFactor}}
 #' @examples 
 #' library(ape)
 #' library(phylofactor)
@@ -27,15 +31,21 @@
 #' for (nn in 1:10){lines(nullsim[[nn]],col='grey')}
 #' legend('center',c('Original Data','Null Data'),col=c('black','gray'),lty=c(1,1))
 
-pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,method='Gaussian',output='ExpVar',col.shuffle=T,row.shuffle=T,...){
-  if (! method %in% c('Gaussian','Shuffle')){
-    stop('input "method" must be either "Gaussian" or "Shuffle"')
-  }
+pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='ExpVar',col.shuffle=T,row.shuffle=T,...){
   
-  permissible.outputs <- c(names(PF),c('ExpVar','F','All'))
+  permissible.outputs <- c(names(PF),c('ExpVar','F','pvals','objective','All'))
   if (! output %in% permissible.outputs){
     stop("'output' must be in c(names(PF),c('ExpVar','F','All'))")
   }
+  
+  if (PF$method=='twoSample' & !output %in% c('ExpVar','pvals','objective')){
+    stop('output for twoSample phylofactorizations must be either pvals or objective')
+  } else {
+    if (output=='ExpVar'){
+      output <- 'objective'
+    }
+  }
+  
   if (is.null(nfactors)){
     nf=PF$nfactors
   } else {
@@ -59,25 +69,38 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,method='Gaussian',output=
   n <- ncol(Data)
   
   for (rr in 1:reps){
-    if (method=='Gaussian'){
-      Data <- rlnorm(m*n) %>% matrix(.,nrow=m)
-    } else {
-      if (col.shuffle){
-        if (row.shuffle){
-          Data <- PF$Data[sample(1:m),sample(1:n)]
+    if (PF$method!='twoSample'){
+      if (is.null(nullsimFcn)){
+        Data <- rlnorm(m*n) %>% matrix(.,nrow=m)
+      } else if (nullsimFcn=='shuffle'){
+        if (col.shuffle){
+          if (row.shuffle){
+            Data <- PF$Data[sample(1:m),sample(1:n)]
+          } else {
+            Data <- PF$Data[,sample(1:n)]
+          }
         } else {
-          Data <- PF$Data[,sample(1:n)]
+          if (row.shuffle){
+            Data <- PF$Data[sample(1:m),]
+          }
         }
       } else {
-        if (row.shuffle){
-          Data <- PF$Data[sample(1:m),]
-        }
+        Data <- nullsimFcn(PF)
       }
+      rownames(Data) <- tree$tip.label
+      
+      
+      pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
+    } else {
+      if (is.null(nullsimFcn)){
+        Data <- sample(PF$Data,replace=T)
+        names(Data) <- tree$tip.label
+      } else {
+        Data <- nullsimFcn(PF)
+      }
+      
+      pf <- twoSampleFactor(Data,tree,nf,method = PF$choice)
     }
-    rownames(Data) <- tree$tip.label
-    
-    
-    pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
       
     if (! output == 'All'){
       if (ytype=='stat'){
