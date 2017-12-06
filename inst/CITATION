@@ -1,0 +1,32 @@
+citHeader("To cite phylofactor in publications, please use:")
+
+citEntry(entry = "article",
+         
+         title = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
+         
+         author = personList(person("Washburne", "Alex D."),
+                             person("Silverman", "Justin D."),
+                             person("Leff", "Jonathan W."),
+                             person("Bennett", "Dominic J."),
+                             person("Darcy", "John L."),
+                             person("Mukherjee", "Sayan"),
+                             person("Fierer", "Noah"),
+                             person("David", "Lawrence A.")),
+         
+         journal = "PeerJ",
+         
+         year = "2017",
+         
+         volume = "5:e2969",
+         
+         url = "https://doi.org/10.7717/peerj.2969",
+         
+         textVersion  = paste("Washburne AD, Silverman JD, Leff JW, Bennett DJ, Darcy JL, Mukherjee S, Fierer N, and David LA (2017)",
+                              
+                              "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
+                              
+                              "PeerJ. 5:e2969",
+                              
+                              "https://doi.org/10.7717/peerj.2969"),
+                              
+         )
