@@ -128,11 +128,10 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
     } else {
       GUI.notification <- paste('\r',rr,'null simulations completed in',time.elapsed,'minutes.    ')
     }
-    if (!is.null(nfactors)){
-      GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
+    
+    GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
                                 as.character(tm+difftime(tm2,tm)*reps/rr),
                                 '  \r')
-    }
     cat(GUI.notification)
     flush.console()
     
