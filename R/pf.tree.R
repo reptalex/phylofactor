@@ -112,7 +112,7 @@ pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,Gro
     }
   }
   
-  gg <- gg+ggtree::geom_tree()
+  gg <- gg+ggtree::geom_tree(...)
   
   if (top.layer){
     i=0

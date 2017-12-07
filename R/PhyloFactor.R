@@ -25,8 +25,7 @@
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
 #' set.seed(2)
-#' #library(phylofactor)
-#' library(ape)
+#' library(phylofactor)
 #' library(phangorn)
 #' library(phytools)
 #' library(mgcv)
@@ -60,7 +59,7 @@
 #' Bins <- bins(G=sigClades,set=1:20)
 #' phylo.heatmap(tree,Data)
 #' 
-#' ### PhylOFactor ###
+#' ### PhyloFactor ###
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
 #' PF$bins
 #' all(PF$bins %in% Bins)
