@@ -64,8 +64,7 @@ Regression-based phylofactorization
 }
 \examples{
 set.seed(2)
-#library(phylofactor)
-library(ape)
+library(phylofactor)
 library(phangorn)
 library(phytools)
 library(mgcv)
@@ -99,7 +98,7 @@ Data <- t(clo(t(Data)))
 Bins <- bins(G=sigClades,set=1:20)
 phylo.heatmap(tree,Data)
 
-### PhylOFactor ###
+### PhyloFactor ###
 PF <- PhyloFactor(Data,tree,X,nfactors=2)
 PF$bins
 all(PF$bins \%in\% Bins)

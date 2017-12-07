@@ -2,7 +2,7 @@ citHeader("To cite phylofactor in publications, please use:")
 
 citEntry(entry = "article",
          
-         title = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data",
+         title = "Phylogenetic factorization of compositional data yields lineage-level associations in microbiome data.",
          
          author = personList(person("Washburne", "Alex D."),
                              person("Silverman", "Justin D."),

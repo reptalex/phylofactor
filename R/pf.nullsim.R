@@ -68,6 +68,7 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
   m <- nrow(Data)
   n <- ncol(Data)
   
+  tm <- Sys.time()
   for (rr in 1:reps){
     if (PF$method!='twoSample'){
       if (is.null(nullsimFcn)){
@@ -89,8 +90,11 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
       }
       rownames(Data) <- tree$tip.label
       
-      
-      pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
+      if (rr==1){
+        pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
+      } else {
+        invisible(capture.output(pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)))
+      }
     } else {
       if (is.null(nullsimFcn)){
         Data <- sample(PF$Data,replace=T)
@@ -99,7 +103,11 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
         Data <- nullsimFcn(PF)
       }
       
-      pf <- twoSampleFactor(Data,tree,nf,method = PF$choice)
+      if (rr==1){
+        pf <- twoSampleFactor(Data,tree,nf,method = PF$choice)
+      } else {
+        invisible(capture.output(pf <- twoSampleFactor(Data,tree,nf,method = PF$choice)))
+      }
     }
       
     if (! output == 'All'){
@@ -111,6 +119,24 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
     } else {
       Y[[rr]] <- pf
     }
+    
+    
+    tm2 <- Sys.time()
+    time.elapsed <- signif(difftime(tm2,tm,units = 'mins'),3)
+    if (rr==1){
+      GUI.notification <- paste('\r',rr,'null simulation completed in',time.elapsed,'minutes.   ')
+    } else {
+      GUI.notification <- paste('\r',rr,'null simulations completed in',time.elapsed,'minutes.    ')
+    }
+    if (!is.null(nfactors)){
+      GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
+                                as.character(tm+difftime(tm2,tm)*reps/rr),
+                                '  \r')
+    }
+    cat(GUI.notification)
+    flush.console()
+    
+    
   }
   
   return(Y)

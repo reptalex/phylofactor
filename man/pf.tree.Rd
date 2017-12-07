@@ -26,7 +26,7 @@ pf.tree(pf, method = "factors", factors = NULL, groups = NULL,
 
 \item{bg.alpha}{background alpha}
 
-\item{alphas}{vector, of length = \code{nrow(factor.map)} or \code{length(GroupList)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade}
+\item{alphas}{vector, of length = \code{nrow(factor.map)} or \code{length(GroupList)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade. Warning: the current output legend gives you the colors layered onto each clade. Layering transparent colors on top of one-another will produce a different color not in the legend..}
 
 \item{layout}{See \code{\link{ggtree}}. Default is "circular"}
 
