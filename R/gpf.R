@@ -1,4 +1,4 @@
-#' Generalized phylofactorization - currently skeleton for binomial glm
+#' Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.
 #' 
 #' @export
 #' @param Data data table containing columns of "Species", 'N' (counts, 0<=N<=3), "Sample". 

@@ -12,9 +12,9 @@ getObjective(grp, tree, Data, X, binom.size, frmla, expfamily = "gaussian",
 
 \item{tree}{phylo class object}
 
-\item{X}{meta-data containing variables in formula}
+\item{Data}{matrix whose rows are species and columns are samples}
 
-\item{DF}{data table containing Species, observations (N), and sample}
+\item{X}{meta-data containing variables in formula}
 }
 \description{
 objective function for \code{\link{gpf}}

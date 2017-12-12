@@ -57,7 +57,11 @@ pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,Gro
     } else {
       m <- length(GroupList)
       method='groups'
-      cols <- color.fcn(m)
+      if (is.null(colors)){
+        cols <- color.fcn(m)
+      } else {
+        cols <- colors
+      }
       factor.map <- data.frame('Groups'=1:m,'colors'=cols)
     }
   }

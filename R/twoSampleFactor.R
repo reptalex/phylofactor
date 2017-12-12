@@ -83,10 +83,11 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
   } else if (method=='Wilcox'){
     TestFunction <- function(grps,Z,p.value=F,...){
       if (!p.value){
-        stats::wilcox.test(Z[grps[[1]]],Z[grps[[2]]])$statistic
+        s <- 1/stats::wilcox.test(na.omit(Z[grps[[1]]]),na.omit(Z[grps[[2]]]))$p.value
       } else {
-        stats::wilcox.test(Z[grps[[1]]],Z[grps[[2]]])$p.value
+        s <- stats::wilcox.test(Z[grps[[1]]],Z[grps[[2]]])$p.value
       }
+      return(s)
     }
   } else if (method=='t.test'){
     TestFunction <- function(grps,Z,p.value=F,...){

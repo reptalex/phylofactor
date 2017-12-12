@@ -2,7 +2,8 @@
 
 #' @export
 #' @param model model, such as glm, lm, nls, gam, which can be put into anova.
-getDeviance <- function(model,PartitioningVariables='',...){
+#' @param PartitioningVariables string - used to find partitioning variables in anova table.
+objectiveFunction <- function(model,PartitioningVariables=''){
   
   # ss <- tryCatch(anova(model,test='Chisq'),
                  # error=function(e) 0)

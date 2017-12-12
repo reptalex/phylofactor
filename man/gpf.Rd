@@ -2,7 +2,7 @@
 % Please edit documentation in R/gpf.R
 \name{gpf}
 \alias{gpf}
-\title{Generalized phylofactorization - currently skeleton for binomial glm}
+\title{Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.}
 \usage{
 gpf(Data, tree, X, frmla, nfactors = NULL, ncores = NULL, binom.size = 1,
   expfamily = "gaussian", model.fcn = stats::glm,
@@ -28,7 +28,7 @@ gpf(Data, tree, X, frmla, nfactors = NULL, ncores = NULL, binom.size = 1,
 \item{PartitioningVariables}{Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.}
 }
 \description{
-Generalized phylofactorization - currently skeleton for binomial glm
+Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.
 }
 \examples{
 library(phylofactor)
