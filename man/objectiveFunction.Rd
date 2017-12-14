@@ -4,10 +4,12 @@
 \alias{objectiveFunction}
 \title{objective function for generalized phylofactorization}
 \usage{
-objectiveFunction(model, PartitioningVariables = "", ...)
+objectiveFunction(model, PartitioningVariables = "")
 }
 \arguments{
 \item{model}{model, such as glm, lm, nls, gam, which can be put into anova.}
+
+\item{PartitioningVariables}{string - used to find partitioning variables in anova table.}
 }
 \description{
 objective function for generalized phylofactorization
