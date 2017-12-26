@@ -5,7 +5,7 @@
 \title{objective function for \code{\link{gpf}}}
 \usage{
 getObjective(grp, tree, Data, X, binom.size, frmla, expfamily = "gaussian",
-  model.fcn = stats::glm, PartitioningVariables = "", ...)
+  model.fcn = stats::glm, PartitioningVariables = "", mStableAgg, ...)
 }
 \arguments{
 \item{grp}{list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}}
@@ -15,6 +15,18 @@ getObjective(grp, tree, Data, X, binom.size, frmla, expfamily = "gaussian",
 \item{Data}{matrix whose rows are species and columns are samples}
 
 \item{X}{meta-data containing variables in formula}
+
+\item{binom.size}{integer; binomial size per element of data matrix for binomial m-stable aggregation.}
+
+\item{frmla}{formula for \code{model.fcn}}
+
+\item{expfamily}{character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.}
+
+\item{model.fcn}{model function, such as \code{\link{glm}} or \code{\link{mgcv::gam}}.}
+
+\item{PartitioningVariables}{character vector containing of interest for phylofactorization partitioning.}
+
+\item{mStableAgg}{logical. See \code{\link{gpf}}}
 }
 \description{
 objective function for \code{\link{gpf}}

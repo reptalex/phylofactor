@@ -5,12 +5,12 @@
 #' @param PartitioningVariables string - used to find partitioning variables in anova table.
 objectiveFunction <- function(model,PartitioningVariables=''){
   
-  # ss <- tryCatch(anova(model,test='Chisq'),
-                 # error=function(e) 0)
   ss <- anova(model)
   if ('anova' %in% class(ss)){
     rn <- rownames(ss)
-    nms <- (grepl('phylo:',rn) | grepl(':phylo',rn)) & sapply(PartitioningVariables,FUN=function(s,rn) grepl(s,rn),rn=rn)
+    nms <- grepl('phylo',rn)
+    rn2 <- gsub('phylo','',rn)
+    nms <- nms & sapply(PartitioningVariables,FUN=function(s,rn2) grepl(s,rn2),rn2=rn2)
     if (!any(nms)){
       stop('could not find objective variables and :phylo or phylo: in rownames of anova(model)')
     }

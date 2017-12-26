@@ -4,9 +4,9 @@
 \alias{gpf}
 \title{Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.}
 \usage{
-gpf(Data, tree, X, frmla, nfactors = NULL, ncores = NULL, binom.size = 1,
-  expfamily = "gaussian", model.fcn = stats::glm,
-  PartitioningVariables = "", ...)
+gpf(Data, tree, X = NULL, frmla, nfactors = NULL, ncores = NULL,
+  binom.size = 1, expfamily = "gaussian", model.fcn = stats::glm,
+  PartitioningVariables = "", mStableAgg = TRUE, ...)
 }
 \arguments{
 \item{Data}{data table containing columns of "Species", 'N' (counts, 0<=N<=3), "Sample".}
@@ -26,6 +26,8 @@ gpf(Data, tree, X, frmla, nfactors = NULL, ncores = NULL, binom.size = 1,
 \item{model.fcn}{Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.}
 
 \item{PartitioningVariables}{Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.}
+
+\item{mStableAgg}{Logical. Whether or not to aggregate data within-group by marginal-stable aggregation.}
 }
 \description{
 Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.
@@ -69,7 +71,9 @@ for (species in clade2){
 }
 
 ####################### to partition on y, must have phylo* #########
-pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,binom.size=binom.size,family=binomial(link='logit'))
+pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
+          binom.size=binom.size,family=binomial(link='logit'),
+          PartitioningVariables='y')
 all.equal(pf$groups[[1]][[1]],clade)
 
 pf.tree(pf)
@@ -78,7 +82,8 @@ phytools::phylo.heatmap(tree,M[,order(X$y)])
 phytools::phylo.heatmap(tree,ilogit(pf.predict(pf)[,order(X$y)]))
 
 ################# Poisson Regression
-eta <- .3*X$z
+set.seed(1)
+eta <- 2*X$z+X$y
 lambda <- exp(eta)
 M <- matrix(rpois(m*n,rep(lambda,times=m)),nrow=m,ncol=n,byrow=T)
 rownames(M) <- tree$tip.label
@@ -91,7 +96,7 @@ for (species in clade){
    M[species,] <- rpois(n,lambda1)
 }
 #### the second clade strongly increases with y ####
-eta2 <- .3*X$z-0.3*X$y
+eta2 <- .3*X$z-X$y
 lambda2 <- exp(eta2)
 for (species in clade2){
    M[species,] <- rpois(n,lambda2)
@@ -100,11 +105,25 @@ for (species in clade2){
 
 
 ##For non-binomial, use "Data" as response variable #########
-pf <- gpf(M,tree,X,frmla=Data~z+phylo*y,nfactors=2,family=poisson)
-list(clade,clade2)
-pf$bins
+pf <- gpf(M,tree,X,frmla=Data~phylo*(z+y),nfactors=2,family=poisson,
+          PartitioningVariables='y')
+pf$factors
+all.equal(pf$groups[[1]][[1]],clade)
+all.equal(pf$groups[[2]][[1]],clade2)
 
 par(mfrow=c(2,1))
 phytools::phylo.heatmap(tree,M[,order(X$y)])
 phytools::phylo.heatmap(tree,exp(pf.predict(pf)[,order(X$y)]))
+
+### partition vector of data controlling for sample effort ###
+set.seed(1)
+effort <- rnorm(50)
+eta <- effort-3
+eta[clade] <- eta[clade]+6
+eta[clade2] <- eta[clade2]+8
+Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
+
+pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2,mStableAgg=F)
+all.equal(pf$groups[[1]][[1]],clade)
+all.equal(pf$groups[[2]][[1]],clade2)
 }

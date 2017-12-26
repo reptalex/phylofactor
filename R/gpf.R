@@ -10,6 +10,7 @@
 #' @param expfamily Either "gaussian" or "binomial" - determines the aggregation method.
 #' @param model.fcn Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.
 #' @param PartitioningVariables Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.
+#' @param mStableAgg Logical. Whether or not to aggregate data within-group by marginal-stable aggregation.
 #' @examples 
 #' library(phylofactor)
 #' 
@@ -49,7 +50,9 @@
 #' }
 #' 
 #' ####################### to partition on y, must have phylo* #########
-#' pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,binom.size=binom.size,family=binomial(link='logit'))
+#' pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
+#'           binom.size=binom.size,family=binomial(link='logit'),
+#'           PartitioningVariables='y')
 #' all.equal(pf$groups[[1]][[1]],clade)
 #' 
 #' pf.tree(pf)
@@ -58,7 +61,8 @@
 #' phytools::phylo.heatmap(tree,ilogit(pf.predict(pf)[,order(X$y)]))
 #' 
 #' ################# Poisson Regression
-#' eta <- .3*X$z
+#' set.seed(1)
+#' eta <- 2*X$z+X$y
 #' lambda <- exp(eta)
 #' M <- matrix(rpois(m*n,rep(lambda,times=m)),nrow=m,ncol=n,byrow=T)
 #' rownames(M) <- tree$tip.label
@@ -71,7 +75,7 @@
 #'    M[species,] <- rpois(n,lambda1)
 #' }
 #' #### the second clade strongly increases with y ####
-#' eta2 <- .3*X$z-0.3*X$y
+#' eta2 <- .3*X$z-X$y
 #' lambda2 <- exp(eta2)
 #' for (species in clade2){
 #'    M[species,] <- rpois(n,lambda2)
@@ -80,14 +84,28 @@
 #' 
 #' 
 #' ##For non-binomial, use "Data" as response variable #########
-#' pf <- gpf(M,tree,X,frmla=Data~z+phylo*y,nfactors=2,family=poisson)
-#' list(clade,clade2)
-#' pf$bins
+#' pf <- gpf(M,tree,X,frmla=Data~phylo*(z+y),nfactors=2,family=poisson,
+#'           PartitioningVariables='y')
+#' pf$factors
+#' all.equal(pf$groups[[1]][[1]],clade)
+#' all.equal(pf$groups[[2]][[1]],clade2)
 #' 
 #' par(mfrow=c(2,1))
 #' phytools::phylo.heatmap(tree,M[,order(X$y)])
 #' phytools::phylo.heatmap(tree,exp(pf.predict(pf)[,order(X$y)]))
-gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',...){
+#' 
+#' ### partition vector of data controlling for sample effort ###
+#' set.seed(1)
+#' effort <- rnorm(50)
+#' eta <- effort-3
+#' eta[clade] <- eta[clade]+6
+#' eta[clade2] <- eta[clade2]+8
+#' Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
+#' 
+#' pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2,mStableAgg=F)
+#' all.equal(pf$groups[[1]][[1]],clade)
+#' all.equal(pf$groups[[2]][[1]],clade2)
+gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',mStableAgg=TRUE,...){
   
   output <- NULL
   output$call <-match.call()
@@ -97,13 +115,21 @@ gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfami
   output$additional.arguments <- list(...)
   output$binom.size=binom.size
   
-  ############## Checking Data and X compatibility ####################
-  if (!'data.table'%in%class(X)){
-    X <- data.table::as.data.table(X)
-    if (!'Sample'%in%names(X)){
-      stop('meta-data X must contain a column named "Sample"')
+  ############## Checking Data and X compatibility ###################
+  if ((!'data.table' %in% class(Data))&('data.frame' %in% class(Data))){
+    Data <- data.table::as.data.table(Data)
+  }
+  if ('matrix' %in% class(Data) & !mStableAgg){
+    stop('if mStableAgg==F, input "Data" must be data frame or data table containing columns: "Species" and "Sample"')
+  }
+  if (!is.null(X)){
+    if (!'data.table'%in%class(X)){
+      X <- data.table::as.data.table(X)
+      if (!'Sample'%in%names(X)){
+        stop('Input meta-data X must contain a column named "Sample"')
+      }
+      setkey(X,Sample)
     }
-    setkey(X,Sample)
   }
   if ('data.table' %in% class(Data)){
     if (!all(c('Species','Sample') %in% names(Data))){
@@ -113,12 +139,18 @@ gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfami
         stop('Species in Data not found in tree')
       }
     }
-    if (!any(X$Sample %in% Data$Sample)){
-      stop('No X$Sample in Data$Sample')
-    } else if (!all(X$Sample %in% Data$Sample)){
-      warning(paste('Only',length(intersect(X$Sample,Data$Sample)),'samples shared in both Data and X'))
+    if (!is.null(X)){  
+      if (!any(X$Sample %in% Data$Sample)){
+        stop('No X$Sample in Data$Sample')
+      } else if (!all(X$Sample %in% Data$Sample)){
+        warning(paste('Only',length(intersect(X$Sample,Data$Sample)),'samples shared in both Data and X'))
+      }
     }
-    Data <- phylo.frame.to.matrix(DF)
+    if (mStableAgg){
+      Data <- phylo.frame.to.matrix(DF)
+    } else {
+      setkey(Data,'Species')
+    }
   }
   if ('matrix' %in% class(Data)){
     if (!all(tree$tip.label==rownames(Data))){
@@ -130,12 +162,27 @@ gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfami
         Data <- Data[tree$tip.label,]
       }
     }
-    if (!any(X$Sample %in% colnames(Data))){
-      stop('No X$Sample in colnames(Data)')
-    } else if (!all(X$Sample %in% colnames(Data))){
-      warning(paste('Only',length(intersect(X$Sample,colnames(Data))),'samples shared in both Data and X'))
+    if (!is.null(X)){
+      if (!any(X$Sample %in% colnames(Data))){
+        stop('No X$Sample in colnames(Data)')
+      } else if (!all(X$Sample %in% colnames(Data))){
+        warning(paste('Only',length(intersect(X$Sample,colnames(Data))),'samples shared in both Data and X'))
+      }
     }
   }
+  
+  ########## checking formula ############
+  frmlacheck <- terms(frmla) %>% attr('term.labels') %>% grepl('phylo',.) %>% any
+    if (!frmlacheck){
+      stop('formula does not contain term "phylo"')
+    } else {
+      tt <- terms(frmla) %>% attr('term.labels') 
+      tt <- gsub('phylo','',tt)
+      if (! all(PartitioningVariables %in% tt)){
+        stop('at lest one of the PartitioningVariables not found in formula.')
+      }
+    }
+  
   
   if ('family' %in% names(list(...))){
     family <- list(...)$family
@@ -172,21 +219,29 @@ gpf <- function(Data,tree,X,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfami
     }
     
     if (is.null(ncores)){
-      obj <- sapply(Grps,getObjective,tree,Data,X,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,...)
-      # obj <- sapply(Grps,getObjective,tree,Data,X,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,family=family)
+      obj <- sapply(Grps,getObjective,tree,Data,X,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg,...)
+      # obj <- sapply(Grps,getObjective,tree,Data,X,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,family=family,mStableAgg)
       
     } else {
-      obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,...) getObjective(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,...),tree=tree,Data=Data,xx=X,binom.size=binom.size,frmla=frmla,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,...)
-      # obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables) getObjective(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables),tree=tree,Data=Data,xx=X,binom.size=binom.size,frmla=frmla,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables)
+      obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg,...) getObjective(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg,...),tree=tree,Data=Data,xx=X,binom.size=binom.size,frmla=frmla,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=mStableAgg,...)
+      # obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg) getObjective(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg),tree=tree,Data=Data,xx=X,binom.size=binom.size,frmla=frmla,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=mStableAgg)
       
     }
     
     winner <- which.max(obj)
     grp <- Grps[[winner]]
     if (pfs==0){
-      output$models <- list(model.fcn(frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...))
+      if (mStableAgg){
+        output$models <- list(model.fcn(frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...))
+      } else {
+        output$models <- list(model.fcn(frmla,data=phyloFrame(Data,grp,tree),...))
+      }
     } else {
-      output$models <- c(output$models,list(model.fcn(frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...)))
+      if (mStableAgg){
+        output$models <- c(output$models,list(model.fcn(frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...)))
+      } else {
+        output$models <- c(output$models,list(model.fcn(frmla,data=phyloFrame(Data,grp,tree),...)))
+      }
     }
     grp <- getLabelledGrp(tree=tree,Groups=Grps[[winner]])
     output$groups <- c(output$groups,list(Grps[[winner]]))
