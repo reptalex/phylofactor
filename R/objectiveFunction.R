@@ -10,7 +10,12 @@ objectiveFunction <- function(model,PartitioningVariables=''){
     rn <- rownames(ss)
     nms <- grepl('phylo',rn)
     rn2 <- gsub('phylo','',rn)
-    nms <- nms & sapply(PartitioningVariables,FUN=function(s,rn2) grepl(s,rn2),rn2=rn2)
+    vs <- sapply(PartitioningVariables,FUN=function(s,rn2) grepl(s,rn2),rn2=rn2)
+    if (length(PartitioningVariables)>1){
+      nms <- nms & apply(vs,1,any)
+    } else {
+      nms <- nms & vs
+    }
     if (!any(nms)){
       stop('could not find objective variables and :phylo or phylo: in rownames of anova(model)')
     }

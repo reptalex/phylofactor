@@ -30,7 +30,7 @@
 
 updateTreeList <- function(treeList,binList,grp,tree,skip.check=F){
   ix <- phylofactor:::whichBinSplit(grp,binList)
-  tips=sum(grepl('tip',names(grp))) ## How many tips are there? They will be removed from BinList and recalculated later.
+  tips=sum(sapply(grp,FUN=function(g) length(g)==1)) ## How many tips are there? They will be removed from BinList and recalculated later.
   tr <- treeList[[ix]]  #this is the sub-tree being split
   leaves <- tr$tip.label
 
@@ -48,7 +48,7 @@ updateTreeList <- function(treeList,binList,grp,tree,skip.check=F){
     treeList[[ix]] <- ape::drop.tip(tr,setdiff(leaves,leaves[grp[[1]]]))
     treeList[[length(treeList)+1]] <- ape::drop.tip(tr,setdiff(leaves,leaves[grp[[2]]]))
   } else if (tips==1){
-    cld <- setdiff(1:2,which(grepl('tip',names(grp))))
+    cld <- which(!sapply(grp,FUN=function(g) length(g)==1))
     #replace the split tree with the clade
     treeList[[ix]] <- ape::drop.tip(tr,setdiff(leaves,leaves[grp[[cld]]]))
   } else {
