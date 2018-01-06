@@ -23,4 +23,7 @@ tree <- rtree(10)
 Data <- data.table('Species'=tree$tip.label,'x'=rnorm(10),key='Species')
 Grps <- getPhyloGroups(tree)
 phylofactor:::phyloFrame(Data,Grps[[1]],tree)
+
+grp <- list(c(1:3),c(5:6))
+phyloFrame(Data,grp,tree)
 }

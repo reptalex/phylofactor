@@ -4,10 +4,14 @@
 \alias{phylobin}
 \title{get bin number for species}
 \usage{
-phylobin(B)
+phylobin(B, pf = NULL, nfactors = NULL)
 }
 \arguments{
 \item{B}{bin list. See \code{bins}}
+
+\item{pf}{phylofactor object - if input, will override input \code{B}}
+
+\item{nfactors}{number of factors to be used - will result in \code{nfactors+1} bins}
 }
 \description{
 get bin number for species

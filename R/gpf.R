@@ -10,7 +10,8 @@
 #' @param expfamily Either "gaussian" or "binomial" - determines the aggregation method.
 #' @param model.fcn Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.
 #' @param PartitioningVariables Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.
-#' @param mStableAgg Logical. Whether or not to aggregate data within-group by marginal-stable aggregation.
+#' @param algorithm Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix; "phylo" will produce \code{phylo} factors, "mStable" will use \code{phylo} factors for aggregated groups, and "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.
+#' @param alpha Numeric between 0 and 1 (strictly greater than 0), indicating the top quantile of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2
 #' @examples 
 #' library(phylofactor)
 #' 
@@ -52,7 +53,7 @@
 #' ####################### to partition on y, must have phylo* #########
 #' pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
 #'           binom.size=binom.size,family=binomial(link='logit'),
-#'           PartitioningVariables='y')
+#'           PartitioningVariables='y',algorithm='mStable')
 #' all.equal(pf$groups[[1]][[1]],clade)
 #' 
 #' pf.tree(pf)
@@ -85,7 +86,7 @@
 #' 
 #' ##For non-binomial, use "Data" as response variable #########
 #' pf <- gpf(M,tree,X,frmla=Data~phylo*(z+y),nfactors=2,family=poisson,
-#'           PartitioningVariables='y')
+#'           PartitioningVariables='y',algorithm='mStable')
 #' pf$factors
 #' all.equal(pf$groups[[1]][[1]],clade)
 #' all.equal(pf$groups[[2]][[1]],clade2)
@@ -102,10 +103,10 @@
 #' eta[clade2] <- eta[clade2]+8
 #' Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
 #' 
-#' pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2,mStableAgg=F)
+#' pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2)
 #' all.equal(pf$groups[[1]][[1]],clade)
 #' all.equal(pf$groups[[2]][[1]],clade2)
-gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',mStableAgg=TRUE,...){
+gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',algorithm='mix',alpha=0.2,...){
   
   output <- NULL
   output$call <-match.call()
@@ -114,13 +115,30 @@ gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,ex
   output$model.fcn <- model.fcn
   output$additional.arguments <- list(...)
   output$binom.size=binom.size
+  output$algorithm <- algorithm
+  
+  ############## Checking algorithm, frmla and model compatibility
+  if (algorithm=='mStable'){
+    mStableAgg=T
+  } else {
+    mStableAgg=F
+  } else if (algorithm=='mix'){
+    if (!(alpha>0 & alpha<=1)){
+      stop('alpha must be between 0 and 1')
+    }
+  }
+  if (algorithm %in% c('CoefContrast','mix')){
+    
+  }
+  
   
   ############## Checking Data and X compatibility ###################
+  
   if ((!'data.table' %in% class(Data))&('data.frame' %in% class(Data))){
     Data <- data.table::as.data.table(Data)
   }
   if ('matrix' %in% class(Data) & !mStableAgg){
-    stop('if mStableAgg==F, input "Data" must be data frame or data table containing columns: "Species" and "Sample"')
+    stop('if algorithm is not "mStable", input "Data" must be data frame or data table containing columns: "Species" and "Sample"')
   }
   if (!is.null(X)){
     if (!'data.table'%in%class(X)){
