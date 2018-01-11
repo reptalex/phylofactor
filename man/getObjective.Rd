@@ -5,7 +5,8 @@
 \title{objective function for \code{\link{gpf}}}
 \usage{
 getObjective(grp, tree, Data, X, binom.size, frmla, expfamily = "gaussian",
-  model.fcn = stats::glm, PartitioningVariables = "", mStableAgg, ...)
+  model.fcn = stats::glm, PartitioningVariables = "", mStableAgg,
+  objective.fcn = pvDeviance, ...)
 }
 \arguments{
 \item{grp}{list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}}

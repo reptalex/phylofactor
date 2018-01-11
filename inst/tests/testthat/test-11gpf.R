@@ -53,4 +53,4 @@ invisible(capture.output(pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2,alg
 test_that('algorithm "phylo" works', expect_true(all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)))
 
 
-pf2 <- 
+### next: need algorithm "CoefContrast", "mix", and an alternative model.fcn (gam)

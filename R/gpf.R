@@ -15,6 +15,7 @@
 #' @examples 
 #' library(phylofactor)
 #' 
+#' ilogit <- function(eta) 1/(1+exp(-eta))
 #' set.seed(1)
 #' m <- 50
 #' n <- 200
@@ -30,7 +31,6 @@
 #' 
 #' ######## presence/absence dataset with affected clade #######
 #' ## most species have higher P{present} with y
-#' ilogit <- function(eta) 1/(1+exp(-eta))
 #' eta <- X$z+X$y
 #' p <- ilogit(eta)
 #' M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=T)
@@ -50,8 +50,24 @@
 #'    M[species,] <- rbinom(n,binom.size,p2)
 #' }
 #' 
+#' #### Default algorithm: 'mix' #####
+#' ### For default can input data matrix or data frame with "Species", "Sample", and all relevant meta-data
+#' DF <- matrix.to.phyloframe(M,data.name='Successes')
+#' DF[,Failures:=binom.size-Successes]
+#' setkey(DF,Sample)
+#' DF <- DF[X]
+#' 
+#' ### DF must have "Species", "Sample", and the LHS of the formula input.
+#' ### A separate data frame or data table, X, can have "Sample" and the RHS of the formula.
+#' 
+#' pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
+#'                     PartitioningVariables='y',
+#'                     algorithm='CoefContrast',
+#'                     family=binomial,
+#'                     nfactors=2)
+#' 
 #' ####################### to partition on y, must have phylo* #########
-#' pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
+#' pf <- gpf(M,tree,X,frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
 #'           binom.size=binom.size,family=binomial(link='logit'),
 #'           PartitioningVariables='y',algorithm='mStable')
 #' all.equal(pf$groups[[1]][[1]],clade)
@@ -85,7 +101,7 @@
 #' 
 #' 
 #' ##For non-binomial, use "Data" as response variable #########
-#' pf <- gpf(M,tree,X,frmla=Data~phylo*(z+y),nfactors=2,family=poisson,
+#' pf <- gpf(M,tree,X,frmla.phylo=Data~phylo*(z+y),nfactors=2,family=poisson,
 #'           PartitioningVariables='y',algorithm='mStable')
 #' pf$factors
 #' all.equal(pf$groups[[1]][[1]],clade)
@@ -101,44 +117,90 @@
 #' eta <- effort-3
 #' eta[clade] <- eta[clade]+6
 #' eta[clade2] <- eta[clade2]+8
-#' Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
-#' 
-#' pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2)
+#' Data <- data.table('Species'=tree$tip.label,effort,'Successes'=rbinom(50,1,ilogit(eta)),'Sample'=1)
+#' Data$Failures <- 1-Data$Successes
+#' pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)
 #' all.equal(pf$groups[[1]][[1]],clade)
 #' all.equal(pf$groups[[2]][[1]],clade2)
-gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',algorithm='mix',alpha=0.2,...){
+#' 
+#'
+gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phylo=NULL,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,objective.fcn=pvDeviance,algorithm='mix',alpha=0.2,...){
   
   output <- NULL
-  output$call <-match.call()
-  output$Data <- Data
-  output$X <- X
+  output$call <- match.call()
   output$model.fcn <- model.fcn
   output$additional.arguments <- list(...)
   output$binom.size=binom.size
   output$algorithm <- algorithm
+  output$PartitioningVariables <- PartitioningVariables
   
-  ############## Checking algorithm, frmla and model compatibility
+# Algorithm & frmla checks --------------------------------------------------------
+  ########## checking formulas ############
+  if (is.null(frmla) & is.null(frmla.phylo)){
+    stop('must input either frmla or frmla.phylo')
+  }
+  if (is.null(frmla) & algorithm %in% c('CoefContrast','mix')){
+    stop(paste('must input frmla for algorithm==',algorithm,sep=''))
+  }
+  
+  if (is.null(frmla.phylo)){  
+    frmla.terms <- terms(frmla) %>% attr('term.labels')
+    if (!all(PartitioningVariables %in% c(frmla.terms,''))){
+      stop('Some PartitioningVariables are not found in input frmla')
+    }
+    if (is.null(PartitioningVariables)){
+      warning("Did not input PartitioningVariables nor frmla.phylo - default is to partition based on all variables, including (Intercept)")
+    }
+    if (algorithm == 'mix'){
+      warning("Did not input frmla.phylo for algorithm=mix. Default is to assign species-specific coefficients for all but PartitioningVariables")
+    }
+    if (algorithm %in% c('phylo','mStable','mix')){
+      if (is.null(PartitioningVariables)){
+        frmla.phylo <- stats::update(frmla,.~phylo*.)
+      } else {
+        Non_Partitioning_Variables <- setdiff(frmla.terms,PartitioningVariables)
+        PartitioningTerms <- sapply(PartitioningVariables,FUN=function(s) paste('phylo*',s,sep='')) %>% paste(collapse='+')
+        if (length(unique(Data$Sample))>1){
+          Non_Partitioning_Terms <- sapply(Non_Partitioning_Variables,FUN=function(s) paste('Species*',s,sep='')) %>% paste(collapse='+')
+        } else {
+          Non_Partitioning_Terms <- paste(Non_Partitioning_Variables,collapse='+')
+        }
+        LHS <- as.character(frmla[[2]])
+        if (length(LHS)==1){
+          frmla.phylo <- as.formula(paste(paste(LHS,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+')))
+        } else {
+          if (!all.equal(tolower(LHS),c('cbind','successes','failures'))){
+            stop('unknown LHS of input formula. Contact alex.d.washburne@gmail.com with error report')
+          } else {
+            pp <- paste(LHS[1],'(',paste(LHS[2:3],collapse=','),')',sep='')
+            frmla.phylo <- as.formula(paste(paste(pp,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+'),sep=''))
+          }
+        }
+      }
+    }
+  }
+  output$frmla <- frmla
+  output$frmla.phylo <- frmla.phylo
+  
+  #### Checking Algorithms ####
   if (algorithm=='mStable'){
     mStableAgg=T
   } else {
     mStableAgg=F
-  } else if (algorithm=='mix'){
+  }
+  if (algorithm=='mix'){
     if (!(alpha>0 & alpha<=1)){
       stop('alpha must be between 0 and 1')
     }
   }
-  if (algorithm %in% c('CoefContrast','mix')){
-    
-  }
-  
   
   ############## Checking Data and X compatibility ###################
   
   if ((!'data.table' %in% class(Data))&('data.frame' %in% class(Data))){
     Data <- data.table::as.data.table(Data)
   }
-  if ('matrix' %in% class(Data) & !mStableAgg){
-    stop('if algorithm is not "mStable", input "Data" must be data frame or data table containing columns: "Species" and "Sample"')
+  if ('matrix' %in% class(Data) & (!algorithm=='mStable')){
+    stop('if algorithm is not "mStable", input "Data" must be data frame or data table containing columns: "Species", "Sample", and the LHS of the input frmla')
   }
   if (!is.null(X)){
     if (!'data.table'%in%class(X)){
@@ -148,6 +210,11 @@ gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,ex
       }
       setkey(X,Sample)
     }
+  } else {
+    RHS <- attr(terms(frmla),'term.labels')
+    X <- Data[,c("Sample",RHS),with=F]
+    X <- X[!duplicated(X)]
+    setkey(X,Sample)
   }
   if ('data.table' %in% class(Data)){
     if (!all(c('Species','Sample') %in% names(Data))){
@@ -189,25 +256,51 @@ gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,ex
     }
   }
   
-  ########## checking formula ############
-  frmlacheck <- terms(frmla) %>% attr('term.labels') %>% grepl('phylo',.) %>% any
-    if (!frmlacheck){
-      stop('formula does not contain term "phylo"')
-    } else {
-      tt <- terms(frmla) %>% attr('term.labels') 
-      tt <- gsub('phylo','',tt)
-      if (! all(PartitioningVariables %in% tt)){
-        stop('at lest one of the PartitioningVariables not found in formula.')
-      }
-    }
-  
-  
   if ('family' %in% names(list(...))){
     family <- list(...)$family
     if (class(family)=='function'){
       expfamily <- family()$family
     } else {
       expfamily <- family$family
+    }
+  }
+  
+  if (algorithm %in% c('CoefContrast','mix')){
+    mynorm <- function(b){
+      if (length(b)==1){
+        return(b^2)
+      } else {
+        return(matrix(b,nrow=1)%*%matrix(b,ncol=1))
+      }
+    }
+    species <- unique(Data$Species)
+    setkey(Data,Sample)
+    Data <- Data[X]
+    setkey(Data,Species)
+    tryCatch(models <- lapply(species,
+                            FUN=function(sp,Data) model.fcn(frmla,data=Data[Species==sp],...),
+                            Data=Data), 
+             error=function(e) stop(paste('Could not implement model.fcn for each species due to following error: \n',e)))
+    output$spp.model.fcns <- models
+    tryCatch(coef <- t(sapply(models,coefficients)),
+             error=function(e) stop(paste('Could not extract coefficients from model.fcn for each species due to following error \n',e)))
+    tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(vcov(m)))[PartitioningVariables])),
+             error=function(e) stop(paste('Could not extrac standard errors from model.fcn for each species due to following error \n',e)))
+    
+    BP <- coef[,PartitioningVariables]/SE
+    if (ncol(BP)!=length(PartitioningVariables)){
+      BP <- t(BP)
+      if (ncol(BP)!=length(PartitioningVariables)){
+        stop('error in converting partitioning variables to coefficient matrix. Perhaps Partitioning variables do not correspond to names of coefficients(model.fcn)')
+      }
+    }
+    if (algorithm=='mix'){
+      # INCOMPLETE
+      rarest.spp <- names(sort(table(Data$Species)))[1]
+      ix <- which(tree$tip.label==rarest.spp)
+      grp <- list(ix,setdiff(1:length(tree$tip.label),ix))
+      tryCatch(getObjective(grp,tree,Data,frmla=frmla.phylo,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=F,objective.fcn=objective.fcn,family=binomial),
+               error = function(e) stop(paste('Failure to getObjective from rarest species due to error:',e)))
     }
   }
   
@@ -218,8 +311,6 @@ gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,ex
   } else {
     cl <- NULL
   }
-  
-  
   
   
   
@@ -236,29 +327,40 @@ gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,ex
       Grps <- getNewGroups(tree,treeList,binList)
     }
     
-    if (is.null(ncores)){
-      obj <- sapply(Grps,getObjective,tree,Data,X,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg,...)
-      # obj <- sapply(Grps,getObjective,tree,Data,X,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,family=family,mStableAgg)
-      
-    } else {
-      obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg,...) getObjective(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg,...),tree=tree,Data=Data,xx=X,binom.size=binom.size,frmla=frmla,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=mStableAgg,...)
-      # obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg) getObjective(grp,tree,Data,xx,binom.size,frmla,expfamily,model.fcn,PartitioningVariables,mStableAgg),tree=tree,Data=Data,xx=X,binom.size=binom.size,frmla=frmla,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=mStableAgg)
-      
+    if (algorithm %in% c('CoefContrast','mix')){
+      V <- t(sapply(Grps,ilrvec,n=nrow(BP)))
+      obj <- apply( V %*% BP ,1,mynorm)
+      if (algorithm == 'mix'){
+        nt <- round(alpha*length(obj))
+        Grps <- Grps[order(obj,decreasing = T)[1:nt]]
+      }
+    }
+    
+    if (algorithm!='CoefContrast'){
+      if (is.null(ncores)){
+        obj <- sapply(Grps,getObjective,tree,Data,X,binom.size,frmla.phylo,expfamily,model.fcn,PartitioningVariables,mStableAgg,objective.fcn,...)
+      } else {
+        obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,binom.size,frmla.phylo,expfamily,model.fcn,PartitioningVariables,mStableAgg,objective.fcn,...) getObjective(grp,tree,Data,xx,binom.size,frmla.phylo,expfamily,model.fcn,PartitioningVariables,mStableAgg,objective.fcn,...),tree=tree,Data=Data,xx=X,binom.size=binom.size,frmla.phylo=frmla.phylo,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=mStableAgg,objective.fcn=objective.fcn,...)
+      }
     }
     
     winner <- which.max(obj)
     grp <- Grps[[winner]]
     if (pfs==0){
-      if (mStableAgg){
-        output$models <- list(model.fcn(frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...))
+      if (algorithm=='mStable'){
+        output$models <- list(model.fcn(frmla.phylo,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...))
+      } else if (algorithm %in% c('phylo','mix')){
+        output$models <- list(model.fcn(frmla.phylo,data=phyloFrame(Data,grp,tree),...))
       } else {
-        output$models <- list(model.fcn(frmla,data=phyloFrame(Data,grp,tree),...))
+        output$models <- NA
       }
     } else {
-      if (mStableAgg){
-        output$models <- c(output$models,list(model.fcn(frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...)))
+      if (algorithm=='mStable'){
+        output$models <- c(output$models,list(model.fcn(frmla.phylo,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...)))
+      } else if (algorithm %in% c('phylo','mix')){
+        output$models <- c(output$models,list(model.fcn(frmla.phylo,data=phyloFrame(Data,grp,tree),...)))
       } else {
-        output$models <- c(output$models,list(model.fcn(frmla,data=phyloFrame(Data,grp,tree),...)))
+        output$models <- NA
       }
     }
     grp <- getLabelledGrp(tree=tree,Groups=Grps[[winner]])
@@ -300,8 +402,10 @@ gpf <- function(Data,tree,X=NULL,frmla,nfactors=NULL,ncores=NULL,binom.size=1,ex
   output$tree <- tree
   output$nfactors <- pfs
   output$Data <- Data
+  output$X <- X
   output$method <- 'gpf'
   class(output) <- 'phylofactor'
   
   return(output)
 }
+

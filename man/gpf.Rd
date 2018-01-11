@@ -4,9 +4,10 @@
 \alias{gpf}
 \title{Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.}
 \usage{
-gpf(Data, tree, X = NULL, frmla, nfactors = NULL, ncores = NULL,
-  binom.size = 1, expfamily = "gaussian", model.fcn = stats::glm,
-  PartitioningVariables = "", algorithm = "mix", alpha = 0.2, ...)
+gpf(Data, tree, X = NULL, frmla = NULL, PartitioningVariables = NULL,
+  frmla.phylo = NULL, nfactors = NULL, ncores = NULL, binom.size = 1,
+  expfamily = "gaussian", model.fcn = stats::glm,
+  objective.fcn = pvDeviance, algorithm = "mix", alpha = 0.2, ...)
 }
 \arguments{
 \item{Data}{data table containing columns of "Species", 'N' (counts, 0<=N<=3), "Sample".}
@@ -14,6 +15,8 @@ gpf(Data, tree, X = NULL, frmla, nfactors = NULL, ncores = NULL,
 \item{X}{meta-data containing "Sample" and variables found in \code{frmla}}
 
 \item{frmla}{Formula. If \code{expfamily='binomial'}, must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~phylo}. Explanatory variables used for phylofactorization must interact with the variable \code{phylo}, e.g. partitioning by pH and not N requires \code{Data~N+phylo*pH}}
+
+\item{PartitioningVariables}{Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.}
 
 \item{nfactors}{integer for number of factors to find}
 
@@ -25,9 +28,7 @@ gpf(Data, tree, X = NULL, frmla, nfactors = NULL, ncores = NULL,
 
 \item{model.fcn}{Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.}
 
-\item{PartitioningVariables}{Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.}
-
-\item{algorithm}{Character, either "B", "phylo", "mStable" or "mix". "B" will partition the coefficient matrix; "phylo" will produce \code{phylo} factors, "mStable" will use \code{phylo} factors for aggregated groups, and "mix" will use B to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
+\item{algorithm}{Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix; "phylo" will produce \code{phylo} factors, "mStable" will use \code{phylo} factors for aggregated groups, and "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
 
 \item{alpha}{Numeric between 0 and 1 (strictly greater than 0), indicating the top quantile of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2}
 }
@@ -37,6 +38,7 @@ Generalized phylofactorization - currently skeleton for binomial glm; will expan
 \examples{
 library(phylofactor)
 
+ilogit <- function(eta) 1/(1+exp(-eta))
 set.seed(1)
 m <- 50
 n <- 200
@@ -52,7 +54,6 @@ clade2 <- phangorn::Descendants(tree,53,'tips')[[1]]
 
 ######## presence/absence dataset with affected clade #######
 ## most species have higher P{present} with y
-ilogit <- function(eta) 1/(1+exp(-eta))
 eta <- X$z+X$y
 p <- ilogit(eta)
 M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=T)
@@ -73,7 +74,7 @@ for (species in clade2){
 }
 
 ####################### to partition on y, must have phylo* #########
-pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
+pf <- gpf(M,tree,X,frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
           binom.size=binom.size,family=binomial(link='logit'),
           PartitioningVariables='y',algorithm='mStable')
 all.equal(pf$groups[[1]][[1]],clade)
@@ -107,7 +108,7 @@ for (species in clade2){
 
 
 ##For non-binomial, use "Data" as response variable #########
-pf <- gpf(M,tree,X,frmla=Data~phylo*(z+y),nfactors=2,family=poisson,
+pf <- gpf(M,tree,X,frmla.phylo=Data~phylo*(z+y),nfactors=2,family=poisson,
           PartitioningVariables='y',algorithm='mStable')
 pf$factors
 all.equal(pf$groups[[1]][[1]],clade)
@@ -123,9 +124,11 @@ effort <- rnorm(50)
 eta <- effort-3
 eta[clade] <- eta[clade]+6
 eta[clade2] <- eta[clade2]+8
-Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
-
-pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2)
+Data <- data.table('Species'=tree$tip.label,effort,'Successes'=rbinom(50,1,ilogit(eta)),'Sample'=1)
+Data$Failures <- 1-Data$Successes
+pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)
 all.equal(pf$groups[[1]][[1]],clade)
 all.equal(pf$groups[[2]][[1]],clade2)
+
+
 }

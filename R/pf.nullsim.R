@@ -1,6 +1,5 @@
 #' Null Simulation of phylofactor object
 #' 
-#' @export
 #' @param PF class phylofactor object from \code{\link{PhyloFactor}}
 #' @param reps number of replicate null simulations
 #' @param nfactors number of factors to run for null simulation

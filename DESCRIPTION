@@ -1,8 +1,8 @@
 Package: phylofactor
 Type: Package
 Title: phylofactor
-Version: 0.0.0
-Date: 2016-03-31
+Version: 0.0.1
+Date: 2018-01-08
 Author: Alex Washburne
 Authors@R: person("Alex","Washburne",email="bigalculus@gmail.com",role=c("aut","cre"))
 Maintainer: Alex Washburne <bigalculus@gmail.com>

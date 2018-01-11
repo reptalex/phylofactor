@@ -1,17 +1,24 @@
-#' objective function for generalized phylofactorization
+#' obtains deviance for partitioning variables - default objective function for \code{\link{gpf}}
 
 #' @export
 #' @param model model, such as glm, lm, nls, gam, which can be put into anova.
+#' @param grp two-member list of integers, see \code{\link{getPhyloGroups}}.
+#' @param tree phylo class object
 #' @param PartitioningVariables string - used to find partitioning variables in anova table.
-objectiveFunction <- function(model,PartitioningVariables=''){
+pvDeviance <- function(model,grp,tree,PartitioningVariables=''){
   
+  if (is.null(PartitioningVariables)){
+    pvs <- ''
+  } else {
+    pvs <- PartitioningVariables
+  }
   ss <- anova(model)
   if ('anova' %in% class(ss)){
     rn <- rownames(ss)
     nms <- grepl('phylo',rn)
     rn2 <- gsub('phylo','',rn)
-    vs <- sapply(PartitioningVariables,FUN=function(s,rn2) grepl(s,rn2),rn2=rn2)
-    if (length(PartitioningVariables)>1){
+    vs <- sapply(pvs,FUN=function(s,rn2) grepl(s,rn2),rn2=rn2)
+    if (length(pvs)>1){
       nms <- nms & apply(vs,1,any)
     } else {
       nms <- nms & vs

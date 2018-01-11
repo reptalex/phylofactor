@@ -11,12 +11,12 @@
 #' @param PartitioningVariables character vector containing of interest for phylofactorization partitioning.
 #' @param mStableAgg logical. See \code{\link{gpf}}
 
-getObjective <- function(grp,tree,Data,X,binom.size,frmla,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',mStableAgg,...){
+getObjective <- function(grp,tree,Data,X=NULL,binom.size=1,frmla,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',mStableAgg,objective.fcn=pvDeviance,...){
   if (mStableAgg){
     fit <- model.fcn(formula=frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...)
   } else {
     fit <- model.fcn(formula=frmla,data=phyloFrame(Data,grp,tree),...)
   }
-  omega <- objectiveFunction(fit,PartitioningVariables)
+  omega <- objective.fcn(fit,grp,tree,PartitioningVariables)
   return(omega)
 }
