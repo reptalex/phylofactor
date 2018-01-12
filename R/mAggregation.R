@@ -20,6 +20,6 @@ mAggregation <- function(DF,grp,tree,X,binom.size,expfamily){
                       'Data'=c(colSums(DF[grp[[1]],,drop=F]),colSums(DF[grp[[2]],,drop=F])),
                       'phylo'=factor(rep(c('R','S'),each=ncol(DF))),key='Sample')
   }
-  DF2 <- DF2[X]
+  DF2 <- data.table:::`[.data.table`(DF2,X)
   return(DF2)
 }
