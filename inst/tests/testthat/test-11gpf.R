@@ -1,5 +1,6 @@
 context('Checking gpf')
 
+library(data.table)
 set.seed(1)
 m <- 50
 n <- 200
