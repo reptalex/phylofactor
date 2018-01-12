@@ -73,11 +73,50 @@ for (species in clade2){
    M[species,] <- rbinom(n,binom.size,p2)
 }
 
+#### Default algorithm: 'mix' #####
+### For default can input data matrix or data frame with "Species", "Sample", and all relevant meta-data
+DF <- matrix.to.phyloframe(M,data.name='Successes')
+DF[,Failures:=binom.size-Successes]
+setkey(DF,Sample)
+DF <- DF[X]
+
+### DF must have "Species", "Sample", and the LHS of the formula input.
+### A separate data frame or data table, X, can have "Sample" and the RHS of the formula.
+
+### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for selection by algorithm 'phylo'
+### This algorithm has the greatest power but is also computationally intensive.
+### It's recommended that you input both frmla (used in CoefContrst) and frmla.phylo (used in algorithm 'phylo').
+### For species-specific effects in algorithm 'phylo', you can use the variable "Species", e.g.
+### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients for "z" across species, simply use
+### frmla.phylo=cbind(Successes,Failures)~z+phylo*y
+
+pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
+                  frmla.phylo=cbind(Successes,Failures)~z+phylo*y,
+                    PartitioningVariables='y',
+                    family=binomial,
+                    nfactors=2,
+                    ncores=2)
+all.equal(pf$groups[[1]][[1]],clade)
+all.equal(pf$groups[[2]][[1]],clade2)
+### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which is parallelizable.                   
+
+                    
+### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and Partitioning Variables
+ ### CoefContrast is extremely fast and best done without parallelization (as it is built off matrix multiplication).
+pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
+                    PartitioningVariables='y',
+                    algorithm='CoefContrast',
+                    family=binomial,
+                    nfactors=2)
+all.equal(pf$groups[[1]][[1]],clade)
+all.equal(pf$groups[[2]][[1]],clade2)
+
 ####################### to partition on y, must have phylo* #########
 pf <- gpf(M,tree,X,frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
           binom.size=binom.size,family=binomial(link='logit'),
           PartitioningVariables='y',algorithm='mStable')
 all.equal(pf$groups[[1]][[1]],clade)
+all.equal(pf$groups[[2]][[1]],clade2)
 
 pf.tree(pf)
 par(mfrow=c(2,1))
@@ -126,7 +165,8 @@ eta[clade] <- eta[clade]+6
 eta[clade2] <- eta[clade2]+8
 Data <- data.table('Species'=tree$tip.label,effort,'Successes'=rbinom(50,1,ilogit(eta)),'Sample'=1)
 Data$Failures <- 1-Data$Successes
-pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)
+pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,
+          nfactors=2,algorithm='phylo',family=binomial)
 all.equal(pf$groups[[1]][[1]],clade)
 all.equal(pf$groups[[2]][[1]],clade2)
 

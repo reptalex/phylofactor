@@ -24,16 +24,16 @@ Bins <- bins(G=sigClades,set=1:20)[c(3,2,1)]
 invisible(capture.output(PF <- PhyloFactor(Data,tree,X,nfactors=2)))
 
 test_that('basic log-normal pf.nullsim works',
-          expect_error(invisible(capture.output(pf.nullsim(PF,reps=1))),NA))
+          expect_error(invisible(capture.output(phylofactor:::pf.nullsim(PF,reps=1))),NA))
 
 test_that('setting seed in pf.nullsim works',
-          expect_error(invisible(capture.output(pf.nullsim(PF,reps=2,seed=1))),NA))
+          expect_error(invisible(capture.output(phylofactor:::pf.nullsim(PF,reps=2,seed=1))),NA))
 
 test_that('pf.nullsim method="Shuffle" works',
-          expect_error(invisible(capture.output(pf.nullsim(PF,reps=1,seed=1,nullsimFcn='shuffle'))),NA))
+          expect_error(invisible(capture.output(phylofactor:::pf.nullsim(PF,reps=1,seed=1,nullsimFcn='shuffle'))),NA))
 
 Z <- rbinom(20,1,.5)
 pf <- twoSampleFactor(Z,tree,2)
 
 test_that('pf.nullsim works for twoSample phylofactor objects',
-          expect_error(invisible(capture.output(pf.nullsim(pf,reps=1))),NA))
+          expect_error(invisible(capture.output(phylofactor:::pf.nullsim(pf,reps=1))),NA))

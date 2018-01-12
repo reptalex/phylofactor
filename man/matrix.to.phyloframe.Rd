@@ -20,14 +20,15 @@ Converts matrix to phyloframe
 }
 \examples{
 library(phylofactor)
+set.seed(1)
 m=3   #number of species
 n=5   #number of samples
 d=10  #number of data points
 DF <- data.frame('Species'=sample(letters[1:m],d,replace=T),
                  'Sample'=sample(1:n,d,replace=T),
-                 'Abundance'=rpois(d,2))
+                 'Abundance'=rpois(d,4))
 Mat <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=NA)
-matrix.to.phyloframe(Mat,data.name='Abundance')
+DF2 <- matrix.to.phyloframe(Mat,data.name='Abundance')
 
 X <- data.frame('Sample'=as.character(1:n),'x'=2*(1:n),'y'=-(1:n))
 matrix.to.phyloframe(Mat,X,data.name='Abundance')
