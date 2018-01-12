@@ -73,8 +73,7 @@
 #'                     family=binomial,
 #'                     nfactors=2,
 #'                     ncores=2)
-#' all.equal(pf$groups[[1]][[1]],clade)
-#' all.equal(pf$groups[[2]][[1]],clade2)
+#' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 #' ### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which is parallelizable.                   
 #'
 #'                     
@@ -85,15 +84,13 @@
 #'                     algorithm='CoefContrast',
 #'                     family=binomial,
 #'                     nfactors=2)
-#' all.equal(pf$groups[[1]][[1]],clade)
-#' all.equal(pf$groups[[2]][[1]],clade2)
+#' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 #' 
 #' ####################### to partition on y, must have phylo* #########
 #' pf <- gpf(M,tree,X,frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
 #'           binom.size=binom.size,family=binomial(link='logit'),
 #'           PartitioningVariables='y',algorithm='mStable')
-#' all.equal(pf$groups[[1]][[1]],clade)
-#' all.equal(pf$groups[[2]][[1]],clade2)
+#' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 #' 
 #' pf.tree(pf)
 #' par(mfrow=c(2,1))
@@ -127,8 +124,7 @@
 #' pf <- gpf(M,tree,X,frmla.phylo=Data~phylo*(z+y),nfactors=2,family=poisson,
 #'           PartitioningVariables='y',algorithm='mStable')
 #' pf$factors
-#' all.equal(pf$groups[[1]][[1]],clade)
-#' all.equal(pf$groups[[2]][[1]],clade2)
+#' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 #' 
 #' par(mfrow=c(2,1))
 #' phytools::phylo.heatmap(tree,M[,order(X$y)])
@@ -144,10 +140,7 @@
 #' Data$Failures <- 1-Data$Successes
 #' pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,
 #'           nfactors=2,algorithm='phylo',family=binomial)
-#' all.equal(pf$groups[[1]][[1]],clade)
-#' all.equal(pf$groups[[2]][[1]],clade2)
-#' 
-#'
+#' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phylo=NULL,nfactors=NULL,ncores=NULL,binom.size=1,expfamily='gaussian',model.fcn=stats::glm,objective.fcn=pvDeviance,algorithm='mix',alpha=0.2,...){
   
   output <- NULL
