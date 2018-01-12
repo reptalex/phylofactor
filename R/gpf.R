@@ -119,7 +119,8 @@
 #' eta[clade2] <- eta[clade2]+8
 #' Data <- data.table('Species'=tree$tip.label,effort,'Successes'=rbinom(50,1,ilogit(eta)),'Sample'=1)
 #' Data$Failures <- 1-Data$Successes
-#' pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)
+#' pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,
+#'           nfactors=2,algorithm='phylo',family=binomial)
 #' all.equal(pf$groups[[1]][[1]],clade)
 #' all.equal(pf$groups[[2]][[1]],clade2)
 #' 
@@ -211,7 +212,11 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
       setkey(X,Sample)
     }
   } else {
-    RHS <- attr(terms(frmla),'term.labels')
+    if (algorithm %in% c('CoefContrast','mix')){
+      RHS <- attr(terms(frmla),'term.labels')
+    } else {
+      RHS <- setdiff(attr(terms(frmla.phylo),'term.labels'),'phylo')
+    }
     X <- Data[,c("Sample",RHS),with=F]
     X <- X[!duplicated(X)]
     setkey(X,Sample)
