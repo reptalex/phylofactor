@@ -11,12 +11,12 @@ mAggregation <- function(DF,grp,tree,X,binom.size,expfamily){
   if (expfamily=='binomial'){
     r <- length(grp[[1]])
     s <- length(grp[[2]])
-    DF2 <- data.table('Sample'=rep(colnames(DF),times=2),
+    DF2 <- data.table::data.table('Sample'=rep(colnames(DF),times=2),
                       'Successes'=c(colSums(DF[grp[[1]],,drop=F]),colSums(DF[grp[[2]],,drop=F])),
                       'Failures'=rep(c(binom.size*r,binom.size*s),each=ncol(DF)),
                       'phylo'=factor(rep(c('R','S'),each=ncol(DF))),key='Sample')
   } else {
-    DF2 <- data.table('Sample'=rep(colnames(DF),times=2),
+    DF2 <- data.table::data.table('Sample'=rep(colnames(DF),times=2),
                       'Data'=c(colSums(DF[grp[[1]],,drop=F]),colSums(DF[grp[[2]],,drop=F])),
                       'phylo'=factor(rep(c('R','S'),each=ncol(DF))),key='Sample')
   }

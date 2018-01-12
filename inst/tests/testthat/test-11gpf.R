@@ -47,7 +47,7 @@ effort <- rnorm(50)
 eta <- effort-3
 eta[clade] <- eta[clade]+6
 eta[clade2] <- eta[clade2]+8
-Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
+Data <- data.table::data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
 
 invisible(capture.output(pf <- gpf(Data,tree,frmla.phylo=Z~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)))
 test_that('algorithm "phylo" works', expect_true(all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)))
