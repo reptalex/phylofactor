@@ -1,6 +1,5 @@
 context('Checking gpf')
 
-library(data.table)
 set.seed(1)
 m <- 50
 n <- 200
@@ -58,7 +57,7 @@ test_that('algorithm "phylo" works', expect_true(all.equal(pf$groups[[1]][[1]],c
 DF <- matrix.to.phyloframe(M,data.name='Successes')
 DF[,Failures:=binom.size-Successes]
 data.table::setkey(DF,Sample)
-DF <- DF[X]
+DF <- data.table:::`[.data.table`(DF,X)
 invisible(capture.output(pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
                                PartitioningVariables='y',
                                algorithm='CoefContrast',
