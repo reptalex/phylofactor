@@ -309,7 +309,6 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
                             FUN=function(sp,Data) model.fcn(frmla,data=Data[Species==sp],...),
                             Data=Data), 
              error=function(e) stop(paste('Could not implement model.fcn for each species due to following error: \n',e)))
-    output$spp.model.fcns <- models
     tryCatch(coef <- t(sapply(models,coefficients)),
              error=function(e) stop(paste('Could not extract coefficients from model.fcn for each species due to following error \n',e)))
     tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(vcov(m)))[PartitioningVariables])),
@@ -324,8 +323,11 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
     }
     rownames(coef) <- species
     rownames(BP) <- species
+    names(models) <- species
+    models <- models[tree$tip.label]
     coef <- coef[tree$tip.label,]
     BP <- BP[tree$tip.label,]
+    output$spp.model.fcns <- models
     output$coefficient.matrix <- coef
     output$coefficient.SE <- SE
     if (algorithm=='mix'){

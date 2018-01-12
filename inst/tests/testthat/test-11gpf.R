@@ -36,7 +36,7 @@ for (species in clade2){
 }
 
 ####################### to partition on y, must have phylo* #########
-invisible(capture.output(pf <- gpf(M,tree,X,frmla=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
+invisible(capture.output(pf <- gpf(M,tree,X,frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
          binom.size=binom.size,family=binomial(link='logit'),
          PartitioningVariables='y',algorithm='mStable')))
 test_that('algorithm "mStable" works',expect_true(all.equal(pf$groups[[1]][[1]],clade)))
@@ -49,8 +49,18 @@ eta[clade] <- eta[clade]+6
 eta[clade2] <- eta[clade2]+8
 Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
 
-invisible(capture.output(pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)))
+invisible(capture.output(pf <- gpf(Data,tree,frmla.phylo=Z~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)))
 test_that('algorithm "phylo" works', expect_true(all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)))
 
 
-### next: need algorithm "CoefContrast", "mix", and an alternative model.fcn (gam)
+
+DF <- matrix.to.phyloframe(M,data.name='Successes')
+DF[,Failures:=binom.size-Successes]
+data.table::setkey(DF,Sample)
+DF <- DF[X]
+invisible(capture.output(pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
+                               PartitioningVariables='y',
+                               algorithm='CoefContrast',
+                               family=binomial,
+                               nfactors=2)))
+test_that('algorithm "CoefContrast" works', expect_true(all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)))
