@@ -3,8 +3,8 @@ context('Checking gpf')
 set.seed(1)
 m <- 50
 n <- 200
-tree <- rtree(m)
-X <- data.table('y'=rnorm(n),
+tree <- ape::rtree(m)
+X <- data.table::data.table('y'=rnorm(n),
                'z'=rnorm(n,sd=0.5),
                'Sample'=sapply(1:n,FUN=function(s) paste('Sample',s)),
                key='Sample')
@@ -49,7 +49,7 @@ eta[clade] <- eta[clade]+6
 eta[clade2] <- eta[clade2]+8
 Data <- data.table('Species'=tree$tip.label,effort,Z=rbinom(50,1,ilogit(eta)),'Sample'=1)
 
-invisible(capture.output(pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2,algorithm='phylo')))
+invisible(capture.output(pf <- gpf(Data,tree,frmla=Z~effort+phylo,nfactors=2,algorithm='phylo',family=binomial)))
 test_that('algorithm "phylo" works', expect_true(all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)))
 
 

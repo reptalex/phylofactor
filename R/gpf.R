@@ -60,17 +60,40 @@
 #' ### DF must have "Species", "Sample", and the LHS of the formula input.
 #' ### A separate data frame or data table, X, can have "Sample" and the RHS of the formula.
 #' 
+#' ### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for selection by algorithm 'phylo'
+#' ### This algorithm has the greatest power but is also computationally intensive.
+#' ### It's recommended that you input both frmla (used in CoefContrst) and frmla.phylo (used in algorithm 'phylo').
+#' ### For species-specific effects in algorithm 'phylo', you can use the variable "Species", e.g.
+#' ### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients for "z" across species, simply use
+#' ### frmla.phylo=cbind(Successes,Failures)~z+phylo*y
+#' 
+#' pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
+#'                   frmla.phylo=cbind(Successes,Failures)~z+phylo*y,
+#'                     PartitioningVariables='y',
+#'                     family=binomial,
+#'                     nfactors=2,
+#'                     ncores=2)
+#' all.equal(pf$groups[[1]][[1]],clade)
+#' all.equal(pf$groups[[2]][[1]],clade2)
+#' ### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which is parallelizable.                   
+#'
+#'                     
+#' ### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and Partitioning Variables
+#'  ### CoefContrast is extremely fast and best done without parallelization (as it is built off matrix multiplication).
 #' pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
 #'                     PartitioningVariables='y',
 #'                     algorithm='CoefContrast',
 #'                     family=binomial,
 #'                     nfactors=2)
+#' all.equal(pf$groups[[1]][[1]],clade)
+#' all.equal(pf$groups[[2]][[1]],clade2)
 #' 
 #' ####################### to partition on y, must have phylo* #########
 #' pf <- gpf(M,tree,X,frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
 #'           binom.size=binom.size,family=binomial(link='logit'),
 #'           PartitioningVariables='y',algorithm='mStable')
 #' all.equal(pf$groups[[1]][[1]],clade)
+#' all.equal(pf$groups[[2]][[1]],clade2)
 #' 
 #' pf.tree(pf)
 #' par(mfrow=c(2,1))
@@ -299,6 +322,12 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
         stop('error in converting partitioning variables to coefficient matrix. Perhaps Partitioning variables do not correspond to names of coefficients(model.fcn)')
       }
     }
+    rownames(coef) <- species
+    rownames(BP) <- species
+    coef <- coef[tree$tip.label,]
+    BP <- BP[tree$tip.label,]
+    output$coefficient.matrix <- coef
+    output$coefficient.SE <- SE
     if (algorithm=='mix'){
       # INCOMPLETE
       rarest.spp <- names(sort(table(Data$Species)))[1]
@@ -333,10 +362,10 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
     }
     
     if (algorithm %in% c('CoefContrast','mix')){
-      V <- t(sapply(Grps,ilrvec,n=nrow(BP)))
+      V <- t(sapply(Grps,ilrvec,n=length(tree$tip.label)))
       obj <- apply( V %*% BP ,1,mynorm)
       if (algorithm == 'mix'){
-        nt <- round(alpha*length(obj))
+        nt <- ceiling(alpha*length(obj))
         Grps <- Grps[order(obj,decreasing = T)[1:nt]]
       }
     }
