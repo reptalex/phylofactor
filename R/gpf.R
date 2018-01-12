@@ -234,8 +234,8 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
       RHS <- setdiff(attr(terms(frmla.phylo),'term.labels'),'phylo')
     }
     X <- Data[,c("Sample",RHS),with=F]
-    X <- X[!duplicated(X)]
-    setkey(X,Sample)
+    X <- data.table:::`[.data.table`(X,!base::duplicated(X))
+    data.table::setkey(X,Sample)
   }
   if ('data.table' %in% class(Data)){
     if (!all(c('Species','Sample') %in% names(Data))){
