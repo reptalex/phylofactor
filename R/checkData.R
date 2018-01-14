@@ -1,4 +1,7 @@
 #' internal \code{PhyloFactor} quality-control function
+#' @param Data Data frame
+#' @param tree phylo object
+#' @param method See \code{\link{PhyloFactor}}
 checkData <- function(Data,tree,method){
   if ('phylo' %in% class(tree)){
     spp <- tree$tip.label

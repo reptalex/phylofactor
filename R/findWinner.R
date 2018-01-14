@@ -5,6 +5,7 @@
 #' @param treeList list containing disjoint trees from phylofactor / PhyCA
 #' @param treetips number of tips in each tree
 #' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
+#' @param method See \code{\link{PhyloFactor}}
 #' @param smallglm Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.
 #' @param frmla Formula for \code{\link{glm}}. See \code{\link{PhyloFactor}} for more details.
 #' @param xx data frame containing non-ILR (\code{Data}) variables used in \code{frmla}
@@ -91,7 +92,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
             if (!exists('dataset')){
               dataset <- c(list(Y),as.list(xx))
               names(dataset) <- c('Data',names(xx))
-              dataset <- model.frame(frmla,data = dataset)
+              dataset <- stats::model.frame(frmla,data = dataset)
             } else {  #dataset already exists - we just need to update Data
               dataset$Data <- Y
             }
@@ -123,7 +124,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
         
         
       } else if (method=='max.var'){ #PhyCA
-        v=var(Y)
+        v=stats::var(Y)
         if (v>output$ExplainedVar){
           output$grp <- grp
           output$ExplainedVar <- v
@@ -151,8 +152,8 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
     Y <- amalg.ILR(output$grp,LogData=LogData)
     dataset <- c(list(Y),as.list(xx))
     names(dataset) <- c('Data',names(xx))
-    dataset <- model.frame(frmla,data = dataset)
-    output$model <- glm(frmla,data = dataset,...)
+    dataset <- stats::model.frame(frmla,data = dataset)
+    output$model <- stats::glm(frmla,data = dataset,...)
   }
   ##########################################################################
   

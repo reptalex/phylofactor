@@ -4,7 +4,7 @@
 #' @param PF.output logical, if true will return customized output for phylofactor object
 #' @export
 VAR <- function(y,X,PF.output=FALSE){
-  v <- var(y)
+  v <- stats::var(y)
   if (PF.output){
     return(v)
     break

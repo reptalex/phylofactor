@@ -16,6 +16,7 @@
 #' @param nms rownames of LogData, allowing reliable mapping of rows of data to tree.
 #' @param smallglm Logical. See \code{\link{PhyloFactor}}
 #' @param choice.fcn optional customized choice function to choose 'best' edge; see \code{\link{PhyloFactor}}
+#' @param method See \code{\link{PhyloFactor}}
 #' @param ... optional input arguments for \code{\link{glm}}
 PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,quiet=T,nms=NULL,smallglm=F,choice.fcn,method='glm',...){
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
@@ -37,9 +38,9 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
         #contains Pvalues, F statistics, and explained var
         rownames(stats) <- 1:ngrps
         colnames(stats) <- c('Pval','F','ExplainedVar')
-        Yhat <- lapply(GLMs,predict)
+        Yhat <- lapply(GLMs,stats::predict)
       } else {
-        objective <- apply(Y,1,var)
+        objective <- apply(Y,1,stats::var)
       }
     ###############################################################
     } else {
@@ -93,7 +94,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
           objective <- sapply(stats,function(x) x['F'])
         }
       } else {
-        objective <- sapply(Y,var)
+        objective <- sapply(Y,stats::var)
       }
     ###################################################################################
     } else {

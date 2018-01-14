@@ -16,7 +16,7 @@
 #' data('FTmicrobiome')
 #'
 #' binPhyloPlot(FTmicrobiome$PF,factor=3)
-binPhyloPlot <- function(X,factor,tree=NULL,n=NULL,colorfcn=rainbow,type='unrooted',show.tip.label=F,legend.return=F,...){
+binPhyloPlot <- function(X,factor,tree=NULL,n=NULL,colorfcn=grDevices::rainbow,type='unrooted',show.tip.label=F,legend.return=F,...){
 
   if (class(X)=='phylofactor' | class(X)=='phyca'){
     tree <- X$tree

@@ -2,16 +2,20 @@
 #' 
 #' @export
 #' @param Data data table containing columns of "Species", 'N' (counts, 0<=N<=3), "Sample". 
+#' @param tree phylo class object containing all species in \code{Data}
 #' @param X meta-data containing "Sample" and variables found in \code{frmla}
-#' @param frmla Formula. If \code{expfamily='binomial'}, must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~phylo}. Explanatory variables used for phylofactorization must interact with the variable \code{phylo}, e.g. partitioning by pH and not N requires \code{Data~N+phylo*pH}
+#' @param frmla Formula. If \code{expfamily='binomial'}, must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~effort}
+#' @param PartitioningVariables Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.
+#' @param frmla.phylo Formula used for method "phylo" and "mStable". Can use species-specific effects by multilevel factor "Species", and phylo-factors with "phylo". e.g. cbind(Successes,Failures)~x+Species*z+phylo*y has universal coefficient for x, species-specific coefficients for z, and phylo-factor contrasted coefficients for y.
 #' @param nfactors integer for number of factors to find
 #' @param ncores integers for number of cores to use for parallelization
 #' @param binom.size binom.size of binomial samples for each species. binom.size=1 for presence/absence data.
 #' @param expfamily Either "gaussian" or "binomial" - determines the aggregation method.
 #' @param model.fcn Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.
-#' @param PartitioningVariables Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.
+#' @param objective.fcn Optional input objective function. Takes \code{model.fcn} output as its input, and returns a number which will be maximized to determine phylogenetic factor.
 #' @param algorithm Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix; "phylo" will produce \code{phylo} factors, "mStable" will use \code{phylo} factors for aggregated groups, and "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.
 #' @param alpha Numeric between 0 and 1 (strictly greater than 0), indicating the top quantile of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2
+#' @param ... Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial} etc.
 #' @examples 
 #' library(phylofactor)
 #' 
@@ -161,7 +165,7 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
   }
   
   if (is.null(frmla.phylo)){  
-    frmla.terms <- terms(frmla) %>% attr('term.labels')
+    frmla.terms <- stats::terms(frmla) %>% base::attr('term.labels')
     if (!all(PartitioningVariables %in% c(frmla.terms,''))){
       stop('Some PartitioningVariables are not found in input frmla')
     }
@@ -184,13 +188,13 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
         }
         LHS <- as.character(frmla[[2]])
         if (length(LHS)==1){
-          frmla.phylo <- as.formula(paste(paste(LHS,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+')))
+          frmla.phylo <- stats::as.formula(paste(paste(LHS,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+')))
         } else {
           if (!all.equal(tolower(LHS),c('cbind','successes','failures'))){
             stop('unknown LHS of input formula. Contact alex.d.washburne@gmail.com with error report')
           } else {
             pp <- paste(LHS[1],'(',paste(LHS[2:3],collapse=','),')',sep='')
-            frmla.phylo <- as.formula(paste(paste(pp,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+'),sep=''))
+            frmla.phylo <- stats::as.formula(paste(paste(pp,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+'),sep=''))
           }
         }
       }
@@ -253,7 +257,7 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
       }
     }
     if (mStableAgg){
-      Data <- phylo.frame.to.matrix(DF)
+      Data <- phylo.frame.to.matrix(Data)
     } else {
       setkey(Data,'Species')
     }
@@ -302,9 +306,9 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
                             FUN=function(sp,Data) model.fcn(frmla,data=Data[Species==sp],...),
                             Data=Data), 
              error=function(e) stop(paste('Could not implement model.fcn for each species due to following error: \n',e)))
-    tryCatch(coef <- t(sapply(models,coefficients)),
+    tryCatch(coef <- t(sapply(models,stats::coefficients)),
              error=function(e) stop(paste('Could not extract coefficients from model.fcn for each species due to following error \n',e)))
-    tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(vcov(m)))[PartitioningVariables])),
+    tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(stats::vcov(m)))[PartitioningVariables])),
              error=function(e) stop(paste('Could not extrac standard errors from model.fcn for each species due to following error \n',e)))
     
     BP <- coef[,PartitioningVariables]/SE
@@ -328,7 +332,7 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
       rarest.spp <- names(sort(table(Data$Species)))[1]
       ix <- which(tree$tip.label==rarest.spp)
       grp <- list(ix,setdiff(1:length(tree$tip.label),ix))
-      tryCatch(getObjective(grp,tree,Data,frmla=frmla.phylo,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=F,objective.fcn=objective.fcn,family=binomial),
+      tryCatch(getObjective(grp,tree,Data,frmla=frmla.phylo,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=F,objective.fcn=objective.fcn,...),
                error = function(e) stop(paste('Failure to getObjective from rarest species due to error:',e)))
     }
   }
@@ -412,7 +416,7 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
                                 '  \r')
     }
     cat(GUI.notification)
-    flush.console()
+    utils::flush.console()
   }
   
   if (!is.null(ncores)){

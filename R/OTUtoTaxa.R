@@ -4,14 +4,14 @@
 #'@param Taxonomy Taxonomy whose first column has OTUs/species IDs and whose second column has greengenes-compatible taxonomic strings
 #'@param common.name Logical indicating whether or not to trim the output to the longest common prefix in the taxonomic strings of all otus
 #'@param uniques Logical whether or not to trim list to only unique entries
-#'@param minimum.tax string indicating the minimum taxonomic detail to include. 
+#'@param minimum.level integer indicating the minimum number of taxonomic levels to include starting from the coarsest (Left-most) taxonomic level. 
 OTUtoTaxa <- function(otus,Taxonomy,common.name=F,uniques=F,minimum.level=Inf){
 
   if(class(otus)!='character'){otus <- as.character(otus)}
   if (ncol(Taxonomy)>2){
-    warning('Taxonomy has more than two columns. Assuming columns 2:ncol(taxonomy) are taxonomic IDs and creating semicolon-delimited taxonomy')
+    warning('Taxonomy has more than two columns. Assuming columns 2:ncol(Taxonomy) are taxonomic IDs and creating semicolon-delimited taxonomy')
     otus <- Taxonomy[,1]
-    tax <- apply(Taxonomy[,2:ncol(taxonomy)],1,paste,sep=';')
+    tax <- apply(Taxonomy[,2:ncol(Taxonomy)],1,paste,sep=';')
     Taxonomy <- data.frame(otus,'taxonomy'=tax)
   }
   if (!class(Taxonomy[,1])=='character'){

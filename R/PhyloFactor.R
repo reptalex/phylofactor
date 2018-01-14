@@ -308,7 +308,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
       stop('Must input X')
     } else {
       if (!is.null(dim(Data))){
-        X <- rnorm(ncol(Data))
+        X <- stats::rnorm(ncol(Data))
       } else {
         X <- 1
       }
@@ -442,14 +442,14 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
           dataset <- cbind(Y,X)
         }
         names(dataset) <- c('Data',names(X))
-        dataset <- model.frame(frmla,data = dataset)
+        dataset <- stats::model.frame(frmla,data = dataset)
         if (any(! colnames(X) %in% colnames(dataset))){
           ix <- which(!colnames(X) %in% colnames(dataset))
           for (nn in 1:length(ix)){
           dataset <-cbind(dataset,X[,ix])
           colnames(dataset)[ncol(dataset)] <- colnames(X)[ix[nn]]
           }
-        gg <- glm(frmla,data=dataset,...)
+        gg <- stats::glm(frmla,data=dataset,...)
       }
     } else {
       ################# export dependencies for choice.fcn ##################################
@@ -477,7 +477,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   OTUs <- tree$tip.label
   n <- length(tree$tip.label)
   if (choice=='var' | method=='max.var'){
-    totalvar= Data %>% apply(.,MARGIN=2,function(x) log(x)-mean(log(x))) %>% apply(.,MARGIN=1,var) %>% sum
+    totalvar= Data %>% apply(.,MARGIN=2,function(x) log(x)-mean(log(x))) %>% apply(.,MARGIN=1,stats::var) %>% sum
   } else {
     totalvar=NULL
   }
@@ -551,7 +551,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
     if (STOP){
       if (!is.null(stop.early)){  #early stop - don't add this factor
           if (default.stop){
-            ks <- ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
+            ks <- stats::ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
               break
@@ -630,8 +630,8 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
                                 as.character(tm+difftime(tm2,tm)*nfactors/pfs),
                                 '  \r')
     }
-    cat(GUI.notification)
-    flush.console()
+    base::cat(GUI.notification)
+    utils::flush.console()
   }
   
   

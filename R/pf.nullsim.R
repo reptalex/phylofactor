@@ -5,7 +5,6 @@
 #' @param nfactors number of factors to run for null simulation
 #' @param nullsimFcn Either NULL, the string "shuffle", or a function taking class "phylofactor" object and producing null dataset. Default for \code{twoSampleFactor} output is to resample data with replacement. If "shuffle" will shuffle rows and columns of PF$Data. Default otherwise is to simulate standard Gaussian null data.
 #' @param seed optional seed for \code{\link{set.seed}}
-#' @param method string, either "Gaussian" or "Shuffle". If "Gaussian", simulations will be standard log-normal datasets. Otherwise, simulations will be original data with reshuffled rows and columns
 #' @param output output to return from each simulation. Must be in \code{names(PF)} or \code{c('ExpVar','F','All')}. If 'All', will output phylofactor object from each sim (may be memory intensive)
 #' @param col.shuffle Logical. Whether or not to shuffle the columns of data. Only used if \code{nullsimFcn=='shuffle'}
 #' @param row.shuffle Logical. Whether or not to shuffle the rows of data. Only used if \code{nullsimFcn=='shuffle'}

@@ -9,7 +9,7 @@ decideMethod <- function(Data,X){
     if (!all(c('Sample','Species','N'))){
       stop('For default decideMethod, data frame must contain c("Sample","Species","N").')
     } else {
-    Data <- phylo.frame.to.matrix(DF)
+      Data <- phylo.frame.to.matrix(Data)
     }
   }
   
@@ -18,7 +18,7 @@ decideMethod <- function(Data,X){
       method='twoSample'
       if (length(unique(Data))==2){
         choice='Fisher'
-      } else if (ks.test(Data,rnorm(1e5,sd=sd(Data)))$p.value<0.1){
+      } else if (stats::ks.test(Data,stats::rnorm(1e5,sd=stats::sd(Data)))$p.value<0.1){
         choice='Wilcox'
       } else {
         choice='ttest'

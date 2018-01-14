@@ -1,8 +1,9 @@
 #' Lists all unique taxonomic names in a Taxonomy at a given level
 #' @export
 #' @param s Character vector of taxonomic names. First row is species IDs, second row is their taxonomy. This function assumes greengenes-compatible taxonomic strings
-#' @param common.name whether or not to return the common name in the list of taxa
-#' @param minimum.levels Integer. Minimum number of taxonomic levels to include counting from highest to lowest.
+#' @param minimum.level Integer. Minimum number of taxonomic levels to include counting from highest to lowest.
+#' @param common.name logical whether or not to return the common name in the list of taxa
+#' @param uniques logical whether or not to trim taxonomic names to only unique entries
 #' @return list of taxonomic strings for all taxa up to speficied level.
 #' @examples
 #' data(FTmicrobiome)

@@ -3,7 +3,7 @@
 #' @export
 #' @param tree phylogenetic tree
 #' @param taxonomy list whose first column is OTUs and second column is green-genes style taxonomy, e.g. k__Bacteria; p__Bacteroidetes
-#' @param level String indicating taxonomic level for coloring. Must be in set {k,p,c,o,f,g,s}
+#' @param minimum.level Integer indicating taxonomic level for coloring. Corresponds to the number of semicolon delimited levels to use.
 #' @param outputlegend Logical indicating whether or not to output the list of taxa and their corresponding colors for manual generation of a legend
 #' @param colorfcn Color Palette for taxa. Default is rainbow.
 #' @param legend Logical whether or not to include legend. Most trees produce pretty ugly legends due to large numbers of taxa, so default is \code{FALSE}
@@ -51,7 +51,7 @@ ColorTaxa <- function(tree,taxonomy,minimum.level=2,outputlegend=FALSE,colorfcn=
 
   #Then we assign colors to each taxon
   if (is.null(colorfcn)){
-    colorfcn <- rainbow
+    colorfcn <- grDevices::rainbow
   }
   colors <- colorfcn(nT)
   if (scramble){
@@ -68,7 +68,7 @@ ColorTaxa <- function(tree,taxonomy,minimum.level=2,outputlegend=FALSE,colorfcn=
   ape::plot.phylo(tree,edge.color = edge_colors, edge.width = edge_widths,...)
 
   if (legend==TRUE){
-    lims <- par('usr')
+    lims <- graphics::par('usr')
     legend(.7*lims[2],.99*lims[4],Taxa,fill=colors)
   }
   if (outputlegend){

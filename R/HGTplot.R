@@ -45,21 +45,21 @@ hgtline <- function(hgt,tree){
     lbl <- tree$tip.label[phangorn::Descendants(tree,ixr,'tips')[[1]][1]]
   }
   xr <- X[lbl,ixt]
-  lines(tvec[ixt],xr,col='red',cex=cex,lwd=lwd)
-  points(tvec[ixt[2]],xd,col='black',cex=cex,pch=pch)
+  graphics::lines(tvec[ixt],xr,col='red',cex=cex,lwd=lwd)
+  graphics::points(tvec[ixt[2]],xd,col='black',cex=cex,pch=pch)
 }
  
 
 ix <- min(which(apply(X,MARGIN=1,FUN=function(x) sum(!is.na(x)))==ncol(X)))
-plot(tvec,X[tree$tip.label[ix],],type='l',ylim=c(min(X,na.rm=T),max(X,na.rm=T)),xlab='time',ylab='Trait Value',main=main,lwd=lwd,...)
+graphics::plot(tvec,X[tree$tip.label[ix],],type='l',ylim=c(min(X,na.rm=T),max(X,na.rm=T)),xlab='time',ylab='Trait Value',main=main,lwd=lwd,...)
 
 for (tip in 1:(ape::Ntip(tree))){
   x <- X[tree$tip.label[tip],]
   if (any(is.na(x))){
     ix <- 1:min(which(is.na(x)))
-    lines(tvec[ix],x[ix],lwd=lwd)
+    graphics::lines(tvec[ix],x[ix],lwd=lwd)
   } else {
-    lines(tvec,x,lwd=lwd)
+    graphics::lines(tvec,x,lwd=lwd)
   }
 }
 

@@ -7,10 +7,11 @@
 #' @param binom.size integer; binomial size per element of data matrix for binomial m-stable aggregation.
 #' @param frmla formula for \code{model.fcn}
 #' @param expfamily character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.
-#' @param model.fcn model function, such as \code{\link{glm}} or \code{\link{mgcv::gam}}.
+#' @param model.fcn model function, such as \code{\link{glm}} or \code{gam}.
 #' @param PartitioningVariables character vector containing of interest for phylofactorization partitioning.
 #' @param mStableAgg logical. See \code{\link{gpf}}
-
+#' @param objective.fcn Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.
+#' @param ... additional arguments for \code{model.fcn}
 getObjective <- function(grp,tree,Data,X=NULL,binom.size=1,frmla,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',mStableAgg,objective.fcn=pvDeviance,...){
   if (mStableAgg){
     fit <- model.fcn(formula=frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...)
