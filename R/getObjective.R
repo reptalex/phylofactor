@@ -2,8 +2,8 @@
 #' @export
 #' @param grp list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}
 #' @param tree phylo class object
-#' @param Data matrix whose rows are species and columns are samples
-#' @param X meta-data containing variables in formula
+#' @param Data If \code{mStableAgg==TRUE}, a matrix whose rows are species and columns are samples. Otherwise, a data table whose columns include "Species" and "Sample" and whose key is "Species".
+#' @param X meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}
 #' @param binom.size integer; binomial size per element of data matrix for binomial m-stable aggregation.
 #' @param frmla formula for \code{model.fcn}
 #' @param expfamily character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.

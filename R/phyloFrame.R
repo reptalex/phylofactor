@@ -19,6 +19,6 @@ phyloFrame <- function(Data,grp,tree){
   factorFrame[grp[[2]],'phylo'] <- 'S'
   ix <- setdiff(1:ape::Ntip(tree),unlist(grp))
   factorFrame[ix,'phylo'] <- NA
-  setkey(factorFrame,Species)
+  data.table::setkey(factorFrame,Species)
   return(Data[factorFrame])
 }
