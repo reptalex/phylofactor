@@ -9,9 +9,11 @@ listTaxa(s, minimum.level = 1, common.name = F, uniques = F)
 \arguments{
 \item{s}{Character vector of taxonomic names. First row is species IDs, second row is their taxonomy. This function assumes greengenes-compatible taxonomic strings}
 
-\item{common.name}{whether or not to return the common name in the list of taxa}
+\item{minimum.level}{Integer. Minimum number of taxonomic levels to include counting from highest to lowest.}
 
-\item{minimum.levels}{Integer. Minimum number of taxonomic levels to include counting from highest to lowest.}
+\item{common.name}{logical whether or not to return the common name in the list of taxa}
+
+\item{uniques}{logical whether or not to trim taxonomic names to only unique entries}
 }
 \value{
 list of taxonomic strings for all taxa up to speficied level.

@@ -12,6 +12,8 @@ ColorTaxa(tree, taxonomy, minimum.level = 2, outputlegend = FALSE,
 
 \item{taxonomy}{list whose first column is OTUs and second column is green-genes style taxonomy, e.g. k__Bacteria; p__Bacteroidetes}
 
+\item{minimum.level}{Integer indicating taxonomic level for coloring. Corresponds to the number of semicolon delimited levels to use.}
+
 \item{outputlegend}{Logical indicating whether or not to output the list of taxa and their corresponding colors for manual generation of a legend}
 
 \item{colorfcn}{Color Palette for taxa. Default is rainbow.}
@@ -21,8 +23,6 @@ ColorTaxa(tree, taxonomy, minimum.level = 2, outputlegend = FALSE,
 \item{scramble}{Logical - whether or not to scramble the order of taxa-color associations by a random draw. Useful for re-drawing colors in case closely related taxa are difficult to distinguish because of adjacent colors in colorfcn.}
 
 \item{...}{additional arguments for plot.phylo}
-
-\item{level}{String indicating taxonomic level for coloring. Must be in set {k,p,c,o,f,g,s}}
 }
 \description{
 Colors tree edges based on taxanomic ID

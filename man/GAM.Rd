@@ -13,11 +13,11 @@ GAM(y, X, PF.output = FALSE, gamfrmla, gamchoice, ...)
 
 \item{PF.output}{logical, if true will return customized output for phylofactor object}
 
+\item{gamfrmla}{formula for regression}
+
+\item{gamchoice}{Either "var" or "F". Determines which statistic to choose from gam for objective function}
+
 \item{...}{additional arguments for \code{\link{gam}}}
-
-\item{frmla}{formula for regression}
-
-\item{choice}{Either "var" or "F". Determines which statistic to choose from gam for objective function}
 }
 \description{
 internal generalized additive model method for \code{\link{PhyloFactor}} method='gam'

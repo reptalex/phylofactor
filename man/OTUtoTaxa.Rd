@@ -16,7 +16,7 @@ OTUtoTaxa(otus, Taxonomy, common.name = F, uniques = F,
 
 \item{uniques}{Logical whether or not to trim list to only unique entries}
 
-\item{minimum.tax}{string indicating the minimum taxonomic detail to include.}
+\item{minimum.level}{integer indicating the minimum number of taxonomic levels to include starting from the coarsest (Left-most) taxonomic level.}
 }
 \description{
 Input OTUs and outputs their taxonomic detail, optinally trimmed to their common taxonomic levels.

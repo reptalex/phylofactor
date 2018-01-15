@@ -5,7 +5,7 @@
 #' @param factor factor level of interest, must be greater than 1. For factor=1, use \code{\link{getPhyloGroups}}. A list of paired groups considered at that level will be returned.
 #' @return output similar to \code{\link{getPhyloGroups}}
 pf.getPhyloGroups <- function(PF,factor){
-  Grps <- getPhyloGroups(tree)
+  Grps <- getPhyloGroups(PF$tree)
   PFgrps <- PF$groups[1:(factor-1)]
   tree <- PF$tree
   treeList <- list(tree)

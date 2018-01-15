@@ -18,6 +18,8 @@ findWinner(nset, tree_map, treeList, treetips, choice, method = "glm",
 
 \item{choice}{string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}}
 
+\item{method}{See \code{\link{PhyloFactor}}}
+
 \item{smallglm}{Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.}
 
 \item{frmla}{Formula for \code{\link{glm}}. See \code{\link{PhyloFactor}} for more details.}

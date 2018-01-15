@@ -12,11 +12,15 @@ gpf(Data, tree, X = NULL, frmla = NULL, PartitioningVariables = NULL,
 \arguments{
 \item{Data}{data table containing columns of "Species", 'N' (counts, 0<=N<=3), "Sample".}
 
+\item{tree}{phylo class object containing all species in \code{Data}}
+
 \item{X}{meta-data containing "Sample" and variables found in \code{frmla}}
 
-\item{frmla}{Formula. If \code{expfamily='binomial'}, must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~phylo}. Explanatory variables used for phylofactorization must interact with the variable \code{phylo}, e.g. partitioning by pH and not N requires \code{Data~N+phylo*pH}}
+\item{frmla}{Formula. If \code{expfamily='binomial'}, must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~effort}}
 
 \item{PartitioningVariables}{Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.}
+
+\item{frmla.phylo}{Formula used for method "phylo" and "mStable". Can use species-specific effects by multilevel factor "Species", and phylo-factors with "phylo". e.g. cbind(Successes,Failures)~x+Species*z+phylo*y has universal coefficient for x, species-specific coefficients for z, and phylo-factor contrasted coefficients for y.}
 
 \item{nfactors}{integer for number of factors to find}
 
@@ -28,9 +32,13 @@ gpf(Data, tree, X = NULL, frmla = NULL, PartitioningVariables = NULL,
 
 \item{model.fcn}{Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.}
 
+\item{objective.fcn}{Optional input objective function. Takes \code{model.fcn} output as its input, and returns a number which will be maximized to determine phylogenetic factor.}
+
 \item{algorithm}{Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix; "phylo" will produce \code{phylo} factors, "mStable" will use \code{phylo} factors for aggregated groups, and "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
 
 \item{alpha}{Numeric between 0 and 1 (strictly greater than 0), indicating the top quantile of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2}
+
+\item{...}{Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial} etc.}
 }
 \description{
 Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.

@@ -25,8 +25,6 @@ pf.nullsim(PF, reps, nfactors = NULL, seed = NULL, nullsimFcn = NULL,
 \item{row.shuffle}{Logical. Whether or not to shuffle the rows of data. Only used if \code{nullsimFcn=='shuffle'}}
 
 \item{...}{optional arguments to \code{\link{PhyloFactor}} or \code{\link{twoSampleFactor}}}
-
-\item{method}{string, either "Gaussian" or "Shuffle". If "Gaussian", simulations will be standard log-normal datasets. Otherwise, simulations will be original data with reshuffled rows and columns}
 }
 \description{
 Null Simulation of phylofactor object

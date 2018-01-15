@@ -4,8 +4,9 @@
 \alias{binPhyloPlot}
 \title{Color bins on a plot of a phylogeny}
 \usage{
-binPhyloPlot(X, factor, tree = NULL, n = NULL, colorfcn = rainbow,
-  type = "unrooted", show.tip.label = F, legend.return = F, ...)
+binPhyloPlot(X, factor, tree = NULL, n = NULL,
+  colorfcn = grDevices::rainbow, type = "unrooted", show.tip.label = F,
+  legend.return = F, ...)
 }
 \arguments{
 \item{X}{Either a phylofactor/phyca object or a list of bins. See \code{\link{bins}} or \code{\link{PhyloFactor}}}

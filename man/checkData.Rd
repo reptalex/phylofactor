@@ -6,6 +6,13 @@
 \usage{
 checkData(Data, tree, method)
 }
+\arguments{
+\item{Data}{Data frame}
+
+\item{tree}{phylo object}
+
+\item{method}{See \code{\link{PhyloFactor}}}
+}
 \description{
 internal \code{PhyloFactor} quality-control function
 }

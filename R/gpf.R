@@ -261,6 +261,13 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
     } else {
       setkey(Data,'Species')
     }
+    if (!all(unique(Data$Species) %in% tree$tip.label)){
+      stop('Not all species in Data$Species are in tree$tip.label')
+    }
+    if (!all(tree$tip.label %in% unique(Data$Species))){
+      warning('Not all tree$tip.label are in Data$Species - use output pf$tree for downstream analysis')
+      tree <- ape::drop.tip(tree,setdiff(tree$tip.label,unique(Data$Species)))
+    }
   }
   if ('matrix' %in% class(Data)){
     if (!all(tree$tip.label==rownames(Data))){
@@ -434,11 +441,14 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
   output$bins <- bins(output$basis)
   output$tree <- tree
   output$nfactors <- pfs
-  output$Data <- Data
+  if (max(table(Data$Species))==1){
+    output$Data <- Data[match(tree$tip.label,Species)]
+  } else {
+    output$Data <- Data
+  }
   output$X <- X
   output$method <- 'gpf'
   class(output) <- 'phylofactor'
-  
   return(output)
 }
 

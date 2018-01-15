@@ -23,11 +23,15 @@ getObjective(grp, tree, Data, X = NULL, binom.size = 1, frmla,
 
 \item{expfamily}{character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.}
 
-\item{model.fcn}{model function, such as \code{\link{glm}} or \code{\link{mgcv::gam}}.}
+\item{model.fcn}{model function, such as \code{\link{glm}} or \code{gam}.}
 
 \item{PartitioningVariables}{character vector containing of interest for phylofactorization partitioning.}
 
 \item{mStableAgg}{logical. See \code{\link{gpf}}}
+
+\item{objective.fcn}{Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.}
+
+\item{...}{additional arguments for \code{model.fcn}}
 }
 \description{
 objective function for \code{\link{gpf}}
