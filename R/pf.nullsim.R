@@ -89,7 +89,11 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
       rownames(Data) <- tree$tip.label
       
       if (rr==1){
-        pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
+        if (PF$method=='gpf'){
+          pf <- gpf(Data,tree,PF$X,nfactors=nf,algorithm=PF$algorithm,frmla = PF$frmla,frmla.phylo=PF$frmla.phylo,PartitioningVariables = PF$PartitioningVariables,...=PF$additional.arguments)
+        } else {
+          pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
+        }
       } else {
         invisible(capture.output(pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)))
       }

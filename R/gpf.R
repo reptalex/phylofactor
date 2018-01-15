@@ -441,8 +441,12 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
   output$bins <- bins(output$basis)
   output$tree <- tree
   output$nfactors <- pfs
-  if (max(table(Data$Species))==1){
-    output$Data <- Data[match(tree$tip.label,Species)]
+  if ('data.table' %in% class(Data)){
+    if (max(table(Data$Species))==1){
+      output$Data <- Data[match(tree$tip.label,Species)]
+    } else {
+      output$Data <- Data
+    }
   } else {
     output$Data <- Data
   }
