@@ -1,5 +1,6 @@
 #' Converts integer-indexed groups to species-labelled groups in phylofactor object
 #' 
+#' @export
 #' @param pf phylofactor class object from \code{\link{PhyloFactor}}, \code{\link{twoSampleFactor}} or \code{\link{gpf}}
 #' @examples 
 #' library(phylofactor)

@@ -13,9 +13,9 @@ getObjective(grp, tree, Data, X = NULL, binom.size = 1, frmla,
 
 \item{tree}{phylo class object}
 
-\item{Data}{matrix whose rows are species and columns are samples}
+\item{Data}{If \code{mStableAgg==TRUE}, a matrix whose rows are species and columns are samples. Otherwise, a data table whose columns include "Species" and "Sample" and whose key is "Species".}
 
-\item{X}{meta-data containing variables in formula}
+\item{X}{meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}}
 
 \item{binom.size}{integer; binomial size per element of data matrix for binomial m-stable aggregation.}
 
