@@ -83,7 +83,24 @@
 #'                     nfactors=2,
 #'                     ncores=2)
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
-#' ### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which is parallelizable.                   
+#' 
+#' pf.non.offset <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
+#'                   frmla.phylo=cbind(Successes,Failures)~z+phylo*y,
+#'                     PartitioningVariables='y',
+#'                     family=binomial,
+#'                     nfactors=2,
+#'                     ncores=2)
+#' 
+#' 
+#' ### The difference between the offset & non-offset is that the latter re-estimates the
+#' ### coefficient for z in each partition, potentially introducing error & wasting degrees of
+#' ### freedom in downstream factors.
+#' 
+#' pf$models[[2]]
+#' pf.non.offset$models[[2]]
+#' 
+#' ### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which is parallelizable.      
+#' ### The argument "ncores" performs built-in parallelization.             
 #'
 #'                     
 #' ### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and Partitioning Variables
