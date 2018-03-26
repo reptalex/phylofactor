@@ -35,20 +35,20 @@
 #' 
 #' ######## presence/absence dataset with affected clade #######
 #' ## most species have higher P{present} with y
-#' eta <- X$z+X$y
+#' eta <- .5*X$z+X$y
 #' p <- ilogit(eta)
 #' M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=T)
 #' rownames(M) <- tree$tip.label
 #' colnames(M) <- X$Sample
 #' 
 #' #### the first clade decreases with y ####
-#' eta1 <- X$z-X$y
+#' eta1 <- .5*X$z-X$y
 #' p1 <- ilogit(eta1)
 #' for (species in clade){
 #'    M[species,] <- rbinom(n,binom.size,p1)
 #' }
 #' #### the second clade weakly decreases with y ####
-#' eta2 <- X$z-.3*X$y
+#' eta2 <- .5*X$z-.3*X$y
 #' p2 <- ilogit(eta2)
 #' for (species in clade2){
 #'    M[species,] <- rbinom(n,binom.size,p2)
@@ -70,9 +70,14 @@
 #' ### For species-specific effects in algorithm 'phylo', you can use the variable "Species", e.g.
 #' ### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients for "z" across species, simply use
 #' ### frmla.phylo=cbind(Successes,Failures)~z+phylo*y
+#' ### Since we're modelling a constant effect of z across species, we want to offset(z) in the formula.
+#' ### Let's get the coefficients for that:
 #' 
-#' pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
-#'                   frmla.phylo=cbind(Successes,Failures)~z+phylo*y,
+#' model.z <- glm(cbind(Successes,Failures)~z,family=binomial,data=DF)
+#' DF[,z.fit:=coef(model.z)['z']*z]
+#' 
+#' pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y,
+#'                   frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+phylo*y,
 #'                     PartitioningVariables='y',
 #'                     family=binomial,
 #'                     nfactors=2,

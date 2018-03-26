@@ -12,7 +12,7 @@
 #' @param alphas vector, of length = \code{nrow(factor.map)} or \code{length(GroupList)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade. Warning: the current output legend gives you the colors layered onto each clade. Layering transparent colors on top of one-another will produce a different color not in the legend..
 #' @param layout See \code{\link{ggtree}}. Default is "circular"
 #' @param rootnode Logical. If true, will fill in the root node. Default controls root only with bg.color 
-#' @param color.fcn Color function for plotting. Default is rainbow.
+#' @param color.fcn Color function for plotting. Default is viridis.
 #' @param ... optional arguments for ggtree
 #' @examples 
 #' library(phylofactor)
