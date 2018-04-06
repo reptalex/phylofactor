@@ -4,15 +4,17 @@
 \alias{pf.tree}
 \title{ggtree-based plotting of phylofactor bins or factors}
 \usage{
-pf.tree(pf, method = "factors", factors = NULL, groups = NULL,
-  colors = NULL, GroupList = NULL, bg.color = NA, bg.alpha = 0.1,
-  alphas = NULL, layout = "circular", rootnode = FALSE, top.layer = F,
-  top.alpha = 0.1, color.fcn = viridis::viridis, ...)
+pf.tree(pf, method = "factors", universal.tree = NULL, factors = NULL,
+  groups = NULL, colors = NULL, GroupList = NULL, bg.color = NA,
+  bg.alpha = 0.1, alphas = NULL, layout = "circular", rootnode = FALSE,
+  top.layer = F, top.alpha = 0.1, color.fcn = viridis::viridis, ...)
 }
 \arguments{
 \item{pf}{phylofactor class object}
 
 \item{method}{either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.}
+
+\item{universal.tree}{A tree containing all the tips in \code{pf$tree}. Tips in \code{pf$tree} will be coded as dots}
 
 \item{factors}{vector of factor numbers to be plotted}
 
@@ -32,7 +34,7 @@ pf.tree(pf, method = "factors", factors = NULL, groups = NULL,
 
 \item{rootnode}{Logical. If true, will fill in the root node. Default controls root only with bg.color}
 
-\item{color.fcn}{Color function for plotting. Default is rainbow.}
+\item{color.fcn}{Color function for plotting. Default is viridis.}
 
 \item{...}{optional arguments for ggtree}
 }

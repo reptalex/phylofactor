@@ -3,6 +3,7 @@
 #' @export
 #' @param pf phylofactor class object
 #' @param method either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.
+#' @param universal.tree A tree containing all the tips in \code{pf$tree}. Tips in \code{pf$tree} will be coded as dots
 #' @param factors vector of factor numbers to be plotted
 #' @param groups vector of groups (1 or 2) to be plotted for each factor. Default is 1
 #' @param colors colors for each \code{factors x groups} pair, or each member of \code{GroupList} 
@@ -21,7 +22,12 @@
 #' gg <- pf.tree(pf,factors=1:3,layout='circular')
 #' gg$ggplot
 #' gg$legend
-pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
+pf.tree <- function(pf,method='factors',universal.tree=NULL,factors=NULL,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
+  if (!is.null(universal.tree)){
+    if (!all(pf$tree$tip.label %in% universal.tree$tip.label)){
+      stop('Not all pf$tree tip labels are in universal.tree tip labels')
+    }
+  }
   if (!(is.null(GroupList) & is.null(factors))){
     if (method=='bins'){
       warning('input GroupList or factors will override method="bins"')
@@ -74,7 +80,14 @@ pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,Gro
     alphas <- rep(1,max((pf$nfactors+1),length(GroupList)))
   }
   
-  n=ape::Ntip(pf$tree)
+  if (!is.null(universal.tree)){
+    tree=universal.tree
+  } else {
+    tree=pf$tree
+  }
+  
+  n=ape::Ntip(tree)
+  
   
   if (is.null(names)){names <- sapply(1:m,FUN=function(s) paste('Clade',s))}
   nd <- numeric(m)
@@ -82,14 +95,14 @@ pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,Gro
     if (method=='factors'){
       grp <- pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]
       if (length(grp)>1){
-        nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[grp])
+        nd[i] <- ggtree::MRCA(tree,pf$tree$tip.label[grp])
       } else {
         nd[i] <- grp
       }
     } else {
       grp <- GroupList[[i]]
       if (length(grp)>1){
-        nd[i] <- ggtree::MRCA(pf$tree,pf$tree$tip.label[grp])
+        nd[i] <- ggtree::MRCA(tree,pf$tree$tip.label[grp])
       } else {
         nd[i] <- grp
       }
@@ -100,7 +113,7 @@ pf.tree <- function(pf,method='factors',factors=NULL,groups=NULL,colors=NULL,Gro
   ix <- order(nd)                ## this gives us a map of which node to which factor/bin
   nd <- sort(nd,decreasing = F)
   
-  gg <- ggtree::ggtree(pf$tree,layout=layout,...)
+  gg <- ggtree::ggtree(tree,layout=layout,...)
   if (nd[1]==(n+1) | !is.na(bg.color)){
     if (is.na(bg.color)){
       bg.color=cols[1]

@@ -10,23 +10,25 @@
 #' 
 #' set.seed(1)
 #' tree <- ape::rtree(7)
-#'c1 <- c('t1','t2','t5','t6','t3','t4')
+#'c1 <- c('t2','t5','t6','t3','t4','t7')
 #'c2 <- setdiff(tree$tip.label,c('t3','t4','t5'))
 #'
-#'grp1 <- c('t1','t2')
-#'grp2 <- c('t5','t6')
+#'grp1 <- c('t3','t6')
+#'grp2 <- c('t2','t7')
 #'Grps <- list(grp1,grp2)
 #'
 #'factored.edges <- getFactoredEdges(grp1=match(grp1,tree$tip.label),
 #'                                   grp2=match(grp2,tree$tip.label),tree=tree)
 #'
-#'ecols <- rep('black',ape::Nedge(tree))
+#'ecols <- rep('grey',ape::Nedge(tree))
 #'ecols[factored.edges] <- 'red'
-#'plot.phylo(tree,use.edge.length = FALSE,type='unrooted',
+#'ecols[12] <- 'yellow'
+#'ecols[c(2,3,10,11)] <- 'blue'
+#'plot.phylo(tree,use.edge.length = FALSE,
 #'             edge.width = 3,edge.color = ecols)
-#'tiplabels(cex=3)
-#'# one clade interrupts our chain of branches: t7
-#'# another clade: [t3,t4], was factored out previously and is not in our Grps
+#'tiplabels(tree$tip.label,cex=3)
+#'# one clade interrupts our chain of branches: t1
+#'# another clade: [t4,t5], was factored out previously and is not in our Grps
 #'
 #'# We have an optional output "ignore.interruptions=T' which omits interruptions
 #'# in output of group comparisons. 
@@ -34,16 +36,16 @@
 #'# for iteration and refinement of which edge along the chain holds an effect.
 #'
 #'# the default is to ignore interruptions, and it should output
-#'# [[t1,t2]],[[t6]]
-#'# by succesfully ignoring t7.
+#'# [[t2,t7]],[[t6]]
+#'# by succesfully ignoring t1.
 #'
 #'crossVmap(Grps,tree,c1,c2)
 #'
 #'#correct
 #'
 #'#Quick check - let's include two interruptions, one of which contains the root
-#'grp1 <- c('t3','t4')
-#'grp2 <- c('t5')
+#'grp1 <- c('t4','t5')
+#'grp2 <- c('t1')
 #'Grps <- list(grp1,grp2)
 #'c1 <- c(grp1,grp2,'t6')
 #'c2 <- setdiff(tree$tip.label,'t4')
@@ -60,7 +62,6 @@
 #'#notice the output: the first and last entries are our output from crossVmap
 #'#when ignore.interruptions=T. The intervening elements are the interrupting clades
 #'#in the order in which they interrupt the factored edges.
-#'
 crossVmap <- function(Grps,tree,original_community,new_community,ignore.interruptions=T){
   
 if (!all(original_community %in% tree$tip.label)){
@@ -80,7 +81,6 @@ grp2 <- Grps[[2]]
 gg1 <- match(grp1,tree$tip.label)
 gg2 <- match(grp2,tree$tip.label)
 factored.edges <- getFactoredEdges(grp1=gg1,grp2=gg2,tree=tree)
-
 
 
 if (length(factored.edges)>1){
