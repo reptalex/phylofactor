@@ -1,4 +1,4 @@
-#' Function for mapping phylogenetic factors to a new community through universal tree
+#' Function for mapping phylogenetic factors in a phylofactor object to a new community through universal tree
 #' 
 #' @export
 #' @param pf phylofactor class object whose tree tip-labels are all in the \code{universal.tree}
