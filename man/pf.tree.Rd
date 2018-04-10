@@ -4,7 +4,7 @@
 \alias{pf.tree}
 \title{ggtree-based plotting of phylofactor bins or factors}
 \usage{
-pf.tree(pf, method = "factors", universal.tree = NULL, factors = NULL,
+pf.tree(pf, tree = NULL, method = "factors", factors = NULL,
   groups = NULL, colors = NULL, GroupList = NULL, bg.color = NA,
   bg.alpha = 0.1, alphas = NULL, layout = "circular", rootnode = FALSE,
   top.layer = F, top.alpha = 0.1, color.fcn = viridis::viridis, ...)
@@ -12,9 +12,9 @@ pf.tree(pf, method = "factors", universal.tree = NULL, factors = NULL,
 \arguments{
 \item{pf}{phylofactor class object}
 
-\item{method}{either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.}
+\item{tree}{An alternative tree on which to plot the phylogenetic factors \code{pf$tree}.}
 
-\item{universal.tree}{A tree containing all the tips in \code{pf$tree}. Tips in \code{pf$tree} will be coded as dots}
+\item{method}{either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.}
 
 \item{factors}{vector of factor numbers to be plotted}
 
@@ -45,7 +45,19 @@ ggtree-based plotting of phylofactor bins or factors
 library(phylofactor)
 data(FTmicrobiome)
 pf <- FTmicrobiome$PF
+big.tree <- FTmicrobiome$tree
+tax <- FTmicrobiome$taxonomy
 gg <- pf.tree(pf,factors=1:3,layout='circular')
 gg$ggplot
 gg$legend
+
+## We can also focus on a universal tree
+pf.tree(pf,big.tree,factors=1:3)
+
+## and a sub-tree
+bacteroidetes <- tax$OTU_ID[grepl('p__Bacteroidetes',tax$taxonomy)] \%>\% intersect(pf$tree$tip.label)
+bacteroidetes.tree <- drop.tip(big.tree,setdiff(big.tree$tip.label,bacteroidetes))
+pf.tree(pf,bacteroidetes.tree,factors=setdiff(1:pf$nfactors,41))
+## factor 41 contains a large, paraphyletic group that encompases all of the bacteroidetes - this will 
+## color our entire tree purple.
 }

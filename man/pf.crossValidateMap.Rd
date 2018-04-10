@@ -2,7 +2,7 @@
 % Please edit documentation in R/pf.crossValidateMap.R
 \name{pf.crossValidateMap}
 \alias{pf.crossValidateMap}
-\title{Function for mapping phylogenetic factors to a new community through universal tree}
+\title{Function for mapping phylogenetic factors in a phylofactor object to a new community through universal tree}
 \usage{
 pf.crossValidateMap(pf, universal.tree, new.community,
   factors = 1:pf$nfactors)
@@ -17,5 +17,5 @@ pf.crossValidateMap(pf, universal.tree, new.community,
 \item{univeral.tree}{Universal phylogeny containing all the tip-labels of \code{pf} and all elements of \code{new.community}}
 }
 \description{
-Function for mapping phylogenetic factors to a new community through universal tree
+Function for mapping phylogenetic factors in a phylofactor object to a new community through universal tree
 }

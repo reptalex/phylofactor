@@ -279,7 +279,7 @@ gpf <- function(Data,tree,X=NULL,frmla=NULL,PartitioningVariables=NULL,frmla.phy
       }
     }
     if (mStableAgg){
-      Data <- phylo.frame.to.matrix(Data)
+      Data <- phyloframe.to.matrix(Data)
     } else {
       setkey(Data,'Species')
     }

@@ -3,7 +3,7 @@
 #' @export
 #' @param pf phylofactor class object
 #' @param method either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.
-#' @param universal.tree A tree containing all the tips in \code{pf$tree}. Tips in \code{pf$tree} will be coded as dots
+#' @param tree An alternative tree on which to plot the phylogenetic factors \code{pf$tree}.
 #' @param factors vector of factor numbers to be plotted
 #' @param groups vector of groups (1 or 2) to be plotted for each factor. Default is 1
 #' @param colors colors for each \code{factors x groups} pair, or each member of \code{GroupList} 
@@ -19,15 +19,23 @@
 #' library(phylofactor)
 #' data(FTmicrobiome)
 #' pf <- FTmicrobiome$PF
+#' big.tree <- FTmicrobiome$tree
+#' tax <- FTmicrobiome$taxonomy
 #' gg <- pf.tree(pf,factors=1:3,layout='circular')
 #' gg$ggplot
 #' gg$legend
-pf.tree <- function(pf,method='factors',universal.tree=NULL,factors=NULL,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
-  if (!is.null(universal.tree)){
-    if (!all(pf$tree$tip.label %in% universal.tree$tip.label)){
-      stop('Not all pf$tree tip labels are in universal.tree tip labels')
-    }
-  }
+#' 
+#' ## We can also focus on a universal tree
+#' pf.tree(pf,big.tree,factors=1:3)
+#' 
+#' ## and a sub-tree
+#' bacteroidetes <- tax$OTU_ID[grepl('p__Bacteroidetes',tax$taxonomy)] %>% intersect(pf$tree$tip.label)
+#' bacteroidetes.tree <- drop.tip(big.tree,setdiff(big.tree$tip.label,bacteroidetes))
+#' pf.tree(pf,bacteroidetes.tree,factors=setdiff(1:pf$nfactors,41))
+#' ## factor 41 contains a large, paraphyletic group that encompases all of the bacteroidetes - this will 
+#' ## color our entire tree purple.
+pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
+  
   if (!(is.null(GroupList) & is.null(factors))){
     if (method=='bins'){
       warning('input GroupList or factors will override method="bins"')
@@ -80,38 +88,39 @@ pf.tree <- function(pf,method='factors',universal.tree=NULL,factors=NULL,groups=
     alphas <- rep(1,max((pf$nfactors+1),length(GroupList)))
   }
   
-  if (!is.null(universal.tree)){
-    tree=universal.tree
-  } else {
+  if (is.null(tree)){
     tree=pf$tree
   }
   
   n=ape::Ntip(tree)
   
   
-  if (is.null(names)){names <- sapply(1:m,FUN=function(s) paste('Clade',s))}
-  nd <- numeric(m)
-  for (i in 1:(m)){
+  nd <- NULL
+  for (i in 1:m){
     if (method=='factors'){
-      grp <- pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]
-      if (length(grp)>1){
-        nd[i] <- ggtree::MRCA(tree,pf$tree$tip.label[grp])
-      } else {
-        nd[i] <- grp
-      }
+      grp <- pf$tree$tip.label[pf$groups[[factor.map[i,1]]][[factor.map[i,2]]]]
     } else {
-      grp <- GroupList[[i]]
+      grp <- pf$tree$tip.label[GroupList[[i]]]
+    }
+    
+    grp <- intersect(grp,tree$tip.label)
+    if (length(grp)>0 & any(setdiff(tree$tip.label,grp) %in% pf$tree$tip.label)){
       if (length(grp)>1){
-        nd[i] <- ggtree::MRCA(tree,pf$tree$tip.label[grp])
+        nd <- c(nd,ggtree::MRCA(tree,grp))
       } else {
-        nd[i] <- grp
+        nd <- c(nd,match(grp,tree$tip.label))
       }
     }
   }
+  if (is.null(nd)){
+    stop('None of the factors/groups could be mapped to the input tree')
+  } 
+  if (all(nd==(n+1))){
+    stop('All factors/groups were mapped to the root of the input tree - no meaningful pf.tree to make')
+  }
   
-  
-  ix <- order(nd)                ## this gives us a map of which node to which factor/bin
-  nd <- sort(nd,decreasing = F)
+  ix <- order(nd,decreasing = F)                ## this gives us a map of which node to which factor/bin
+  nd <- nd[ix]
   
   gg <- ggtree::ggtree(tree,layout=layout,...)
   if (nd[1]==(n+1) | !is.na(bg.color)){
