@@ -29,7 +29,8 @@ names(PF$bins) <- NULL
 test_that('PhyloFactor bins are not correct', expect_true( all.equal(unlist(PF$bins),unlist(Bins))))
 names(PF$bins) <- nms
 invisible(capture.output(PF.par <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)))
-
+PF$models <- NULL
+PF.par$models <- NULL
 test_that('Parellelization works, but Serial and Parellel PhyloFactorizations are not equal',expect_true(all.equal(PF,PF.par)))
 
 smry <- pf.summary(PF,Taxonomy,factor=1)
@@ -41,6 +42,7 @@ test_that('pf.summary incorrectly correctly summarizes split taxa',
 options(warn=-1)
 invisible(capture.output(PF.stop <- PhyloFactor(Data,tree,X,stop.early = T,KS.Pthreshold = 0.05)))
 PF.stop$terminated <- FALSE
+PF.stop$models <- NULL
 options(warn=0)
 
 test_that('Default stop function works',expect_true(all.equal(PF.stop,PF)))

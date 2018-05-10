@@ -1,5 +1,6 @@
 #' get bin number for species
 #' 
+#' @export
 #' @param B bin list. See \code{bins}
 #' @param pf phylofactor object - if input, will override input \code{B}
 #' @param nfactors number of factors to be used - will result in \code{nfactors+1} bins

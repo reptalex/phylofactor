@@ -23,5 +23,6 @@ Lists all unique taxonomic names in a Taxonomy at a given level
 }
 \examples{
 data(FTmicrobiome)
-listTaxa(FTmicrobiome$taxonomy,level='p')
+sapply(FTmicrobiome$taxonomy[,2],as.character) \%>\%
+   listTaxa(minimum.level=2,uniques=TRUE)
 }

@@ -13,6 +13,8 @@
 #' @param alphas vector, of length = \code{nrow(factor.map)} or \code{length(GroupList)} or, if default settings, of length \code{pf$nfactors}. Controls alphas for highlights of each clade. Warning: the current output legend gives you the colors layered onto each clade. Layering transparent colors on top of one-another will produce a different color not in the legend..
 #' @param layout See \code{\link{ggtree}}. Default is "circular"
 #' @param rootnode Logical. If true, will fill in the root node. Default controls root only with bg.color 
+#' @param top.layer Logical. If true, will superimpose hilights on top of tree. If false, tree will layer on top of hilights.
+#' @param top.alpha Numeric. Alpha value for \code{top.layer}
 #' @param color.fcn Color function for plotting. Default is viridis.
 #' @param ... optional arguments for ggtree
 #' @examples 
@@ -26,14 +28,15 @@
 #' gg$legend
 #' 
 #' ## We can also focus on a universal tree
-#' pf.tree(pf,big.tree,factors=1:3)
+#' # pf.tree(pf,big.tree,factors=1:3)
 #' 
 #' ## and a sub-tree
-#' bacteroidetes <- tax$OTU_ID[grepl('p__Bacteroidetes',tax$taxonomy)] %>% intersect(pf$tree$tip.label)
+#' bacteroidetes <- tax$OTU_ID[grepl('p__Bacteroidetes',tax$taxonomy)] %>%
+#'  intersect(pf$tree$tip.label)
 #' bacteroidetes.tree <- drop.tip(big.tree,setdiff(big.tree$tip.label,bacteroidetes))
 #' pf.tree(pf,bacteroidetes.tree,factors=setdiff(1:pf$nfactors,41))
-#' ## factor 41 contains a large, paraphyletic group that encompases all of the bacteroidetes - this will 
-#' ## color our entire tree purple.
+#' ## factor 41 contains a large, paraphyletic group that encompases all of the 
+#' ## bacteroidetes - this will color our entire tree purple.
 pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
   
   if (!(is.null(GroupList) & is.null(factors))){

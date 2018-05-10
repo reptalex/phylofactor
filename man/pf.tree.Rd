@@ -34,6 +34,10 @@ pf.tree(pf, tree = NULL, method = "factors", factors = NULL,
 
 \item{rootnode}{Logical. If true, will fill in the root node. Default controls root only with bg.color}
 
+\item{top.layer}{Logical. If true, will superimpose hilights on top of tree. If false, tree will layer on top of hilights.}
+
+\item{top.alpha}{Numeric. Alpha value for \code{top.layer}}
+
 \item{color.fcn}{Color function for plotting. Default is viridis.}
 
 \item{...}{optional arguments for ggtree}
@@ -55,9 +59,10 @@ gg$legend
 pf.tree(pf,big.tree,factors=1:3)
 
 ## and a sub-tree
-bacteroidetes <- tax$OTU_ID[grepl('p__Bacteroidetes',tax$taxonomy)] \%>\% intersect(pf$tree$tip.label)
+bacteroidetes <- tax$OTU_ID[grepl('p__Bacteroidetes',tax$taxonomy)] \%>\%
+ intersect(pf$tree$tip.label)
 bacteroidetes.tree <- drop.tip(big.tree,setdiff(big.tree$tip.label,bacteroidetes))
 pf.tree(pf,bacteroidetes.tree,factors=setdiff(1:pf$nfactors,41))
-## factor 41 contains a large, paraphyletic group that encompases all of the bacteroidetes - this will 
-## color our entire tree purple.
+## factor 41 contains a large, paraphyletic group that encompases all of the 
+## bacteroidetes - this will color our entire tree purple.
 }

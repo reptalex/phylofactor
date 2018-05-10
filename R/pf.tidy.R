@@ -27,7 +27,7 @@ pf.tidy <- function(smry){
       i=i+1
       names(l)[i] <- 'Coefficients'
       
-      pp <- predict(smry$model)
+      pp <- stats::predict(smry$model)
     
       r <- dim(smry$group1$IDs)[1]
       s <- dim(smry$group2$IDs)[1]

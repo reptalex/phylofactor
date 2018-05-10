@@ -21,12 +21,9 @@ library(phylofactor)
 m=10   #number of species
 n=15   #number of samples
 d=100  #number of data points
-DF <- data.frame('Species'=sample(letters[1:m],d,replace=T),
-                 'Sample'=sample(1:n,d,replace=T),
+DF <- data.frame('Species'=sample(letters[1:m],d,replace=TRUE),
+                 'Sample'=sample(1:n,d,replace=TRUE),
                  'Abundance'=rpois(d,2))
-M <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=NA)
+M <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=0)
 
-DF <- data.frame('Species'=letters[1:m],
-                 'N'=1:m) 
-phyloframe.to.matrix(DF)
 }

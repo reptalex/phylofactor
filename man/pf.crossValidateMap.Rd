@@ -10,11 +10,11 @@ pf.crossValidateMap(pf, universal.tree, new.community,
 \arguments{
 \item{pf}{phylofactor class object whose tree tip-labels are all in the \code{universal.tree}}
 
+\item{universal.tree}{Universal phylogeny containing all the tip-labels of \code{pf} and all elements of \code{new.community}}
+
 \item{new.community}{New community}
 
 \item{factors}{which factors to cross-map}
-
-\item{univeral.tree}{Universal phylogeny containing all the tip-labels of \code{pf} and all elements of \code{new.community}}
 }
 \description{
 Function for mapping phylogenetic factors in a phylofactor object to a new community through universal tree

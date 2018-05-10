@@ -3,7 +3,7 @@
 #' @export
 #' @param PF PhyloFactor object
 #' @param factors Set of factors to be used for prediction. Currently, must be a continuous integer sequence from 1:nfactors
-#' @param ... optional input arguments for glm
+#' @param ... optional input arguments for predict
 #' @return estimated data based on estimates from phylofactorization
 #' @examples
 #' library(caper)
@@ -42,7 +42,7 @@ pf.predict <- function(PF,factors=NULL,...){
       coefs <- NULL
       d=1
       for (nn in factors){
-        pp <- predict(PF$models[[nn]],...)
+        pp <- stats::predict(PF$models[[nn]],...)
         coefs <- matrix(c(coefs,pp),ncol=d,byrow=F)
         d=d+1
       }
@@ -51,30 +51,57 @@ pf.predict <- function(PF,factors=NULL,...){
       
       rownames(Dat) <- rownames(PF$Data)
   } else {
-    m=nrow(PF$Data)
-    n=ncol(PF$Data)
     frmla <- PF$models[[1]]$formula
     family <- PF$models[[1]]$family
     if (family$family!='binomial'){
-      Dat <- data.table('Data'=c(PF$Data),
-                       'Sample'=rep(colnames(PF$Data),each=m),
-                       'phylo'=rep(phylobin(PF$bins),times=n),
-                                   key='Sample')[PF$X] %>%
-                PF$model.fcn(frmla,family=family,data=.) %>%
-                predict %>%
-                matrix(nrow=m,ncol=n,byrow=F)
+      LHS <- as.character(frmla[[2]])
+      if (pf$algorithm=='mStable'){
+        m=nrow(PF$Data)
+        n=ncol(PF$Data)
+        samples <- colnames(PF$Data)
+        Dat <- data.table('Data'=c(PF$Data),
+                          'Sample'=rep(samples,each=m),
+                          'phylo'=rep(factor(phylobin(PF$bins)),times=n),
+                          key='Sample')[PF$MetaData] 
+        names(Dat)[1] <- LHS
+        Dat <- PF$model.fcn(frmla,family=family,data=Dat) %>%
+          stats::predict(.,...) %>%
+          matrix(.,nrow=m,ncol=n,byrow=F)
+        colnames(Dat) <- colnames(PF$Data)
+        rownames(Dat) <- rownames(PF$Data)
+      } else {
+        pbin <- data.frame('Species'=PF$tree$tip.label,
+                           'phylo'=factor(phylobin(PF$bins)))
+        setkey(PF$Data,'Species')
+        Dat <- PF$Data[pbin] %>%
+                  PF$model.fcn(frmla,family=family,data=.) %>%
+                  stats::predict(.,...)
+      }
     } else {
-      Dat <- data.table('Successes'=c(PF$Data),
-                        'Failures'=PF$binom.size-c(PF$Data),
-                        'Sample'=rep(colnames(PF$Data),each=m),
-                        'phylo'=rep(phylobin(PF$bins),times=n),
-                        key='Sample')[PF$X] %>%
+      if (pf$algorithm=='mStable'){
+        m=nrow(PF$Data[[1]])
+        n=ncol(PF$Data[[1]])
+        samples <- colnames(PF$Data[[1]])
+        Dat <- data.table('Successes'=c(PF$Data[[1]]),
+                        'Failures'=c(PF$Data[[2]]),
+                        'Sample'=rep(samples,each=m),
+                        'phylo'=rep(factor(phylobin(PF$bins)),times=n),
+                        key='Sample')[PF$MetaData] %>%
         PF$model.fcn(frmla,family=family,data=.) %>%
-        predict %>%
-        matrix(nrow=m,ncol=n,byrow=F)
+        stats::predict(.,...) %>%
+        matrix(.,nrow=m,ncol=n,byrow=F)
+        colnames(Dat) <- colnames(PF$Data[[1]])
+        rownames(Dat) <- rownames(PF$Data[[1]])
+      } else {
+        pbin <- data.frame('Species'=PF$tree$tip.label,
+                           'phylo'=factor(phylobin(PF$bins)))
+        setkey(PF$Data,'Species')
+        Dat <- PF$Data[pbin] %>%
+          PF$model.fcn(frmla,family=family,data=.) %>%
+          stats::predict(.,...)
+      }
     }
-    colnames(Dat) <- colnames(PF$Data)
-    rownames(Dat) <- rownames(PF$Data)
+
                      
   }
   return(Dat)

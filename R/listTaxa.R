@@ -7,7 +7,8 @@
 #' @return list of taxonomic strings for all taxa up to speficied level.
 #' @examples
 #' data(FTmicrobiome)
-#' listTaxa(FTmicrobiome$taxonomy,level='p')
+#' sapply(FTmicrobiome$taxonomy[,2],as.character) %>%
+#'    listTaxa(minimum.level=2,uniques=TRUE)
 
 listTaxa <- function(s,minimum.level=1,common.name=F,uniques=F){
   

@@ -6,6 +6,9 @@
 \usage{
 replaceZeros(Data)
 }
+\arguments{
+\item{Data}{matrix or vector}
+}
 \description{
 replace zeros in Data for compositional data.
 }

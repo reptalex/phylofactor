@@ -117,6 +117,15 @@
 #' ##################################################
 #' ############### Other features: ##################
 #' 
+#' #### glm-style manipulation of formula, weights, etc. #########
+#' # w=1:10
+#' # PF.weighted <- PhyloFactor(Data,tree,X,weights=w)
+#' 
+#' ## predict meta-data with ILR abundances by changing formula & family
+#' # PF.predict.X <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,family=binomial)
+#' # PF.fancy <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,ncores=2,
+#' # family=binomial,weights=w,offset=rnorm(10),model=F,subset=3:8)
+#' 
 #' #### Stopping Function ###########################
 #' PF.stop <- PhyloFactor(Data,tree,X,stop.early=TRUE)
 #' PF.stop$terminated 
@@ -449,7 +458,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
           dataset <-cbind(dataset,X[,ix])
           colnames(dataset)[ncol(dataset)] <- colnames(X)[ix[nn]]
           }
-        gg <- stats::glm(frmla,data=dataset,...)
+        args <- list('data'=dataset,'formula'=frmla,...)
+        # gg <- stats::glm(frmla,data=dataset,...)
+        do.call(stats::glm,args)
       }
     } else {
       ################# export dependencies for choice.fcn ##################################
@@ -601,7 +612,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
     if (STOP){
       if (is.null(stop.early)){
           if (default.stop){
-            ks <- ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
+            ks <- stats::ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
               break

@@ -8,7 +8,9 @@
 #' @export
 GAM <- function(y,X,PF.output=FALSE,gamfrmla,gamchoice,...){
   dataset <- cbind('Data'=y,X)
-  gg <- mgcv::gam(gamfrmla,data=dataset,...)
+  args=list('data'=dataset,'formula'=gamfrmla,...)
+  # gg <- mgcv::gam(gamfrmla,data=dataset,...)
+  gg <- do.call(mgcv::gam,args)
   
   if (PF.output){
     return(gg)

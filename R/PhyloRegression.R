@@ -155,7 +155,7 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
         if (!method=='max.var'){
           output$explainedvar <- objective[winner]/totalvar
         } else {
-          output$explainedvar <- var(Y[[winner]])/totalvar
+          output$explainedvar <- stats::var(Y[[winner]])/totalvar
         }
       }
       ###############################

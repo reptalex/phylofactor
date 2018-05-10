@@ -11,7 +11,7 @@ pf.predict(PF, factors = NULL, ...)
 
 \item{factors}{Set of factors to be used for prediction. Currently, must be a continuous integer sequence from 1:nfactors}
 
-\item{...}{optional input arguments for glm}
+\item{...}{optional input arguments for predict}
 }
 \value{
 estimated data based on estimates from phylofactorization

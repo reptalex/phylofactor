@@ -22,7 +22,7 @@ pf.flow <- function(PF,factor=PF$nfactors){
   }
   colnames(dmat) <- output$tip.label
   rownames(dmat) <- output$tip.label
-  output <- ape::as.phylo(hclust(dist(dmat)))
+  output <- ape::as.phylo(stats::hclust(dist(dmat)))
   output$tip.label <- sapply(as.list(output$tip.label),FUN=function(a) paste('Bin',a))
   
   ix <- sapply(as.list(1:nt),FUN=function(a,b) which(b==a),b=output$edge[,2]) %>% order

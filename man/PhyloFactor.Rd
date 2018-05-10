@@ -156,6 +156,15 @@ par(mar=mar)
 ##################################################
 ############### Other features: ##################
 
+#### glm-style manipulation of formula, weights, etc. #########
+# w=1:10
+# PF.weighted <- PhyloFactor(Data,tree,X,weights=w)
+
+## predict meta-data with ILR abundances by changing formula & family
+# PF.predict.X <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,family=binomial)
+# PF.fancy <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,ncores=2,
+# family=binomial,weights=w,offset=rnorm(10),model=F,subset=3:8)
+
 #### Stopping Function ###########################
 PF.stop <- PhyloFactor(Data,tree,X,stop.early=TRUE)
 PF.stop$terminated 

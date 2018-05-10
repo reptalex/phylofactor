@@ -4,20 +4,20 @@
 \alias{mAggregation}
 \title{marginally stable aggregation of binomial data}
 \usage{
-mAggregation(DF, grp, tree, X, binom.size, expfamily)
+mAggregation(Data, grp, tree, MetaData, expfamily, frmla)
 }
 \arguments{
-\item{DF}{data table containing "Species", "sample", and "N" (N= counts of species in sample)}
+\item{Data}{matrix or list of matrices containing LHS variables to be aggregated}
 
 \item{grp}{see output of \code{\link{getPhyloGroups}}}
 
 \item{tree}{phylo object}
 
-\item{X}{meta-data table containing "sample" and variables found in formula}
-
-\item{binom.size}{Size of binomial (binom.size=1 for Bernoulli)}
+\item{MetaData}{meta-data table containing "sample" and variables found in formula}
 
 \item{expfamily}{Character, currently either "binomial" or "gaussian", indicating family of exponential family for marginally-stable aggregation.}
+
+\item{frmla}{formula - the response variable (or cbind(Successes,Failures) for \code{expfamily='binomial'},) will be aggregated.}
 }
 \description{
 marginally stable aggregation of binomial data

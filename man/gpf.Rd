@@ -4,41 +4,40 @@
 \alias{gpf}
 \title{Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.}
 \usage{
-gpf(Data, tree, X = NULL, frmla = NULL, PartitioningVariables = NULL,
-  frmla.phylo = NULL, nfactors = NULL, ncores = NULL, binom.size = 1,
-  expfamily = "gaussian", model.fcn = stats::glm,
-  objective.fcn = pvDeviance, algorithm = "mix", alpha = 0.2, ...)
+gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
+  PartitioningVariables = NULL, MetaData = NULL, nfactors = NULL,
+  ncores = NULL, model.fcn = stats::glm, objective.fcn = pvDeviance,
+  algorithm = "mix", alpha = 0.2, ...)
 }
 \arguments{
-\item{Data}{data table containing columns of "Species", 'N' (counts, 0<=N<=3), "Sample".}
+\item{Data}{data table containing columns of "Species", and terms in the \code{frmla}. If \code{algorithm=="mStable"}, \code{Data} must also include a column of "Sample" or, alternatively, \code{Data} can be a matrix whose rows are species and columns are samples and \code{MetaData} a data frame of meta-data with rows corresponding to columns of \code{Data} and the terms in \code{frmla} or non-phylo terms in \code{frmla.phylo}.}
 
 \item{tree}{phylo class object containing all species in \code{Data}}
 
-\item{X}{meta-data containing "Sample" and variables found in \code{frmla}}
+\item{frmla.phylo}{Formula used for method "phylo" and "mStable". Can use species-specific effects by multilevel factor "Species", and phylo-factors with "phylo". e.g. cbind(Successes,Failures)~x+Species*z+phylo*y has universal coefficient for x, species-specific coefficients for z, and phylo-factor contrasted coefficients for y.}
 
-\item{frmla}{Formula. If \code{expfamily='binomial'}, must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~effort}}
+\item{frmla}{Formula. If \code{expfamily='binomial'}, the left hand side must have c(Successes,Failures)~. Otherwise, the variable for data is "Data", e.g. \code{Data~effort+phylo}}
 
 \item{PartitioningVariables}{Character vector containing the variables in \code{frmla} to be used for phylofactorization. Objective function will be the sum of deviance from all variables listed here.}
 
-\item{frmla.phylo}{Formula used for method "phylo" and "mStable". Can use species-specific effects by multilevel factor "Species", and phylo-factors with "phylo". e.g. cbind(Successes,Failures)~x+Species*z+phylo*y has universal coefficient for x, species-specific coefficients for z, and phylo-factor contrasted coefficients for y.}
+\item{MetaData}{data frame or data table of meta-data containing variables found in \code{frmla}. If the \code{algorithm='mStable'}, the meta-data must contain a column "Sample" to enable aggregation of groups within samples.}
 
 \item{nfactors}{integer for number of factors to find}
 
 \item{ncores}{integers for number of cores to use for parallelization}
 
-\item{binom.size}{binom.size of binomial samples for each species. binom.size=1 for presence/absence data.}
-
-\item{expfamily}{Either "gaussian" or "binomial" - determines the aggregation method.}
-
 \item{model.fcn}{Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.}
 
 \item{objective.fcn}{Optional input objective function. Takes \code{model.fcn} output as its input, and returns a number which will be maximized to determine phylogenetic factor.}
 
-\item{algorithm}{Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix; "phylo" will produce \code{phylo} factors, "mStable" will use \code{phylo} factors for aggregated groups, and "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
+\item{algorithm}{Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix. "phylo" will produce \code{phylo} factors. "mStable" will use \code{phylo} factors and marginally-stable aggregation of groups. "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
 
-\item{alpha}{Numeric between 0 and 1 (strictly greater than 0), indicating the top quantile of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2}
+\item{alpha}{Numeric between 0 and 1 (strictly greater than 0), indicating the top fraction of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2 selecting top 20 percent of edges.}
 
-\item{...}{Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial} etc.}
+\item{...}{Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial}, \code{weights}, etc. For \code{algorithm!='mStable'}, \code{subset} is not a valid optional argument due to \code{gpf} recursively subsetting based on phylogenetic factors. For \code{algorithm='mStable'}, \code{subset} indexes correspond to the Samples in order of \code{unique(Data$Sample)}}
+}
+\value{
+phylofactor object which can be manipulated with various \code{pf.} functions
 }
 \description{
 Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.
@@ -51,7 +50,7 @@ set.seed(1)
 m <- 50
 n <- 200
 tree <- rtree(m)
-X <- data.table('y'=rnorm(n),
+MetaData <- data.table('y'=rnorm(n),
                 'z'=rnorm(n,sd=0.5),
                 'Sample'=sapply(1:n,FUN=function(s) paste('Sample',s)),
                 key='Sample')
@@ -62,43 +61,45 @@ clade2 <- phangorn::Descendants(tree,53,'tips')[[1]]
 
 ######## presence/absence dataset with affected clade #######
 ## most species have higher P{present} with y
-eta <- .5*X$z+X$y
+eta <- .5*MetaData$z+MetaData$y
 p <- ilogit(eta)
-M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=T)
+M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=TRUE)
 rownames(M) <- tree$tip.label
-colnames(M) <- X$Sample
+colnames(M) <- MetaData$Sample
 
 #### the first clade decreases with y ####
-eta1 <- .5*X$z-X$y
+eta1 <- .5*MetaData$z-MetaData$y
 p1 <- ilogit(eta1)
 for (species in clade){
    M[species,] <- rbinom(n,binom.size,p1)
 }
 #### the second clade weakly decreases with y ####
-eta2 <- .5*X$z-.3*X$y
+eta2 <- .5*MetaData$z-.3*MetaData$y
 p2 <- ilogit(eta2)
 for (species in clade2){
    M[species,] <- rbinom(n,binom.size,p2)
 }
 
 #### Default algorithm: 'mix' #####
-### For default can input data matrix or data frame with "Species", "Sample", and all relevant meta-data
+### For default can input data matrix or data frame 
+### with "Species", "Sample", and all relevant meta-data
 DF <- matrix.to.phyloframe(M,data.name='Successes')
 DF[,Failures:=binom.size-Successes]
 setkey(DF,Sample)
-DF <- DF[X]
+DF <- DF[MetaData]
 
 ### DF must have "Species", "Sample", and the LHS of the formula input.
-### A separate data frame or data table, X, can have "Sample" and the RHS of the formula.
+### A separate data frame or data table, MetaData, can have "Sample" and the RHS of the formula.
 
-### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for selection by algorithm 'phylo'
-### This algorithm has the greatest power but is also computationally intensive.
-### It's recommended that you input both frmla (used in CoefContrst) and frmla.phylo (used in algorithm 'phylo').
+### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for 
+### selection by algorithm 'phylo'. This algorithm has the greatest power but is also 
+### computationally intensive. It's recommended that you input both frmla (used in CoefContrst)
+### and frmla.phylo (used in algorithm 'phylo').
 ### For species-specific effects in algorithm 'phylo', you can use the variable "Species", e.g.
-### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients for "z" across species, simply use
-### frmla.phylo=cbind(Successes,Failures)~z+phylo*y
-### Since we're modelling a constant effect of z across species, we want to offset(z) in the formula.
-### Let's get the coefficients for that:
+### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients 
+### for "z" across species, simply use frmla.phylo=cbind(Successes,Failures)~z+phylo*y
+### Since we're modelling a constant effect of z across species, we want to offset(z) 
+### in the formula. Let's get the coefficients for that:
 
 model.z <- glm(cbind(Successes,Failures)~z,family=binomial,data=DF)
 DF[,z.fit:=coef(model.z)['z']*z]
@@ -110,6 +111,16 @@ pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y,
                     nfactors=2,
                     ncores=2)
 all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
+
+
+### glm manipulation - can do everything except subset ###
+### For non-mStable, weights slow down the algorithm due to data.table indexing issues ###
+# w <- sample(2,nrow(DF),T)
+# pf.fancy <- gpf(DF,tree,frmla=cbind(Successes,Failures)~y,
+#                    frmla.phylo=cbind(Successes,Failures)~phylo*y,
+#                    PartitioningVariables='y',nfactors=2,ncores=2,
+#                    family=binomial,weights=w,offset=DF$z.fit)
+###########################################################
 
 pf.non.offset <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
                   frmla.phylo=cbind(Successes,Failures)~z+phylo*y,
@@ -123,15 +134,13 @@ pf.non.offset <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
 ### coefficient for z in each partition, potentially introducing error & wasting degrees of
 ### freedom in downstream factors.
 
-pf$models[[2]]
-pf.non.offset$models[[2]]
-
-### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which is parallelizable.      
-### The argument "ncores" performs built-in parallelization.             
+### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which
+### is parallelizable. The argument "ncores" performs built-in parallelization.             
 
                     
-### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and Partitioning Variables
- ### CoefContrast is extremely fast and best done without parallelization (as it is built off matrix multiplication).
+### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and 
+## Partitioning Variables. CoefContrast is extremely fast and best done without parallelization
+## (as it is built off matrix multiplication).
 pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
                     PartitioningVariables='y',
                     algorithm='CoefContrast',
@@ -140,32 +149,34 @@ pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
 all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 
 ####################### to partition on y, must have phylo* #########
-pf <- gpf(M,tree,X,frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
-          binom.size=binom.size,family=binomial(link='logit'),
-          PartitioningVariables='y',algorithm='mStable')
+## Also, for inputting matrices into gpf for binomial glm or gam,
+## must input a list of matrices with "Successes" and "Failures":
+Mat.List <- list('Successes'=M,'Failures'=binom.size-M)
+pf <- gpf(Mat.List,tree,MetaData=MetaData,
+          frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
+          family=binomial,algorithm='mStable')
 all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 
-pf.tree(pf)
 par(mfrow=c(2,1))
-phytools::phylo.heatmap(tree,M[,order(X$y)])
-phytools::phylo.heatmap(tree,ilogit(pf.predict(pf)[,order(X$y)]))
+phytools::phylo.heatmap(tree,M[,order(MetaData$y)])
+phytools::phylo.heatmap(tree,ilogit(pf.predict(pf)[,order(MetaData$y)]))
 
 ################# Poisson Regression
 set.seed(1)
-eta <- 2*X$z+X$y
+eta <- 2*MetaData$z+MetaData$y
 lambda <- exp(eta)
-M <- matrix(rpois(m*n,rep(lambda,times=m)),nrow=m,ncol=n,byrow=T)
+M <- matrix(rpois(m*n,rep(lambda,times=m)),nrow=m,ncol=n,byrow=TRUE)
 rownames(M) <- tree$tip.label
-colnames(M) <- X$Sample
+colnames(M) <- MetaData$Sample
 
 #### the first clade decreases with y ####
-eta1 <- .3*X$z-X$y
+eta1 <- .3*MetaData$z-MetaData$y
 lambda1 <- exp(eta1)
 for (species in clade){
    M[species,] <- rpois(n,lambda1)
 }
 #### the second clade strongly increases with y ####
-eta2 <- .3*X$z-X$y
+eta2 <- .3*MetaData$z-MetaData$y
 lambda2 <- exp(eta2)
 for (species in clade2){
    M[species,] <- rpois(n,lambda2)
@@ -174,14 +185,14 @@ for (species in clade2){
 
 
 ##For non-binomial, use "Data" as response variable #########
-pf <- gpf(M,tree,X,frmla.phylo=Data~phylo*(z+y),nfactors=2,family=poisson,
+pf <- gpf(M,tree,MetaData=MetaData,frmla.phylo=Data~phylo*(z+y),nfactors=2,family=poisson,
           PartitioningVariables='y',algorithm='mStable')
 pf$factors
 all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 
 par(mfrow=c(2,1))
-phytools::phylo.heatmap(tree,M[,order(X$y)])
-phytools::phylo.heatmap(tree,exp(pf.predict(pf)[,order(X$y)]))
+phytools::phylo.heatmap(tree,M[,order(MetaData$y)])
+phytools::phylo.heatmap(tree,exp(pf.predict(pf)[,order(MetaData$y)]))
 
 ### partition vector of data controlling for sample effort ###
 set.seed(1)
@@ -189,9 +200,61 @@ effort <- rnorm(50)
 eta <- effort-3
 eta[clade] <- eta[clade]+6
 eta[clade2] <- eta[clade2]+8
-Data <- data.table('Species'=tree$tip.label,effort,'Successes'=rbinom(50,1,ilogit(eta)),'Sample'=1)
+Data <- data.table('Species'=tree$tip.label,effort,
+                   'Successes'=rbinom(50,1,ilogit(eta)),
+                   'Sample'=1)
 Data$Failures <- 1-Data$Successes
 pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,
           nfactors=2,algorithm='phylo',family=binomial)
 all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
+
+
+
+############# generalized additive modelling ################
+set.seed(1)
+m <- 50
+n <- 20
+tree <- rtree(m)
+MetaData <- data.table('y'=rnorm(n),
+                       'z'=rnorm(n,sd=0.5),
+                       'Sample'=sapply(1:n,FUN=function(s) paste('Sample',s)),
+                       key='Sample')
+#we'll partition by 'y'.
+binom.size=10
+clade <- phangorn::Descendants(tree,75,'tips')[[1]]
+clade2 <- phangorn::Descendants(tree,53,'tips')[[1]]
+
+######## presence/absence dataset with affected clade #######
+## most species have higher P{present} with y
+eta <- .5*MetaData$z+MetaData$y
+p <- ilogit(eta)
+M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=TRUE)
+rownames(M) <- tree$tip.label
+colnames(M) <- MetaData$Sample
+
+#### the first clade decreases with y ####
+eta1 <- .5*MetaData$z+2*MetaData$y^2         #non-linear response
+p1 <- ilogit(eta1)
+for (species in clade){
+  M[species,] <- rbinom(n,binom.size,p1)
+}
+#### the second clade weakly decreases with y ####
+eta2 <- .5*MetaData$z-4*MetaData$y           #linear response
+p2 <- ilogit(eta2)
+for (species in clade2){
+  M[species,] <- rbinom(n,binom.size,p2)
+}
+
+DF <- matrix.to.phyloframe(M,data.name='Successes')
+DF[,Failures:=binom.size-Successes]
+setkey(DF,Sample)
+DF <- DF[MetaData]
+
+model.z <- glm(cbind(Successes,Failures)~z,family=binomial,data=DF)
+DF[,z.fit:=coef(model.z)['z']*z]
+
+pf <- gpf(DF,tree,frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+s(y,by=phylo),
+          PartitioningVariables='y',family=binomial,
+          nfactors=2,ncores=2,model.fcn = mgcv::gam,algorithm = 'phylo')
+pf$factors
 }

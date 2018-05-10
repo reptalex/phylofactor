@@ -16,6 +16,7 @@
 #' @examples 
 #' library(phylofactor)
 #' library(ggtree)
+#' library(viridis)
 #' set.seed(1)
 #' D <- 300
 #' tree <- rtree(D)
@@ -44,7 +45,7 @@
 #' Z[c1] <- rbinom(length(c1),1,0.9)
 #' Z[c2] <- 0
 #' 
-#' pf <- twoSampleFactor(Z,tree,nfactors=2,method='Fisher',alternative='two.sided',ncores=2)
+#' pf <- twoSampleFactor(Z,tree,nfactors=2,method='Fisher',alternative='two.sided')
 #' pp <- pf.tree(pf,layout='rectangular')$ggplot
 #' 
 #' tipcolors <- viridis(2)[Z+1]
@@ -68,8 +69,8 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
     
   } else if (method=='Fisher'){
     TestFunction <- function(grps,Z,p.value=F,...){
-      s1 <- Z[grps[[1]]] %>% na.omit
-      s2 <- Z[grps[[2]]] %>% na.omit
+      s1 <- S4Vectors::na.omit(Z[grps[[1]]])
+      s2 <- S4Vectors::na.omit(Z[grps[[2]]])
       n1 <- sum(s1)
       n2 <- sum(s2)
       p <- tryCatch(stats::fisher.test(matrix(c(n1,length(s1)-n1,n2,length(s2)-n2),ncol=2),...)$p.value,
@@ -83,7 +84,7 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
   } else if (method=='Wilcox'){
     TestFunction <- function(grps,Z,p.value=F,...){
       if (!p.value){
-        s <- 1/stats::wilcox.test(na.omit(Z[grps[[1]]]),na.omit(Z[grps[[2]]]))$p.value
+        s <- 1/stats::wilcox.test(S4Vectors::na.omit(Z[grps[[1]]]),S4Vectors::na.omit(Z[grps[[2]]]))$p.value
       } else {
         s <- stats::wilcox.test(Z[grps[[1]]],Z[grps[[2]]])$p.value
       }
@@ -167,7 +168,7 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
                                 '  \r')
     }
     cat(GUI.notification)
-    flush.console()
+    utils::flush.console()
   }
   
   

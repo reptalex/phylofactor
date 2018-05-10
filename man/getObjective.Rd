@@ -4,7 +4,7 @@
 \alias{getObjective}
 \title{objective function for \code{\link{gpf}}}
 \usage{
-getObjective(grp, tree, Data, X = NULL, binom.size = 1, frmla,
+getObjective(grp, tree, Data, MetaData = NULL, frmla,
   expfamily = "gaussian", model.fcn = stats::glm,
   PartitioningVariables = "", mStableAgg, objective.fcn = pvDeviance, ...)
 }
@@ -15,9 +15,7 @@ getObjective(grp, tree, Data, X = NULL, binom.size = 1, frmla,
 
 \item{Data}{If \code{mStableAgg==TRUE}, a matrix whose rows are species and columns are samples. Otherwise, a data table whose columns include "Species" and "Sample" and whose key is "Species".}
 
-\item{X}{meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}}
-
-\item{binom.size}{integer; binomial size per element of data matrix for binomial m-stable aggregation.}
+\item{MetaData}{meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}}
 
 \item{frmla}{formula for \code{model.fcn}}
 

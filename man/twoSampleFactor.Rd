@@ -39,6 +39,7 @@ Phylofactorization of vector data using two-sample tests
 \examples{
 library(phylofactor)
 library(ggtree)
+library(viridis)
 set.seed(1)
 D <- 300
 tree <- rtree(D)
@@ -67,7 +68,7 @@ Z <- rbinom(D,1,0.3)
 Z[c1] <- rbinom(length(c1),1,0.9)
 Z[c2] <- 0
 
-pf <- twoSampleFactor(Z,tree,nfactors=2,method='Fisher',alternative='two.sided',ncores=2)
+pf <- twoSampleFactor(Z,tree,nfactors=2,method='Fisher',alternative='two.sided')
 pp <- pf.tree(pf,layout='rectangular')$ggplot
 
 tipcolors <- viridis(2)[Z+1]

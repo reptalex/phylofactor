@@ -2,13 +2,12 @@
 #' 
 #' @export
 #' @param pf phylofactor class object whose tree tip-labels are all in the \code{universal.tree}
-#' @param univeral.tree Universal phylogeny containing all the tip-labels of \code{pf} and all elements of \code{new.community}
+#' @param universal.tree Universal phylogeny containing all the tip-labels of \code{pf} and all elements of \code{new.community}
 #' @param new.community New community
 #' @param factors which factors to cross-map
 pf.crossValidateMap <- function(pf,universal.tree,new.community,factors=1:pf$nfactors){
   
   
-  # universal.tree <- TREE
   universal.community <- unique(c(pf$tree$tip.label,new.community))
   if (!all(universal.community %in% universal.tree$tip.label)){
     stop('Some members of pf$tree$tip.label or new.community are not in universal.tree')

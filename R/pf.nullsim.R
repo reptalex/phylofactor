@@ -23,11 +23,11 @@
 #' for (tip in clade){ Data[tip,] <- Data[tip,]*exp(8*X) }
 #' PF <- PhyloFactor(Data,tree,X,nfactors=4)
 #' 
-#' nullsim <- pf.nullsim(PF,10,nfactors=4)
+#' #nullsim <- phylofactor:::pf.nullsim(PF,10,nfactors=4)
 #' 
-#' plot(PF$ExplainedVar,type='l')
-#' for (nn in 1:10){lines(nullsim[[nn]],col='grey')}
-#' legend('center',c('Original Data','Null Data'),col=c('black','gray'),lty=c(1,1))
+#' #plot(PF$ExplainedVar,type='l')
+#' #for (nn in 1:10){lines(nullsim[[nn]],col='grey')}
+#' #legend('center',c('Original Data','Null Data'),col=c('black','gray'),lty=c(1,1))
 
 pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='ExpVar',col.shuffle=T,row.shuffle=T,...){
   

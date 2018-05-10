@@ -9,28 +9,40 @@
 #' m=10   #number of species
 #' n=15   #number of samples
 #' d=100  #number of data points
-#' DF <- data.frame('Species'=sample(letters[1:m],d,replace=T),
-#'                  'Sample'=sample(1:n,d,replace=T),
+#' DF <- data.frame('Species'=sample(letters[1:m],d,replace=TRUE),
+#'                  'Sample'=sample(1:n,d,replace=TRUE),
 #'                  'Abundance'=rpois(d,2))
-#' M <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=NA)
+#' M <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=0)
 #' 
-#' DF <- data.frame('Species'=letters[1:m],
-#'                  'N'=1:m) 
-#' phyloframe.to.matrix(DF)
 phyloframe.to.matrix <- function(DF,mat.data='N',empty.val=0){
+  if (is.null(DF$Sample)){
+    stop('must have element "Sample" for input DF')
+  }
+  if (is.null(DF$Species)){
+    stop('must have element "Species" for input DF')
+  }
+  if (!all(mat.data %in% names(DF))){
+    stop('not all mat.data are in names of DF')
+  }
+  
   samples <- unique(DF$Sample)
-  if (is.null(samples)){
-    samples <- 1
-    DF$Samples <- 1
-  }
   species <- unique(DF$Species)
-  if (length(samples)==1 & any(table(DF$Species)>1)){
-    stop('input DF does not have Samples, yet some species are replicated. Cannot assign multiple values to a species without there being multiple Samples.')
-  }
   Mat <- matrix(empty.val,nrow=length(species),ncol=length(samples))
   rownames(Mat) <- as.character(species)
   colnames(Mat) <- as.character(samples)
   
-  Mat[cbind(as.character(DF$Species),as.character(DF$Sample))] <- DF[[mat.data]]
+  if (length(mat.data)==1){
+    Mat[cbind(as.character(DF$Species),as.character(DF$Sample))] <- DF[[mat.data]]
+  } else {
+    output <- vector(mode='list',length=length(mat.data))
+    i=0
+    for (mm in mat.data){
+      i=i+1
+      output[[i]] <- Mat
+      output[[i]][cbind(as.character(DF$Species),as.character(DF$Sample))] <- DF[[mm]]
+      names(output)[i] <- mm
+    }
+    Mat <- output
+  }
   return(Mat)
 }

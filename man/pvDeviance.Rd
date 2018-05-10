@@ -4,7 +4,8 @@
 \alias{pvDeviance}
 \title{obtains deviance for partitioning variables - default objective function for \code{\link{gpf}}}
 \usage{
-pvDeviance(model, grp, tree, PartitioningVariables = "")
+pvDeviance(model, grp, tree, PartitioningVariables = "", model.fcn, phyloData,
+  ...)
 }
 \arguments{
 \item{model}{model, such as glm, lm, nls, gam, which can be put into anova.}
@@ -14,6 +15,12 @@ pvDeviance(model, grp, tree, PartitioningVariables = "")
 \item{tree}{phylo class object}
 
 \item{PartitioningVariables}{string - used to find partitioning variables in anova table.}
+
+\item{model.fcn}{input model function for \code{\link{gpf}}}
+
+\item{phyloData}{Data frame passed to \code{model.fcn}, used here to compute null deviance without \code{phylo} factors in gam objects}
+
+\item{...}{additional arguments passed to \code{model.fcn} passed down from the input to \code{\link{gpf}}}
 }
 \description{
 obtains deviance for partitioning variables - default objective function for \code{\link{gpf}}

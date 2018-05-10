@@ -24,8 +24,8 @@ set.seed(1)
 m=3   #number of species
 n=5   #number of samples
 d=10  #number of data points
-DF <- data.frame('Species'=sample(letters[1:m],d,replace=T),
-                 'Sample'=sample(1:n,d,replace=T),
+DF <- data.frame('Species'=sample(letters[1:m],d,replace=TRUE),
+                 'Sample'=sample(1:n,d,replace=TRUE),
                  'Abundance'=rpois(d,4))
 Mat <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=NA)
 DF2 <- matrix.to.phyloframe(Mat,data.name='Abundance')

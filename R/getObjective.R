@@ -3,8 +3,7 @@
 #' @param grp list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}
 #' @param tree phylo class object
 #' @param Data If \code{mStableAgg==TRUE}, a matrix whose rows are species and columns are samples. Otherwise, a data table whose columns include "Species" and "Sample" and whose key is "Species".
-#' @param X meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}
-#' @param binom.size integer; binomial size per element of data matrix for binomial m-stable aggregation.
+#' @param MetaData meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}
 #' @param frmla formula for \code{model.fcn}
 #' @param expfamily character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.
 #' @param model.fcn model function, such as \code{\link{glm}} or \code{gam}.
@@ -12,12 +11,16 @@
 #' @param mStableAgg logical. See \code{\link{gpf}}
 #' @param objective.fcn Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.
 #' @param ... additional arguments for \code{model.fcn}
-getObjective <- function(grp,tree,Data,X=NULL,binom.size=1,frmla,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',mStableAgg,objective.fcn=pvDeviance,...){
-  if (mStableAgg){
-    fit <- model.fcn(formula=frmla,data=mAggregation(Data,grp,tree,X,binom.size,expfamily),...)
+getObjective <- function(grp,tree,Data,MetaData=NULL,frmla,expfamily='gaussian',model.fcn=stats::glm,PartitioningVariables='',mStableAgg,objective.fcn=pvDeviance,...){
+  if (mStableAgg==T){
+    phyloData <- mAggregation(Data,grp,tree,MetaData,expfamily,frmla)
+    fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
   } else {
-    fit <- model.fcn(formula=frmla,data=phyloFrame(Data,grp,tree),...)
+    phyloData <- phyloFrame(Data,grp,tree)
+    fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
   }
-  omega <- objective.fcn(fit,grp,tree,PartitioningVariables)
+  
+  omega <- objective.fcn(fit,grp,tree,PartitioningVariables,model.fcn,phyloData,...)
+  
   return(omega)
 }

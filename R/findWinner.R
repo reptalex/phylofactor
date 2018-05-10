@@ -97,12 +97,12 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
               dataset$Data <- Y
             }
         #########################################################
-        
+        args <- list('data'=dataset,'formula'=frmla,...)
         ############ Performing Regression ######################
         if(smallglm){
-          gg=glm(frmla,data = dataset,...)
+          gg=do.call(stats::glm,args)
         } else {
-          gg=biglm::bigglm(frmla,data = dataset,...)
+          gg=do.call(biglm::bigglm,args)
         }
         #########################################################
         
@@ -153,7 +153,8 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
     dataset <- c(list(Y),as.list(xx))
     names(dataset) <- c('Data',names(xx))
     dataset <- stats::model.frame(frmla,data = dataset)
-    output$model <- stats::glm(frmla,data = dataset,...)
+    args <- list('data'=dataset,'formula'=formula,...)
+    output$model <- do.call(stats::glm,args)
   }
   ##########################################################################
   
