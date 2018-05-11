@@ -73,6 +73,6 @@ test_that('advanced glm functionality works in parallel',expect_true(all.equal(n
 
 ###### transform.fcn and contrast.fcn
 
-invisible(capture.output(pf.amalg <- PhyloFactor(Data,tree,X,frmla=frmla,
-                        nfactors=2,transform.fcn=I,contrast.fcn=amalgamate))) 
+invisible(capture.output(pf.amalg <- PhyloFactor(Data,tree,X,frmla=X~Data,
+                        family=binomial,nfactors=2,transform.fcn=I,contrast.fcn=amalgamate))) 
 test_that('amalgamate and transform.fcn',expect_true(round(pf.amalg$total.variance/1e6)==8463))
