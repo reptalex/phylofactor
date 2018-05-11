@@ -168,9 +168,9 @@ testthat::test_that('mStable binomial regression with offset',
 
 
 ##test mStable with gam
-pf <- gpf(DF,tree,frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+s(y,by=phylo),
+invisible(capture.output(pf <- gpf(DF,tree,frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+s(y,by=phylo),
           PartitioningVariables='y',family=binomial,
-          nfactors=2,model.fcn = mgcv::gam,algorithm = 'mStable')
+          nfactors=2,model.fcn = mgcv::gam,algorithm = 'mStable')))
 testthat::test_that('mStable binomial gam with offset',
                     testthat::expect_true(all.equal(pf$groups[[1]][[1]],clade2) & all.equal(pf$groups[[2]][[1]],clade)))
 
@@ -243,6 +243,6 @@ testthat::test_that('gpf can partition single vectors of data without "Sample" c
                     testthat::expect_true(all.equal(pf$groups[[1]][[1]],clade)&all.equal(pf$groups[[2]][[1]],clade2)))
 
 #offset effort with a global effect of effort on N
-pf <- gpf(DF,tree,frmla.phylo = N~offset(effort.fit)+phylo,algorithm='phylo',nfactors=2)
+invisible(capture.output(pf <- gpf(DF,tree,frmla.phylo = N~offset(effort.fit)+phylo,algorithm='phylo',nfactors=2)))
 testthat::test_that('gpf can partition single vectors of data with offset',
                     testthat::expect_true(length(pf$models[[1]]$offset)==m))

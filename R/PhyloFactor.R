@@ -5,8 +5,9 @@
 #' @param X independent variable. If performing multiple regression, X must be a data frame whose columns contain all the independent variables used in \code{frmla}
 #' @param frmla Formula for input in GLM. Default formula is Data ~ X. 
 #' @param choice Choice, or objective, function for determining the best edges at each iteration using default regression. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.
+#' @param transform.fcn Function for transforming data prior to projection onto contrast bases. Default is \code{log}, in which case zeros are internally replaced by 0.65. The transform function must preserve matrix class objects.
+#' @param contrast.fcn Contrast function. Default is an efficient version of \code{BalanceContrast}. Another built-in option is \code{\link{amalgamate}} - for amalgamation-based analyses of compositional data, set \code{transform.fcn=I} and \code{contrast.fcn=amalgamate}.
 #' @param method Which default objective function to use either "glm", "max.var" or "gam".
-#' @param use.log.data Logical. Whether to perform phylofactorization on log-data or standandard data. \code{use.log.data=T} corresponds to an Aitchison geometry whereas \code{use.log.data=F} corresponds to a Euclidean geometry.
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
 #' @param quiet Logical, default is \code{FALSE}, indicating whether or not to display standard warnings. 
 #' @param trust.me Logical, default \code{FALSE}, indicating whether or not to trust the input Data to be compositional with no zeros.
@@ -118,13 +119,14 @@
 #' ############### Other features: ##################
 #' 
 #' #### glm-style manipulation of formula, weights, etc. #########
-#' # w=1:10
-#' # PF.weighted <- PhyloFactor(Data,tree,X,weights=w)
+#' #w=1:10
+#' #PF.weighted <- PhyloFactor(Data,tree,X,weights=w,nfactors=1)
 #' 
-#' ## predict meta-data with ILR abundances by changing formula & family
+#' # predict meta-data with ILR abundances by changing formula & family
 #' # PF.predict.X <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,family=binomial)
-#' # PF.fancy <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,ncores=2,
-#' # family=binomial,weights=w,offset=rnorm(10),model=F,subset=3:8)
+#' ### more glm controls: offset, model, subset...
+#' #PF.fancy <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,ncores=2,
+#' #family=binomial,weights=w,offset=rnorm(10),model=FALSE,subset=3:8)
 #' 
 #' #### Stopping Function ###########################
 #' PF.stop <- PhyloFactor(Data,tree,X,stop.early=TRUE)
@@ -137,11 +139,10 @@
 #' 
 #' #### PhyloFactor has built-in parallelization ####
 #' PF.par  <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
-#' all.equal(PF,PF.par)
+#' all.equal(PF$factors,PF.par$factors)
 #' ##################################################
 #' 
 #' ######### Phylogenetic PCA - maximize variance ###
-#' 
 #' pf.var <- PhyloFactor(Data,tree,method='max.var',nfactors=2)
 #' 
 #' ######### Multiple regression ####################
@@ -152,8 +153,16 @@
 #' PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
 #' PF.M$models[[1]]
 #' PF.M.par <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2,ncores=2)
-#' all.equal(PF.M,PF.M.par)
-#' ##################################################
+#' all.equal(PF.M$factors,PF.M.par$factors)
+#' 
+#' ####### transform.fcn and contrast.fcn ###########
+#' ## If we had Gaussian or approximately Gaussian data, 
+#' #GausData <- log(Data)
+#' #pf.gaussian <- PhyloFactor(GausData,tree,X,frmla=frmla,nfactors=2,transform.fcn=I)
+#' 
+#' ## We can also perform amalgamation-style analyses with contrast.fcn
+#' #pf.amalg <- PhyloFactor(GausData,tree,X,frmla=frmla,
+#'                         nfactors=2,transform.fcn=I,contrast.fcn=amalgamate)                        
 #' ##################################################
 #' 
 #' 
@@ -241,7 +250,7 @@
 #'     pred <- predict(gm,newdata = nd)
 #'   }
 #'   
-#'   y <- amalg.ILR(grp,log(Data))
+#'   y <- BalanceContrast(grp,log(Data))
 #'   plot(sort(x),y[order(x)],ylab='ILR Coefficient',
 #'         xlab='dominant Independent Variable',
 #'         main=paste('Factor',toString(ff),sep=' '))
@@ -276,7 +285,7 @@
 #' PF.Gaus <- PhyloFactor(Data,tree,frmla=frmla,X,nfactors=1,ncores=2)
 #' 
 #' all.equal(sigClades[[1]],PF.Gaus$bins[[2]])
-#' y <- PF.Gaus$groups[[1]] %>% amalg.ILR(.,log(Data))
+#' y <- PF.Gaus$groups[[1]] %>% BalanceContrast(.,log(Data))
 #' plot(X,y,ylab='Group1/Group2 gMean',
 #'      main='Identifying Gaussian-shaped Hutchinsonian Niches',
 #'      xlab='Environmental Variable')
@@ -306,7 +315,7 @@
 #' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm',use.log.data=T,nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){NULL},...){
+PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.fcn=log,contrast.fcn=NULL,method='glm',nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){NULL},...){
   
   
   ######################################################## Housekeeping #################################################################################
@@ -375,7 +384,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   
   ###################### Default treatment of Data #################################
   
-  if (use.log.data){
+  if (all.equal(transform.fcn,log)==TRUE){
     if (any(c(Data)<0)){
       stop('For log-transformed data analysis, all entries of Data must be greater than or equal to 0')
     }
@@ -424,12 +433,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   treeList <- list(tree)
   binList <- list(1:ape::Ntip(tree))
   nms <- rownames(Data)
-  if (use.log.data){
-    LogData = log(Data)
-  } else {
-    LogData=Data
-    rm('Data')
-  }
+  
+  TransformedData = transform.fcn(Data)
+  
   
   ix_cl=NULL
   treetips=NULL
@@ -471,7 +477,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
       #######################################################################################
     }
     xx <- X
-    parallel::clusterExport(cl,varlist=c('xx','X','LogData','Y','gg','dataset'),envir=environment())
+    parallel::clusterExport(cl,varlist=c('xx','X','TransformedData','Y','gg','dataset'),envir=environment())
     
     #### The following variables - treetips, grpsizes, tree_map, ix_cl - change every iteration.
     #### Updated versions will need to be passed to the cluster.
@@ -488,7 +494,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
   OTUs <- tree$tip.label
   n <- length(tree$tip.label)
   if (choice=='var' | method=='max.var'){
-    totalvar= Data %>% apply(.,MARGIN=2,function(x) log(x)-mean(log(x))) %>% apply(.,MARGIN=1,stats::var) %>% sum
+    totalvar= Data %>% apply(.,MARGIN=2,function(x) transform.fcn(x)-mean(transform.fcn(x))) %>% apply(.,MARGIN=1,stats::var) %>% sum
   } else {
     totalvar=NULL
   }
@@ -511,7 +517,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
     output$custom.output <- list()
   }
   output$method <- method
-  
+  output$transform.fcn <- transform.fcn
+  output$contrast.fcn <- contrast.fcn
+  output$stop.fcn <- stop.fcn
   if (is.null(stop.early) && is.null(stop.fcn)){
     STOP=F
   } else {
@@ -552,8 +560,8 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
-    # PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn)
-    PhyloReg <- PhyloRegression(LogData,X,frmla,Grps,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn=choice.fcn,method,...)
+    # PhyloReg <- PhyloRegression(TransformedData,X,frmla,Grps,contrast.fcn,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn)
+    PhyloReg <- PhyloRegression(TransformedData,X,frmla,Grps,contrast.fcn,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn=choice.fcn,method,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     
@@ -564,12 +572,18 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',method='glm
           if (default.stop){
             ks <- stats::ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
             if (ks>KS.Pthreshold){
+              if (pfs==0){
+                stop('No factors found due to early stop on first iteration')
+              }
               output$terminated=T
               break
             }
           } else {
             if(stop.fcn(PhyloReg$stopStatistics)){
               output$terminated=T
+              if (pfs==0){
+                stop('No factors found due to early stop on first iteration')
+              }
               break
             }
           }

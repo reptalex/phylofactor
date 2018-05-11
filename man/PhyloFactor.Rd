@@ -5,10 +5,11 @@
 \title{Regression-based phylofactorization}
 \usage{
 PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
-  method = "glm", use.log.data = T, nfactors = NULL, quiet = T,
-  trust.me = F, small.output = F, stop.fcn = NULL, stop.early = NULL,
-  KS.Pthreshold = 0.01, alternative = "greater", ncores = NULL,
-  tolerance = 1e-10, delta = 0.65, smallglm = T, choice.fcn = NULL,
+  transform.fcn = log, contrast.fcn = NULL, method = "glm",
+  nfactors = NULL, quiet = T, trust.me = F, small.output = F,
+  stop.fcn = NULL, stop.early = NULL, KS.Pthreshold = 0.01,
+  alternative = "greater", ncores = NULL, tolerance = 1e-10,
+  delta = 0.65, smallglm = T, choice.fcn = NULL,
   choice.fcn.dependencies = function() {     NULL }, ...)
 }
 \arguments{
@@ -22,9 +23,11 @@ PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
 
 \item{choice}{Choice, or objective, function for determining the best edges at each iteration using default regression. Must be choice='var' or choice='F'. 'var' minimizes residual variance of clr-transformed data, whereas 'F' maximizes the F-statistic from an analysis of variance.}
 
-\item{method}{Which default objective function to use either "glm", "max.var" or "gam".}
+\item{transform.fcn}{Function for transforming data prior to projection onto contrast bases. Default is \code{log}, in which case zeros are internally replaced by 0.65. The transform function must preserve matrix class objects.}
 
-\item{use.log.data}{Logical. Whether to perform phylofactorization on log-data or standandard data. \code{use.log.data=T} corresponds to an Aitchison geometry whereas \code{use.log.data=F} corresponds to a Euclidean geometry.}
+\item{contrast.fcn}{Contrast function. Default is an efficient version of \code{BalanceContrast}. Another built-in option is \code{\link{amalgamate}} - for amalgamation-based analyses of compositional data, set \code{transform.fcn=I} and \code{contrast.fcn=amalgamate}.}
+
+\item{method}{Which default objective function to use either "glm", "max.var" or "gam".}
 
 \item{nfactors}{Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T}
 
@@ -157,13 +160,14 @@ par(mar=mar)
 ############### Other features: ##################
 
 #### glm-style manipulation of formula, weights, etc. #########
-# w=1:10
-# PF.weighted <- PhyloFactor(Data,tree,X,weights=w)
+#w=1:10
+#PF.weighted <- PhyloFactor(Data,tree,X,weights=w,nfactors=1)
 
-## predict meta-data with ILR abundances by changing formula & family
+# predict meta-data with ILR abundances by changing formula & family
 # PF.predict.X <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,family=binomial)
-# PF.fancy <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,ncores=2,
-# family=binomial,weights=w,offset=rnorm(10),model=F,subset=3:8)
+### more glm controls: offset, model, subset...
+#PF.fancy <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,ncores=2,
+#family=binomial,weights=w,offset=rnorm(10),model=FALSE,subset=3:8)
 
 #### Stopping Function ###########################
 PF.stop <- PhyloFactor(Data,tree,X,stop.early=TRUE)
@@ -176,11 +180,10 @@ all(PF.stop$bins \%in\% Bins)   #
 
 #### PhyloFactor has built-in parallelization ####
 PF.par  <- PhyloFactor(Data,tree,X,nfactors=2,ncores=2)
-all.equal(PF,PF.par)
+all.equal(PF$factors,PF.par$factors)
 ##################################################
 
 ######### Phylogenetic PCA - maximize variance ###
-
 pf.var <- PhyloFactor(Data,tree,method='max.var',nfactors=2)
 
 ######### Multiple regression ####################
@@ -191,8 +194,16 @@ frmla <- Data~a+b
 PF.M <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2)
 PF.M$models[[1]]
 PF.M.par <- PhyloFactor(Data,tree,X,frmla=frmla,nfactors=2,ncores=2)
-all.equal(PF.M,PF.M.par)
-##################################################
+all.equal(PF.M$factors,PF.M.par$factors)
+
+####### transform.fcn and contrast.fcn ###########
+## If we had Gaussian or approximately Gaussian data, 
+#GausData <- log(Data)
+#pf.gaussian <- PhyloFactor(GausData,tree,X,frmla=frmla,nfactors=2,transform.fcn=I)
+
+## We can also perform amalgamation-style analyses with contrast.fcn
+#pf.amalg <- PhyloFactor(GausData,tree,X,frmla=frmla,
+                        nfactors=2,transform.fcn=I,contrast.fcn=amalgamate)                        
 ##################################################
 
 
@@ -280,7 +291,7 @@ for (ff in 1:2){
     pred <- predict(gm,newdata = nd)
   }
   
-  y <- amalg.ILR(grp,log(Data))
+  y <- BalanceContrast(grp,log(Data))
   plot(sort(x),y[order(x)],ylab='ILR Coefficient',
         xlab='dominant Independent Variable',
         main=paste('Factor',toString(ff),sep=' '))
@@ -315,7 +326,7 @@ frmla=Data~X+I(X^2)
 PF.Gaus <- PhyloFactor(Data,tree,frmla=frmla,X,nfactors=1,ncores=2)
 
 all.equal(sigClades[[1]],PF.Gaus$bins[[2]])
-y <- PF.Gaus$groups[[1]] \%>\% amalg.ILR(.,log(Data))
+y <- PF.Gaus$groups[[1]] \%>\% BalanceContrast(.,log(Data))
 plot(X,y,ylab='Group1/Group2 gMean',
      main='Identifying Gaussian-shaped Hutchinsonian Niches',
      xlab='Environmental Variable')

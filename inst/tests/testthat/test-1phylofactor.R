@@ -64,3 +64,15 @@ invisible(capture.output(pf.gam <- suppressWarnings(PhyloFactor(Data,tree,X=X,me
 test_that('method="gam" works',expect_true(pf.gam$nfactors==2))
 invisible(capture.output(pf.gam <- suppressWarnings(PhyloFactor(Data,tree,X=X,method='gam',frmla=Data~s(a),nfactors=2,ncores=2,sp=1))))
 test_that('method="gam" works in parallel',expect_true(pf.gam$nfactors==2))
+
+###### glm functionality
+X <- as.factor(c(rep(0,5),rep(1,5)))
+invisible(capture.output(PF.fancy <- PhyloFactor(Data,tree,X,frmla=X~Data,nfactors=2,ncores=2,
+                        family=binomial,weights=1:10,offset=rnorm(10),model=FALSE,subset=3:8)))
+test_that('advanced glm functionality works in parallel',expect_true(all.equal(names(PF.fancy$models[[1]]$weights),as.character(3:8))))
+
+###### transform.fcn and contrast.fcn
+
+invisible(capture.output(pf.amalg <- PhyloFactor(Data,tree,X,frmla=frmla,
+                        nfactors=2,transform.fcn=I,contrast.fcn=amalgamate))) 
+test_that('amalgamate and transform.fcn',expect_true(round(pf.amalg$total.variance/1e6)==8463))

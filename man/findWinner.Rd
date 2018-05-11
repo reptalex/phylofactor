@@ -4,8 +4,9 @@
 \alias{findWinner}
 \title{Internal PhyloRegression function for finding the winning edge.}
 \usage{
-findWinner(nset, tree_map, treeList, treetips, choice, method = "glm",
-  smallglm = F, frmla = NULL, xx = NULL, choice.fcn = NULL, ...)
+findWinner(nset, tree_map, treeList, treetips, contrast.fcn = NULL, choice,
+  method = "glm", smallglm = F, frmla = NULL, xx = NULL,
+  choice.fcn = NULL, ...)
 }
 \arguments{
 \item{nset}{set of nodes}
@@ -15,6 +16,8 @@ findWinner(nset, tree_map, treeList, treetips, choice, method = "glm",
 \item{treeList}{list containing disjoint trees from phylofactor / PhyCA}
 
 \item{treetips}{number of tips in each tree}
+
+\item{contrast.fcn}{See \code{\link{PhyloFactor}} or example functions \code{\link{BalanceContrast}}, \code{\link{amalgamate}}}
 
 \item{choice}{string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}}
 

@@ -4,6 +4,7 @@
 #' @param tree_map mapping cumulative number of nodes in treeList, used to map elements of nset to their appropriate tree in treeList.
 #' @param treeList list containing disjoint trees from phylofactor / PhyCA
 #' @param treetips number of tips in each tree
+#' @param contrast.fcn See \code{\link{PhyloFactor}} or example functions \code{\link{BalanceContrast}}, \code{\link{amalgamate}}
 #' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
 #' @param method See \code{\link{PhyloFactor}}
 #' @param smallglm Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.
@@ -11,13 +12,13 @@
 #' @param xx data frame containing non-ILR (\code{Data}) variables used in \code{frmla}
 #' @param choice.fcn See \code{\link{PhyloFactor}}
 #' @param ... optional input arguments to \code{\link{glm}}
-findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',smallglm=F,frmla=NULL,xx=NULL,choice.fcn=NULL,...){
+findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,method='glm',smallglm=F,frmla=NULL,xx=NULL,choice.fcn=NULL,...){
   
   
   ########### set-up and prime variables #############
   grp <- vector(mode='list',length=2)
   output <- NULL
-  Y <- numeric(ncol(LogData))
+  Y <- numeric(ncol(TransformedData))
   if (!exists('gg')){
     gg <- NULL #This will be our GLM
   }
@@ -81,7 +82,11 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
       
       
       ####################### ILR-transform the data ################################
-      Y <- amalg.ILR(grp,LogData)
+     if (is.null(contrast.fcn)){ 
+       Y <- BalanceContrast(grp,TransformedData)
+     } else {
+       Y <- contrast.fcn(grp,TransformedData)
+     }
       ################################################################################
       
       
@@ -149,7 +154,11 @@ findWinner <- function(nset,tree_map,treeList,treetips,choice,method='glm',small
   
   ################## modify output glm for default choices #################
   if (choice %in% c('var','F') & !smallglm & method!='max.var'){ #convert bigglm to glm
-    Y <- amalg.ILR(output$grp,LogData=LogData)
+    if (is.null(contrast.fcn)){
+      Y <- BalanceContrast(output$grp,TransformedData)
+    } else {
+      Y <- contrast.fcn(output$grp,TransformedData)
+    }
     dataset <- c(list(Y),as.list(xx))
     names(dataset) <- c('Data',names(xx))
     dataset <- stats::model.frame(frmla,data = dataset)

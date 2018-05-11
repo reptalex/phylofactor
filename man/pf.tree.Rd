@@ -56,7 +56,7 @@ gg$ggplot
 gg$legend
 
 ## We can also focus on a universal tree
-pf.tree(pf,big.tree,factors=1:3)
+# pf.tree(pf,big.tree,factors=1:3)
 
 ## and a sub-tree
 bacteroidetes <- tax$OTU_ID[grepl('p__Bacteroidetes',tax$taxonomy)] \%>\%

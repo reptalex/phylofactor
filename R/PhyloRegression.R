@@ -1,34 +1,39 @@
 #' PhyloFactor internal function to prep, find and summarize the best ILR coordinate
 #' @export
-#' @param LogData Logarithm of Compositional data matrix whose rows are parts and columns are samples.
+#' @param TransformedData Transformed data matrix whose rows are species and columns are samples.
 #' @param X independent variables for input into glm.
 #' @param frmla Formula for input into glm by lapply(Y,FUN = pglm,x=xx,frmla=frmla,choice,...). 
 #' @param Grps Groups - a list whose elements are two-element lists containing the groups and their compliments for amalgamation into ILR coordinates
+#' @param contrast.fcn Function taking as input \code{contrast.fcn(Grps,TransformedData)} and returning a matrix with rows corresponding to \code{Grps} and columns corresponding to columns in \code{TransformedData}. Must work for both list of \code{Grps} and a single element, e.g. \code{Grps[[1]]}. For advanced phylofactorization with customized \code{choice.fcn}, the output from \code{contrast.fcn} is input directly into \code{choice.fcn}.
 #' @param choice Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.
 #' @param treeList List of trees formed by phylofactorization and cutting trees along factored edges.
-#' @param cl phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.
+#' @param cl \code{phyloFcluster} for built-in parallelization of phylofactorization calculations.
 #' @param totalvar Total variance of dataset.
 #' @param ix_cl Cluster split of nodes in treeList
 #' @param treetips Number of tips in treeList for quickly identifying whether nodes correspond to a root
 #' @param grpsizes Number of nodes in each tree of treeList
 #' @param tree_map Cumulative number of nodes in trees of treeList - allows rapid mapping of nodes in ix_cl to appropriate tree in treeList.
 #' @param quiet Logical to supress warnings
-#' @param nms rownames of LogData, allowing reliable mapping of rows of data to tree.
+#' @param nms rownames of TransformedData, allowing reliable mapping of rows of data to tree.
 #' @param smallglm Logical. See \code{\link{PhyloFactor}}
 #' @param choice.fcn optional customized choice function to choose 'best' edge; see \code{\link{PhyloFactor}}
 #' @param method See \code{\link{PhyloFactor}}
 #' @param ... optional input arguments for \code{\link{glm}}
-PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,quiet=T,nms=NULL,smallglm=F,choice.fcn,method='glm',...){
+PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,quiet=T,nms=NULL,smallglm=F,choice.fcn,method='glm',...){
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
-  D <- dim(LogData)[1]
+  D <- dim(TransformedData)[1]
   xx=X
   
   ############# REGRESSION ################
   ##### SERIAL #####
   if (is.null(cl)){
     ngrps <- length(Grps)
-    V <- sapply(Grps,FUN=function(g,D) ilrvec(g,D),D=D) %>% t()
-    Y <- V %*% LogData
+    if (is.null(contrast.fcn)){
+      V <- sapply(Grps,FUN=function(g,D) ilrvec(g,D),D=D) %>% t()
+      Y <- V %*% TransformedData
+    } else {
+      Y <- contrast.fcn(Grps,TransformedData)
+    }
     if (choice != 'custom'){
     ################ DEFAULT choice.fcn #########################
       # GLMs <- apply(Y,1,FUN = phylofactor::pglm,xx=X,frmla=frmla,smallglm=T)
@@ -73,14 +78,14 @@ PhyloRegression <- function(LogData,X,frmla,Grps=NULL,choice,treeList=NULL,cl,to
       winner <- sample(winner,1)
     }
   } else {  ##### PARALLEL #####
-    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,method,smallglm,frmla,xx,choice.fcn,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,method=method,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,method=method,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...)
-    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,choice.fcn) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,contrast.fcn,choice,method,smallglm,frmla,xx,choice.fcn,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...)
+    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,contrast.fcn,choice,smallglm,frmla,xx,choice.fcn) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
     
-    # Winners=lapply(ix_cl,FUN=function(x,tree_map,treeList,treetips,choice,smallglm,frmla,xx,choice.fcn) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
+    # Winners=lapply(ix_cl,FUN=function(x,tree_map,treeList,treetips,contrast.fcn,choice,smallglm,frmla,xx,choice.fcn) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
     # Recall: output from findWinner is $grp and then our objective function output: $objective, $Fstat, or $ExplainedVar, corresponding to choice='custom','F', and 'var', respectivley.
     
     grps <- lapply(Winners,FUN=function(x) x$grp)
-    Y <- lapply(grps,amalg.ILR,LogData=LogData)
+    Y <- lapply(grps,BalanceContrast,TransformedData=TransformedData)
     
     
     ####################################### DEFAULT REGRESSIONS #####################

@@ -4,13 +4,13 @@
 \alias{PhyloRegression}
 \title{PhyloFactor internal function to prep, find and summarize the best ILR coordinate}
 \usage{
-PhyloRegression(LogData, X, frmla, Grps = NULL, choice, treeList = NULL, cl,
-  totalvar = NULL, ix_cl, treetips = NULL, grpsizes = NULL,
-  tree_map = NULL, quiet = T, nms = NULL, smallglm = F, choice.fcn,
-  method = "glm", ...)
+PhyloRegression(TransformedData, X, frmla, Grps = NULL, contrast.fcn = NULL,
+  choice, treeList = NULL, cl, totalvar = NULL, ix_cl, treetips = NULL,
+  grpsizes = NULL, tree_map = NULL, quiet = T, nms = NULL,
+  smallglm = F, choice.fcn, method = "glm", ...)
 }
 \arguments{
-\item{LogData}{Logarithm of Compositional data matrix whose rows are parts and columns are samples.}
+\item{TransformedData}{Transformed data matrix whose rows are species and columns are samples.}
 
 \item{X}{independent variables for input into glm.}
 
@@ -18,11 +18,13 @@ PhyloRegression(LogData, X, frmla, Grps = NULL, choice, treeList = NULL, cl,
 
 \item{Grps}{Groups - a list whose elements are two-element lists containing the groups and their compliments for amalgamation into ILR coordinates}
 
+\item{contrast.fcn}{Function taking as input \code{contrast.fcn(Grps,TransformedData)} and returning a matrix with rows corresponding to \code{Grps} and columns corresponding to columns in \code{TransformedData}. Must work for both list of \code{Grps} and a single element, e.g. \code{Grps[[1]]}. For advanced phylofactorization with customized \code{choice.fcn}, the output from \code{contrast.fcn} is input directly into \code{choice.fcn}.}
+
 \item{choice}{Choice function for determining the group maximizing the objective function. Currently the only allowable inputs are 'var' - minimize residual varaince - and 'F' - minimize test-statistic from anova.}
 
 \item{treeList}{List of trees formed by phylofactorization and cutting trees along factored edges.}
 
-\item{cl}{phyloFcluster input for built-in parallelization of grouping, amalgamation, regression, and objective-function calculation.}
+\item{cl}{\code{phyloFcluster} for built-in parallelization of phylofactorization calculations.}
 
 \item{totalvar}{Total variance of dataset.}
 
@@ -36,7 +38,7 @@ PhyloRegression(LogData, X, frmla, Grps = NULL, choice, treeList = NULL, cl,
 
 \item{quiet}{Logical to supress warnings}
 
-\item{nms}{rownames of LogData, allowing reliable mapping of rows of data to tree.}
+\item{nms}{rownames of TransformedData, allowing reliable mapping of rows of data to tree.}
 
 \item{smallglm}{Logical. See \code{\link{PhyloFactor}}}
 
