@@ -252,6 +252,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   if (is.null(frmla) & algorithm %in% c('CoefContrast','mix')){
     ## We'll try to automatically parse the frmla.phylo as defining partitioning variables for CoefContrast.
     RHS <- unlist(sapply(as.character(frmla.phylo[[3]]),strsplit,'\\+'))
+    RHS <- RHS[RHS!='*']
     names(RHS) <- NULL
     RHS <- RHS[!RHS=='']
     RHS <- RHS[!grepl(', by = phylo',RHS)]
@@ -422,13 +423,25 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
           } else if (!all(MetaData$Sample %in% Data$Sample)){
             warning(paste('Only',length(intersect(MetaData$Sample,Data$Sample)),'samples shared in both Data and MetaData'))
           }
-        } else { #input data is a matrix
-          if (!ncol(Data)==nrow(MetaData)){
-            stop('Number of columns of Data does not match number of rows of MetaData')
+        } else { #input data is a matrix or a list of matrices.
+          if (class(Data)=='list'){
+            if (!(ncol(Data[[1]])==nrow(MetaData) & ncol(Data[[2]])==nrow(MetaData))){
+              stop('Number of columns of Data[[1]] and/or Data[[2]] does not match number of rows of MetaData')
+            }
+          } else {
+            if (!ncol(Data)==nrow(MetaData)){
+              stop('Number of columns of Data does not match number of rows of MetaData')
+            }
           }
+          
           if (!'Sample' %in% names(MetaData)){
             MetaData$Sample <- paste('Sample',1:nrow(MetaData))
-            colnames(Data) <- MetaData$Sample
+            if (class(Data)=='list'){
+              colnames(Data[[1]]) <- MetaData$Sample
+              colnames(Data[[2]]) <- MetaData$Sample
+            } else {
+              colnames(Data) <- MetaData$Sample
+            }
           }
           
         }
@@ -691,6 +704,11 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     }
   } else {
     output$Data <- Data
+  }
+  if (algorithm!='CoefContrast'){
+    for (i in 1:pfs){
+      output$models[[i]]$call <- frmla.phylo
+    }
   }
   output$MetaData <- MetaData
   output$method <- 'gpf'

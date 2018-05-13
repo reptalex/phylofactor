@@ -16,7 +16,7 @@ pglm <- function(y,xx,frmla,smallglm=T,...){
   ##performs individual regression.
   dataset <- c(list(y),as.list(xx))
   names(dataset) <- c('Data',names(xx))
-  dataset <- stats::model.frame(frmla,data = dataset)
+  # dataset <- stats::model.frame(frmla,data = dataset)
   args <- list('data'=dataset,'formula'=frmla,...)
   if(smallglm){
     return(do.call(stats::glm,args))

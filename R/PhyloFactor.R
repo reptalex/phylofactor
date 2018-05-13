@@ -457,7 +457,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
           dataset <- cbind(Y,X)
         }
         names(dataset) <- c('Data',names(X))
-        dataset <- stats::model.frame(frmla,data = dataset)
+        # dataset <- stats::model.frame(frmla,data = dataset)
         if (any(! colnames(X) %in% colnames(dataset))){
           ix <- which(!colnames(X) %in% colnames(dataset))
           for (nn in 1:length(ix)){
@@ -729,7 +729,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     output$X <- NULL
   }
   
-  
+  for (i in 1:output$nfactors){
+    output$models[[i]]$call <- frmla
+  }
   
   ### Shut down cluster
   if (is.null(ncores)==F && exists('cl')){  #shut down & clean out the cluster before exiting function
@@ -737,6 +739,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     rm(cl)
     gc()
   }
+  
   
   class(output) <- 'phylofactor'
   return(output)
