@@ -729,8 +729,10 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     output$X <- NULL
   }
   
-  for (i in 1:output$nfactors){
-    output$models[[i]]$call <- frmla
+  if (length(output$models)>0){
+    for (i in 1:output$nfactors){
+      output$models[[i]]$call <- frmla
+    }
   }
   
   ### Shut down cluster
