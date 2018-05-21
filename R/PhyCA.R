@@ -43,6 +43,7 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
       output$edges <- lapply(output$groups,FUN=function(grps,tree) getFactoredEdges(grp1=grps[[1]],grp2=grps[[2]],tree=tree),tree=output$tree)
     }
   }
+  output$phylofactor.fcn <- 'PhyCA'
   class(output) <- 'phyca'
   return(output)
   

@@ -742,7 +742,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     gc()
   }
   
-  
+  output$phylofactor.fcn <- 'PhyloFactor'
   class(output) <- 'phylofactor'
   return(output)
 }

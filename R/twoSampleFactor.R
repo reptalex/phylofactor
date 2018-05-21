@@ -190,9 +190,9 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
   output$nfactors <- pfs
   output$Data <- matrix(Z,ncol=1)
   output$model.fcn <- TestFunction
-  output$method <- 'twoSample'
-  output$choice <- method
+  output$method <- method
   names(output$Data) <- tree$tip.label
+  output$phylofactor.fcn <- 'twoSampleFactor'
   class(output) <- 'phylofactor'
   
   return(output)

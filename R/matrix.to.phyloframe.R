@@ -1,8 +1,8 @@
 #' Converts matrix to phyloframe
 #' 
 #' @export
-#' @param Mat Matrix. Rownames must be species and colnames must be samples found in \code{X$Sample}
-#' @param X data.table or data.frame of meta-data to include in phyloframe
+#' @param Mat Matrix. Rownames must be species
+#' @param MetaData data.table or data.frame of meta-data to include in phyloframe
 #' @param data.name Character. Name of data from \code{Mat} for phyloframe
 #' @param empty.val Values of \code{Mat} to ignore and not include in phyloframe
 #' @examples
@@ -17,20 +17,31 @@
 #' Mat <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=NA)
 #' DF2 <- matrix.to.phyloframe(Mat,data.name='Abundance')
 #' 
-#' X <- data.frame('Sample'=as.character(1:n),'x'=2*(1:n),'y'=-(1:n))
-#' matrix.to.phyloframe(Mat,X,data.name='Abundance')
-matrix.to.phyloframe <- function(Mat,X=NULL,data.name='Data',empty.val=NA){
+#' MetaData <- data.frame('Sample'=as.character(1:n),'x'=2*(1:n),'y'=-(1:n))
+#' matrix.to.phyloframe(Mat,MetaData,data.name='Abundance')
+matrix.to.phyloframe <- function(Mat,MetaData=NULL,data.name='Data',empty.val=NA){
   if (class(Mat)!='matrix'){
     stop('input Mat must be class "matrix"')
   }
-  if (!is.null(X)){
-    if (!'Sample' %in% names(X)){
-      stop('X must contain "Sample" to merge with phyloframe')
+  if (is.null(rownames(Mat))){
+    stop('Matrix must have rownames corresponding to the species')
+  }
+  if (!is.null(MetaData)){
+    if (nrow(MetaData)!=ncol(Mat)){
+      stop('number of rows in MetaData does not match the number of columns in Mat')
     }
-    if (!'data.table' %in% class(X)){
-      X <- data.table::as.data.table(X)
+    if (!'Sample' %in% names(MetaData)){
+      if (is.null(colnames(Mat))){
+        colnames(Mat) <- paste('Sample',1:ncol(Mat))
+        MetaData$Sample <- paste('Sample',1:ncol(Mat))
+      } else {
+        MetaData$Sample <- colnames(Mat)
+      }
     }
-    setkey(X,Sample)
+    if (!'data.table' %in% class(MetaData)){
+      MetaData <- data.table::as.data.table(MetaData)
+    }
+    setkey(MetaData,Sample)
   }
   species <- rownames(Mat)
   samples <- colnames(Mat)
@@ -44,9 +55,9 @@ matrix.to.phyloframe <- function(Mat,X=NULL,data.name='Data',empty.val=NA){
   }
   names(DF)[names(DF)=='Data'] <- data.name
   
-  if (!is.null(X)){
+  if (!is.null(MetaData)){
     setkey(DF,Sample)
-    DF <- DF[X]
+    DF <- DF[MetaData]
   }
   return(DF)
 }

@@ -556,21 +556,25 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
         return(matrix(b,nrow=1)%*%matrix(b,ncol=1))
       }
     }
-    species <- unique(Data$Species)
+    # species <- unique(Data$Species)
+    species <- tree$tip.label
     setkey(Data,Species)
     if ('weights' %in% names(list(...))){
-      getModel <- function(spp,Data,...){
+      getModel <- function(spp,Data,frmla,...){
         ix <- Data[Species==spp,which=T]
           return(do.call(model.fcn,args=list('formula'=frmla,'data'=Data,subset=ix,...)))}
     } else {
-      getModel <- function(spp,Data,...){
-        return(do.call(model.fcn,args=list('formula'=frmla,'data'=Data[Species==spp,],...)))
+      getModel <- function(spp,Data,frmla,...){
+        return(do.call(model.fcn,args=list('formula'=frmla,'data'=Data[Species==spp],...)))
       }
     }
   
-    2
-    tryCatch(models <- lapply(species,getModel,Data,...), 
+    
+    tryCatch(models <- lapply(species,getModel,Data,frmla,...), 
              error=function(e) stop(paste('Could not implement model.fcn for each species due to following error: \n',e)))
+    for (i in 1:length(models)){
+      models[[i]]$call <- frmla
+    }
     tryCatch(coef <- t(sapply(models,stats::coefficients)),
              error=function(e) stop(paste('Could not extract coefficients from model.fcn for each species due to following error \n',e)))
     tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(stats::vcov(m)))[PartitioningVariables])),
@@ -586,10 +590,10 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     rownames(coef) <- species
     rownames(BP) <- species
     names(models) <- species
-    models <- models[tree$tip.label]
-    coef <- coef[tree$tip.label,]
-    BP <- BP[tree$tip.label,]
-    output$spp.model.fcns <- models
+    # models <- models[tree$tip.label]
+    # coef <- coef[tree$tip.label,]
+    # BP <- BP[tree$tip.label,]
+    output$species.models <- models
     output$coefficient.matrix <- coef
     output$coefficient.SE <- SE
     if (algorithm=='mix'){
@@ -686,8 +690,13 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     rm('cl')
   }
   
-  output$factors <- t(output$factors)
-  
+  if (pfs>1){
+    output$factors <- t(output$factors)
+  } else {
+    output$factors <- matrix(output$factors,ncol=1)
+  }
+  rownames(output$factors) <- paste('Factor',1:pfs)
+  colnames(output$factors)[2] <- paste('Group1','Group2')
   output$basis <- matrix(NA,nrow=ape::Ntip(tree),ncol=pfs)
   for (i in 1:length(output$groups)){
     output$basis[,i] <- ilrvec(output$groups[[i]],ape::Ntip(tree))
@@ -714,6 +723,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   output$method <- 'gpf'
   output$PartitioningVariables <- PartitioningVariables
   class(output) <- 'phylofactor'
+  output$phylofactor.fcn <- 'gpf'
   return(output)
 }
 
