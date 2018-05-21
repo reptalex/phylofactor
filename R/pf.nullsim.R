@@ -36,7 +36,7 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
     stop("'output' must be in c(names(PF),c('ExpVar','F','All'))")
   }
   
-  if (PF$method=='twoSample' & !output %in% c('ExpVar','pvals','objective')){
+  if (PF$phylofactor.fcn=='twoSampleFactor' & !output %in% c('ExpVar','pvals','objective')){
     stop('output for twoSample phylofactorizations must be either pvals or objective')
   } else {
     if (output=='ExpVar'){
@@ -68,7 +68,7 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
   
   tm <- Sys.time()
   for (rr in 1:reps){
-    if (PF$method!='twoSample'){
+    if (PF$phylofactor.fcn!='twoSampleFactor'){
       if (is.null(nullsimFcn)){
         Data <- rlnorm(m*n) %>% matrix(.,nrow=m)
       } else if (nullsimFcn=='shuffle'){
@@ -89,7 +89,7 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
       rownames(Data) <- tree$tip.label
       
       if (rr==1){
-        if (PF$method=='gpf'){
+        if (PF$phylofactor.fcn=='gpf'){
           pf <- gpf(Data,tree,PF$X,nfactors=nf,algorithm=PF$algorithm,frmla = PF$frmla,frmla.phylo=PF$frmla.phylo,PartitioningVariables = PF$PartitioningVariables,...=PF$additional.arguments)
         } else {
           pf <- PhyloFactor(Data,tree,X,nfactors=nf,method = PF$method,...)
@@ -106,9 +106,9 @@ pf.nullsim <- function(PF,reps,nfactors=NULL,seed=NULL,nullsimFcn=NULL,output='E
       }
       
       if (rr==1){
-        pf <- twoSampleFactor(Data,tree,nf,method = PF$choice)
+        pf <- twoSampleFactor(Data,tree,nf,method = PF$method)
       } else {
-        invisible(capture.output(pf <- twoSampleFactor(Data,tree,nf,method = PF$choice)))
+        invisible(capture.output(pf <- twoSampleFactor(Data,tree,nf,method = PF$method)))
       }
     }
       

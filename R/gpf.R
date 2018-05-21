@@ -693,7 +693,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   if (pfs>1){
     output$factors <- t(output$factors)
   } else {
-    output$factors <- matrix(output$factors,ncol=1)
+    output$factors <- matrix(output$factors,nrow=1)
   }
   rownames(output$factors) <- paste('Factor',1:pfs)
   colnames(output$factors)[2] <- paste('Group1','Group2')
@@ -726,4 +726,3 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   output$phylofactor.fcn <- 'gpf'
   return(output)
 }
-
