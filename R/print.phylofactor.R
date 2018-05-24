@@ -40,8 +40,10 @@ print.phylofactor <- function(PF){
         formula <- paste('
 Formula                   : ',Reduce(paste,deparse(PF$models[[1]]$formula)),sep='')
     } else {
-      if (PF$choice=='custom'){
-        formula <- 'Customized'
+      if (PF$phylofactor.fcn=='PhyloFactor'){
+        if (PF$choice=='custom'){
+          formula <- 'Customized'
+        }
       }
       if (PF$algorithm=='CoefContrast'){
         formula <- paste('
@@ -55,7 +57,9 @@ Choice                    : ',PF$choice,sep='')
       PartitioningVariables <- NULL
       if (PF$choice=='var'){
         ExplainedVar <- paste('
-% Explained Variance      : ',signif(sum(PF$factors$ExpVar),3),sep='')
+Frac Explained Variance   : ',signif(sum(PF$factors$ExpVar),3),sep='')
+      } else {
+        ExplainedVar <- NULL
       }
     } else {  # gpf
       choice=NULL
@@ -68,7 +72,7 @@ Partitioning Variable     : ',pvs,sep='')
       } else {
       pvs <- paste('{',paste(pvs,collapse=','),'}',sep='')
       PartitioningVariables <- paste('
-Partitioning Variables   : ',pvs,sep='') 
+Partitioning Variables    : ',pvs,sep='') 
       }
       ExplainedVar <- NULL
     }

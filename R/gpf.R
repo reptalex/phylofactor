@@ -648,7 +648,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
         output$models <- list(do.call(model.fcn,args=list('formula'=frmla.phylo,
                                                           'data'=phyloFrame(Data,grp,tree),...)))
       } else {
-        output$models <- NA
+        output$models <- NULL
       }
     } else {
       if (algorithm=='mStable'){
@@ -659,7 +659,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
         output$models <- c(output$models,list(do.call(model.fcn,args=list('formula'=frmla.phylo,
                                                                           'data'=phyloFrame(Data,grp,tree),...))))
       } else {
-        output$models <- NA
+        output$models <- NULL
       }
     }
     grp <- getLabelledGrp(tree=tree,Groups=Grps[[winner]])

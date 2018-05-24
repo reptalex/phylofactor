@@ -5,7 +5,7 @@
 \title{Summarize phylofactor objects}
 \usage{
 summary.phylofactor(PF, taxonomy = NULL, factor = NULL,
-  taxon.trimming = "lcp", output.signal = T)
+  taxon.trimming = "sup", output.signal = T)
 }
 \arguments{
 \item{PF}{phylofactor object}
@@ -14,7 +14,7 @@ summary.phylofactor(PF, taxonomy = NULL, factor = NULL,
 
 \item{factor}{Integer (optional). If NULL, will use print.phylofactor}
 
-\item{taxon.trimming}{Chracter string. How to trim taxonomic groups. Must be either "lcp" (longest common prefix unique to group), "taxon" for taxon levels in second column of \code{taxonomy}, or "species" for no taxonomic binning.}
+\item{taxon.trimming}{Chracter string. How to trim taxonomic groups. Must be either "sup" (group by shortest unique prefix for every taxon in group distinguishing it from taxa in complementary group), "taxon" for taxon levels in second column of \code{taxonomy}, or "species" for no taxonomic binning.}
 
 \item{output.signal}{logical - whether or not to output signal. Will attempt to call model.fcn or customized choice.fcn to estimate signal (and thus relative importance) for each taxonomic group from \code{taxon.trimming}.}
 }

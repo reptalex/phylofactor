@@ -3,10 +3,10 @@
 #' @param PF phylofactor object
 #' @param taxonomy taxonomy (optional) for taxonomic trimming. First column contains tree tip-labels, second column has semicolon-delimited taxonomic character strings.
 #' @param factor Integer (optional). If NULL, will use print.phylofactor
-#' @param taxon.trimming Chracter string. How to trim taxonomic groups. Must be either "lcp" (longest common prefix unique to group), "taxon" for taxon levels in second column of \code{taxonomy}, or "species" for no taxonomic binning.
+#' @param taxon.trimming Chracter string. How to trim taxonomic groups. Must be either "sup" (group by shortest unique prefix for every taxon in group distinguishing it from taxa in complementary group), "taxon" for taxon levels in second column of \code{taxonomy}, or "species" for no taxonomic binning.
 #' @param output.signal logical - whether or not to output signal. Will attempt to call model.fcn or customized choice.fcn to estimate signal (and thus relative importance) for each taxonomic group from \code{taxon.trimming}.
 #' @return phylofactor.summary object containing data, group summary and, with input taxonomy, taxonomic break-down of signal
-summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp',output.signal=T){
+summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup',output.signal=T){
   ### must output the following:
   # (0) factors[n,] description - if null, summarize whole object w/ biggest, #signif at holm cutoff, adjusted P-vals etc.
   # (1) model summary
@@ -15,7 +15,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp
         # - gpf: data frame input to model
         # - twoSample: NA
         # - ALL: fitted.values
-  # (3) taxa table: (optional lcprefix, full-taxon-binning,or species-level data)
+  # (3) taxa table: (optional sup, full-taxon-binning,or species-level data)
         # - #species, taxa, mean (sorted), signal (tbd, possibly sorted)
   # (4) taxa.split
   # (5) species.lists
@@ -28,8 +28,8 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp
     if (is.null(taxonomy)){
       taxon.trimming <- 'species'
     }
-    if (!taxon.trimming %in% c('lcp','taxon','species')){
-      stop('unknown input taxon.trimming. Must be either "lcp", "taxon", or "species".')
+    if (!taxon.trimming %in% c('sup','taxon','species')){
+      stop('unknown input taxon.trimming. Must be either "sup", "taxon", or "species".')
     }
     
     
@@ -55,16 +55,16 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp
         output$model.summary <- summary(PF$models[[factor]])
       } else {
         if (length(PF$PartitioningVariables)==1){
-          B <- (PF$coefficient.matrix[,PF$PartitioningVariables]/PF$coefficient.SE) %*% PF$basis[,factor]
+          B <- t(PF$coefficient.matrix[,PF$PartitioningVariables,drop=F]/PF$coefficient.SE[,PF$PartitioningVariables,drop=F]) %*% PF$basis[,factor]
         } else {
-          B <- t(PF$coefficient.matrix[,PF$PartitioningVariables]/PF$coefficient.SE) %*% PF$basis[,factor]
+          B <- t(PF$coefficient.matrix[,PF$PartitioningVariables,drop=F]/PF$coefficient.SE[,PF$PartitioningVariables,drop=F]) %*% PF$basis[,factor]
         }
         output$model.summary <- data.frame('PartitioningVariable'=PF$PartitioningVariables,'CoefContrast'=B)
       }
     } else if (PF$phylofactor.fcn=='PhyCA'){
       output$model.summary <- data.frame('Percent_Explained_Variance'=PF$factors[factor,'ExpVar'])
     } else {
-      output$model.summary <- data.frame('Method'=PF$method,
+      output$model.summary <- data.frame('method'=PF$method,
                                          'Test_Statistic'=PF$objective[factor],
                                          'Pval'=PF$pvals[factor])
     }
@@ -81,12 +81,16 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp
           output$data <- cbind(data.frame('Data'=y),PF$X)
         }
       }
+      if (!is.null(PF$models)){
+        output$data$fitted.values <- PF$models[[factor]]$fitted.values
+      }
     } else if (PF$phylofactor.fcn == 'gpf'){
       if (PF$algorithm!='CoefContrast'){
         output$data <- PF$models[[factor]]$data
+        output$data$fitted.values <- PF$models[[factor]]$fitted.values
       } else {
         output$data <- list('Coefficient_matrix'=PF$coefficient.matrix,
-                            'Coefficient_SE'=SE,
+                            'Coefficient_SE'=PF$coefficient.SE,
                             'Contrast_Vector'=PF$basis[,factor,drop=F],
                             'Partitioning_Variables'=PF$PartitioningVariables)
       }
@@ -118,7 +122,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp
     } else {
       group1.taxonomy <- taxonomy[match(output$species.list[[1]],as.character(taxonomy[,1])),]
       group2.taxonomy <- taxonomy[match(output$species.list[[2]],as.character(taxonomy[,1])),]
-      if (taxon.trimming=='lcp'){
+      if (taxon.trimming=='sup'){
         group1.taxa <- output$taxa.split[[1]]
         group2.taxa <- output$taxa.split[[2]]
       } else {
@@ -172,7 +176,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp
       Grps1 <- lapply(species.assignment1,FUN=function(spp,tree) match(spp,tree$tip.label),PF$tree)
       Grps2 <- lapply(species.assignment2,FUN=function(spp,tree) match(spp,tree$tip.label),PF$tree)
       Grps1 <- lapply(Grps1,FUN=function(g1,g2) list(g1,g2),g2=unlist(PF$groups[[factor]][2]))
-      Grps2 <- lapply(Grps2,FUN=function(g1,g2) list(g1,g2),g2=unlist(PF$groups[[factor]][1]))
+      Grps2 <- lapply(Grps2,FUN=function(g1,g2) list(g2,g1),g2=unlist(PF$groups[[factor]][1]))
       
       Tbl1$signal <- sapply(Grps1,getSignal,PF)
       Tbl2$signal <- sapply(Grps2,getSignal,PF)
@@ -181,10 +185,28 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='lcp
     }
     rownames(Tbl1) <- NULL
     rownames(Tbl2) <- NULL
-
     output$taxon.tables <- list('Group1'=Tbl1,'Group2'=Tbl2)
     
-  }
+    if (PF$phylofactor.fcn %in% c('PhyloFactor','gpf')){
+      if (!is.null(PF$models)){
+        formula <- Reduce(paste,deparse(PF$models[[1]]$formula))
+      } else {
+        if (PF$phylofactor.fcn=='PhyloFactor'){
+          if (PF$choice=='custom'){
+            formula <- 'Customized'
+          }
+        }
+        if (PF$algorithm=='CoefContrast'){
+          formula <- Reduce(paste,deparse(PF$species.models[[1]]$formula))
+        }
+      }
+    } else {
+      formula <- NULL
+    }
+    output$info <- list('phylofactor.fcn'=PF$phylofactor.fcn,
+                        'method'=PF$method,'choice'=PF$choice,
+                        'algorithm'=PF$algorithm,'formula'=formula)
     class(output) <- 'phylofactor.summary'
     return(output)
+  }
 }

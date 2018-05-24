@@ -48,7 +48,6 @@ getSignal <- function(grp,PF){
     omega <- var(y)
   } else if (PF$phylofactor.fcn=='gpf'){
     if (PF$algorithm!='CoefContrast'){
-      
       if (PF$algorithm=='mStable'){
         if ('family' %in% names(PF$additional.arguments)){
           family <- PF$additional.arguments$family
@@ -62,16 +61,16 @@ getSignal <- function(grp,PF){
         }
         phyloData <- mAggregation(PF$Data,grp,PF$tree,PF$MetaData,expfamily,PF$frmla.phylo)
         args= c(list('formula'=PF$frmla.phylo,'data'=phyloData),PF$additional.arguments)
-        fit <- tryCatch(do.call(model.fcn,args),error=function(e) NULL)
+        fit <- tryCatch(do.call(PF$model.fcn,args),error=function(e) NULL)
       } else {
         phyloData <- phyloFrame(PF$Data,grp,PF$tree)
         args= c(list('formula'=PF$frmla.phylo,'data'=phyloData),PF$additional.arguments)
-        fit <- tryCatch(do.call(model.fcn,args),error=function(e) NULL)
+        fit <- tryCatch(do.call(PF$model.fcn,args),error=function(e) NULL)
       }
       if (!is.null(fit)){
         omega <- do.call(PF$objective.fcn,args=c(list('model'=fit,'grp'=grp,
                                                  'tree'=PF$tree,'PartitioningVariables'=PF$PartitioningVariables,
-                                                 'model.fcn'=model.fcn,'phyloData'=phyloData),PF$additional.arguments))
+                                                 'model.fcn'=PF$model.fcn,'phyloData'=phyloData),PF$additional.arguments))
       } else {
         omega <- NA
       }
@@ -83,9 +82,8 @@ getSignal <- function(grp,PF){
     }
     
   } else { ##twoSampleFactor
-    if (PF$objective=='con')
-    args <- c(list('grps'=grp,'Z'=PF$Data,'p.value'=F),PF$additional.arguments)
-    omega <- tryCatch(do.call(PF$model.fcn,args),error=function(e) NA)
+      args <- c(list('grps'=grp,'Z'=PF$Data,'p.value'=F),PF$additional.arguments)
+      omega <- tryCatch(do.call(PF$model.fcn,args),error=function(e) NA)
   }
   return(omega)
 }
