@@ -4,7 +4,7 @@
 \alias{amalgamate}
 \title{Amalgamation contrast function}
 \usage{
-amalgamate(Grps, TransformedData)
+amalgamate(Grps, TransformedData, pseudo.count = 0.65)
 }
 \arguments{
 \item{Grps}{Either a list of \code{getPhyloGroups} or a single \code{getPhyloGroups} element}
@@ -17,11 +17,11 @@ Amalgamation contrast function
 \examples{
 library(phylofactor)
 set.seed(1)
-m=10
-n=5
+m=50
+n=20
 tree <- rtree(m)
 Grps <- getPhyloGroups(tree)
-M <- matrix(rlnorm(m*n),nrow=m)
+M <- matrix(rpois(m*n,1),nrow=m)
 rownames(M) <- tree$tip.label
 colnames(M) <- paste('Sample',1:n)
 

@@ -79,7 +79,7 @@ Partitioning Variables   : ',pvs,sep='')
     PartitioningVariables <- NULL
     if (PF$phylofactor.fcn=='PhyCA'){
       ExplainedVar <- paste('
-% Explained Variance      : ',signif(sum(PF$factors$ExpVar),3),sep='')
+Frac Explained Variance   : ',signif(sum(PF$factors$ExpVar),3),sep='')
     } else {
       ExplainedVar <- NULL
     }

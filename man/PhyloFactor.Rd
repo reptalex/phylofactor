@@ -204,7 +204,7 @@ all.equal(PF.M$factors,PF.M.par$factors)
 
 ## We can also perform amalgamation-style analyses with contrast.fcn
 #pf.amalg <- PhyloFactor(GausData,tree,X,frmla=frmla,
-                        nfactors=2,transform.fcn=I,contrast.fcn=amalgamate)                        
+#                        nfactors=2,transform.fcn=I,contrast.fcn=amalgamate)                        
 ##################################################
 
 
