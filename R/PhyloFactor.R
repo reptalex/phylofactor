@@ -31,6 +31,7 @@
 #' library(phytools)
 #' library(mgcv)
 #' mar <- par('mar')
+#' clo <- function(X) X/rowSums(X) 
 #' 
 #' ## Example with pseudo-simulated data: real tree with real taxonomy, but fake abundance patterns.
 #' data("FTmicrobiome")
@@ -403,18 +404,18 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
         Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
         
       }
-      if (any(abs(colSums(Data)-1)>tolerance)){
-        if (!quiet){
-          warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
-        }
-        Data <- t(clo(t(Data)))
-        
-        if (any(abs(colSums(Data)-1)>tolerance)){
-          if (!quiet){
-            warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
-          }
-        }
-      }
+      # if (any(abs(colSums(Data)-1)>tolerance)){
+      #   if (!quiet){
+      #     warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
+      #   }
+      #   Data <- t(clo(t(Data)))
+      #   
+      #   if (any(abs(colSums(Data)-1)>tolerance)){
+      #     if (!quiet){
+      #       warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
+      #     }
+      #   }
+      # }
     }
   }
   #####################################################################################

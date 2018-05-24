@@ -1,7 +1,7 @@
 #' Fecal Tongue Microbiome Dataset
 #' 
 #' A dataset containing an OTU table, tree, sample-site meta-data, taxonomy and
-#' phylofactor objects from early stopping of phylofactorization by stop.early=T.
+#' phylofactor objects with 100 factors each.
 #' 
 #' @format List containing 6 elements:
 #' \describe{

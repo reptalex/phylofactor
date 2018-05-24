@@ -45,6 +45,9 @@ matrix.to.phyloframe <- function(Mat,MetaData=NULL,data.name='Data',empty.val=NA
   }
   species <- rownames(Mat)
   samples <- colnames(Mat)
+  if (is.null(samples)){
+    samples <- paste('Sample',1:ncol(Mat))
+  }
   DF <- data.table::data.table('Species'=rep(species,times=ncol(Mat)),
                    'Sample'=rep(samples,each=nrow(Mat)),
                    'Data'=c(Mat))

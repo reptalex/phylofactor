@@ -72,6 +72,7 @@ library(phangorn)
 library(phytools)
 library(mgcv)
 mar <- par('mar')
+clo <- function(X) X/rowSums(X) 
 
 ## Example with pseudo-simulated data: real tree with real taxonomy, but fake abundance patterns.
 data("FTmicrobiome")

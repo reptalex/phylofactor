@@ -11,7 +11,7 @@ clo <- function(A){
   } else {
       rename=F
     }
-  if (any(A<0)){warning('Compositional matrix input to clo has negative values')}
+  if (any(A<0)){stop('Compositional matrix input to clo has negative values')}
   output <- A/rowSums(A)
   if (rename){
     colnames(output) <- nms
