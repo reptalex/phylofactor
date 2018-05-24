@@ -162,11 +162,11 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
     } else {
       GUI.notification <- paste('\r',pfs,'factors completed in',time.elapsed,'minutes.    ')
     }
-    if (!is.null(nfactors)){
-      GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
+    
+    GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
                                 as.character(tm+difftime(tm2,tm)*nfactors/pfs),
                                 '  \r')
-    }
+    
     cat(GUI.notification)
     utils::flush.console()
   }
@@ -177,8 +177,11 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
     rm('cl')
   }
   
-  output$factors <- t(output$factors)
-  
+  if (!is.null(output$factors)){
+    colnames(output$factors)=sapply(as.list(1:pfs),FUN=function(a,b) paste(b,a,sep=' '),b='Factor',simplify=T)
+    rownames(output$factors)=c('Group1','Group2')
+  }
+  output$factors <- t(output$factors) %>% as.data.frame  
   V <- NULL
   for (i in 1:length(output$groups)){
     V <- cbind(V,ilrvec(output$groups[[i]],ape::Ntip(tree)))
@@ -191,6 +194,7 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
   output$Data <- matrix(Z,ncol=1)
   output$model.fcn <- TestFunction
   output$method <- method
+  output$additional.arguments <- list(...)
   names(output$Data) <- tree$tip.label
   output$phylofactor.fcn <- 'twoSampleFactor'
   class(output) <- 'phylofactor'

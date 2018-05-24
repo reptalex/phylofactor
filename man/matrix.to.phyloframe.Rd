@@ -4,12 +4,13 @@
 \alias{matrix.to.phyloframe}
 \title{Converts matrix to phyloframe}
 \usage{
-matrix.to.phyloframe(Mat, X = NULL, data.name = "Data", empty.val = NA)
+matrix.to.phyloframe(Mat, MetaData = NULL, data.name = "Data",
+  empty.val = NA)
 }
 \arguments{
-\item{Mat}{Matrix. Rownames must be species and colnames must be samples found in \code{X$Sample}}
+\item{Mat}{Matrix. Rownames must be species}
 
-\item{X}{data.table or data.frame of meta-data to include in phyloframe}
+\item{MetaData}{data.table or data.frame of meta-data to include in phyloframe}
 
 \item{data.name}{Character. Name of data from \code{Mat} for phyloframe}
 
@@ -30,6 +31,6 @@ DF <- data.frame('Species'=sample(letters[1:m],d,replace=TRUE),
 Mat <- phyloframe.to.matrix(DF,mat.data='Abundance',empty.val=NA)
 DF2 <- matrix.to.phyloframe(Mat,data.name='Abundance')
 
-X <- data.frame('Sample'=as.character(1:n),'x'=2*(1:n),'y'=-(1:n))
-matrix.to.phyloframe(Mat,X,data.name='Abundance')
+MetaData <- data.frame('Sample'=as.character(1:n),'x'=2*(1:n),'y'=-(1:n))
+matrix.to.phyloframe(Mat,MetaData,data.name='Abundance')
 }

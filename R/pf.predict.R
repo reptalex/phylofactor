@@ -55,7 +55,7 @@ pf.predict <- function(PF,factors=NULL,...){
     family <- PF$models[[1]]$family
     if (family$family!='binomial'){
       LHS <- as.character(frmla[[2]])
-      if (pf$algorithm=='mStable'){
+      if (PF$algorithm=='mStable'){
         m=nrow(PF$Data)
         n=ncol(PF$Data)
         samples <- colnames(PF$Data)
@@ -78,7 +78,7 @@ pf.predict <- function(PF,factors=NULL,...){
                   stats::predict(.,...)
       }
     } else {
-      if (pf$algorithm=='mStable'){
+      if (PF$algorithm=='mStable'){
         m=nrow(PF$Data[[1]])
         n=ncol(PF$Data[[1]])
         samples <- colnames(PF$Data[[1]])

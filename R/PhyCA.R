@@ -44,7 +44,7 @@ PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5
     }
   }
   output$phylofactor.fcn <- 'PhyCA'
-  class(output) <- 'phyca'
+  class(output) <- 'phylofactor'
   return(output)
   
 }

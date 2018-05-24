@@ -19,6 +19,6 @@ FTmicrobiome
 }
 \description{
 A dataset containing an OTU table, tree, sample-site meta-data, taxonomy and
-phylofactor objects from early stopping of phylofactorization by stop.early=T.
+PhyloFactor-made phylofactor objects with 100 factors each.
 }
 \keyword{datasets}

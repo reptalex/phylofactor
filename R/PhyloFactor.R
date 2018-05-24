@@ -516,9 +516,17 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   } else {
     output$custom.output <- list()
   }
+  output$choice <- choice
+  output$choice.fcn <- choice.fcn
+  output$choice.fcn.dependencies <- choice.fcn.dependencies
   output$method <- method
   output$transform.fcn <- transform.fcn
-  output$contrast.fcn <- contrast.fcn
+  output$additional.args <- list(...)
+  if (is.null(contrast.fcn)){
+    output$contrast.fcn <- BalanceContrast
+  } else {
+    output$contrast.fcn <- contrast.fcn
+  }
   output$stop.fcn <- stop.fcn
   if (is.null(stop.early) && is.null(stop.fcn)){
     STOP=F
@@ -650,9 +658,13 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     } else {
       GUI.notification <- paste('\r',pfs,'factors completed in',time.elapsed,'minutes.    ')
     }
-    if (!is.null(nfactors)){
+    if (!is.infinite(nfactors)){
       GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
                                 as.character(tm+difftime(tm2,tm)*nfactors/pfs),
+                                '  \r')
+    } else {
+      GUI.notification <- paste(GUI.notification,'Estimated time of completion: at latest',
+                                as.character(tm+difftime(tm2,tm)*(nrow(Data)/pfs)),
                                 '  \r')
     }
     base::cat(GUI.notification)

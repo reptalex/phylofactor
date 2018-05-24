@@ -238,8 +238,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   output$model.fcn <- model.fcn
   output$additional.arguments <- list(...)
   output$algorithm <- algorithm
-  output$PartitioningVariables <- PartitioningVariables
-  
+
 # Check Formulas --------------------------------------------------------
   ########## checking formulas ############
   if (is.null(frmla) & is.null(frmla.phylo)){
@@ -575,26 +574,27 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     for (i in 1:length(models)){
       models[[i]]$call <- frmla
     }
-    tryCatch(coef <- t(sapply(models,stats::coefficients)),
+    tryCatch(coefficients <- t(sapply(models,stats::coefficients)),
              error=function(e) stop(paste('Could not extract coefficients from model.fcn for each species due to following error \n',e)))
-    tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(stats::vcov(m)))[PartitioningVariables])),
-             error=function(e) stop(paste('Could not extrac standard errors from model.fcn for each species due to following error \n',e)))
+    tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(stats::vcov(m))))),
+             error=function(e) stop(paste('Could not extract standard errors from model.fcn for each species due to following error \n',e)))
+
+    BP <- coefficients[,PartitioningVariables,drop=F]/SE[,PartitioningVariables,drop=F]
     
-    BP <- coef[,PartitioningVariables]/SE
     if (ncol(BP)!=length(PartitioningVariables)){
       BP <- t(BP)
       if (ncol(BP)!=length(PartitioningVariables)){
         stop('error in converting partitioning variables to coefficient matrix. Perhaps Partitioning variables do not correspond to names of coefficients(model.fcn)')
       }
     }
-    rownames(coef) <- species
+    rownames(coefficients) <- species
     rownames(BP) <- species
     names(models) <- species
     # models <- models[tree$tip.label]
-    # coef <- coef[tree$tip.label,]
+    # coefficients <- coefficients[tree$tip.label,]
     # BP <- BP[tree$tip.label,]
     output$species.models <- models
-    output$coefficient.matrix <- coef
+    output$coefficient.matrix <- coefficients
     output$coefficient.SE <- SE
     if (algorithm=='mix'){
       rarest.spp <- names(sort(table(Data$Species)))[1]
@@ -678,7 +678,11 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     }
     if (!is.null(nfactors)){
       GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
-                                as.character(tm+difftime(tm2,tm)*nfactors/pfs),
+                                as.character(tm+difftime(tm2,tm)*(nfactors-pfs)/pfs),
+                                '  \r')
+    } else {
+      GUI.notification <- paste(GUI.notification,'Estimated time of completion: at latest',
+                                as.character(tm+difftime(tm2,tm)*(nrow(Data)/pfs)),
                                 '  \r')
     }
     cat(GUI.notification)
@@ -691,12 +695,12 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   }
   
   if (pfs>1){
-    output$factors <- t(output$factors)
+    output$factors <- t(output$factors) %>% as.data.frame
   } else {
-    output$factors <- matrix(output$factors,nrow=1)
+    output$factors <- matrix(output$factors,nrow=1) %>% as.data.frame
   }
   rownames(output$factors) <- paste('Factor',1:pfs)
-  colnames(output$factors)[2] <- paste('Group1','Group2')
+  colnames(output$factors) <- c('Group1','Group2')
   output$basis <- matrix(NA,nrow=ape::Ntip(tree),ncol=pfs)
   for (i in 1:length(output$groups)){
     output$basis[,i] <- ilrvec(output$groups[[i]],ape::Ntip(tree))
@@ -720,6 +724,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     }
   }
   output$MetaData <- MetaData
+  output$objective.fcn <- objective.fcn
   output$method <- 'gpf'
   output$PartitioningVariables <- PartitioningVariables
   class(output) <- 'phylofactor'
