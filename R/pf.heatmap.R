@@ -31,7 +31,9 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
         stop('gpf-based pf.heatmap only works for algorithm==mStable')
       } else {
         if (class(PF$Data)=='list'){
-          Data <- PF$Data$Successes/(PF$Data$Successes+PF$Data$Failures)
+          if (is.null(Data)){
+            Data <- PF$Data$Successes/(PF$Data$Successes+PF$Data$Failures)
+          }
         }
       }
     }
