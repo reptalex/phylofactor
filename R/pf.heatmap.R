@@ -5,8 +5,12 @@
 #' @param Data Dataset with rows equal to the number of species. Ideally, rownames are all equal to \code{PF$tree} of \code{tree} tip-labels. Otherwise, rows must be in order of tree tip-labels.
 #' @param factors vector of integer factors for input with \code{PF}. Will use \code{\link{pf.tree}} to highlight clades obtained at each factor.
 #' @param column.order vector of integers of length equal to \code{ncol(Data)} or \code{ncol(PF$Data)}. Will re-order the data (e.g. according to desired meta-data).
+#' @param branch.length input for \code{\link{ggtree}}
+#' @param color input \code{color} for \code{gheatmap}
+#' @param font.size font size for \code{gheatmap}
 #' @param ... additional arguments passed to \code{\link{gheatmap}}
-pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NULL,...){
+
+pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NULL,branch.length='none',color=NA,font.size=0,...){
   
   if (is.null(PF)){
     if (is.null(tree) | is.null(Data)){
@@ -25,6 +29,10 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
     if (PF$phylofactor.fcn=='gpf'){
       if (PF$algorithm!='mStable'){
         stop('gpf-based pf.heatmap only works for algorithm==mStable')
+      } else {
+        if (class(PF$Data)=='list'){
+          Data <- PF$Data$Successes/(PF$Data$Successes+PF$Data$Failures)
+        }
       }
     }
   }
@@ -68,13 +76,13 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
   }
   
   if (is.null(factors)){
-    gg <- ggtree::ggtree(PF$tree,layout='rectangular')
+    gg <- ggtree::ggtree(PF$tree,layout='rectangular',branch.length = branch.length)
   } else {
-    gg <- pf.tree(PF,layout='rectangular',factors = factors)$ggplot
+    gg <- pf.tree(PF,layout='rectangular',factors = factors,branch.length=branch.length)$ggplot
   }
   if (is.null(column.order)){
     column.order <- 1:ncol(Data)
   }
-  gg <- gheatmap(gg,Data[,column.order],...)
+  gg <- gheatmap(gg,Data[,column.order],color=color,font.size=font.size,...)
   return(gg)
 }
