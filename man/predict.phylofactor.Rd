@@ -4,19 +4,17 @@
 \alias{predict.phylofactor}
 \title{predict newdata with phylofactor object. Only works for \code{PhyloFactor} and \code{gpf} objects.}
 \usage{
-\method{predict}{phylofactor}(PF, newdata = NULL, newMetaData = NULL,
-  estimate.total = FALSE, input.total = NULL, ...)
+\method{predict}{phylofactor}(PF, factor = NULL, frmla.phylo = NULL,
+  newMetaData = NULL, estimate.total = FALSE, input.total = NULL, ...)
 }
 \arguments{
 \item{PF}{phylofactor class object}
 
-\item{newdata}{dataset of same form as \code{PF$Data} to be used for prediction. If \code{PF} is from \code{gpf} and \code{PF$algorithm=='mStable'}, must also input \code{newMetaData}}
+\item{factor}{factor level to use for predictions. Will use all factors in \code{1:factor}}
 
 \item{newMetaData}{required input MetaData for \code{PF$algorithm=='mStable'}.}
 
-\item{estimate.total}{Logical. Whether or not to estimate column sums for \code{PhyloFactor} output. Default is false, and uses raw column sums to scale the predictions for the data.}
-
-\item{input.total}{positive, numeric vector of length equal to the number of samples for \code{PhyloFactor} and \code{gpf} \code{algorithm=='mStable'} objects. Will scale predictions in each sample by the input total.}
+\item{...}{additional arguments for \code{\link{predict}}}
 }
 \description{
 predict newdata with phylofactor object. Only works for \code{PhyloFactor} and \code{gpf} objects.

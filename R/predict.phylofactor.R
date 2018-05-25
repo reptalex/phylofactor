@@ -1,4 +1,5 @@
 #' predict newdata with phylofactor object. Only works for \code{PhyloFactor} and \code{gpf} objects.
+#' @export
 #' @param PF phylofactor class object
 #' @param factor factor level to use for predictions. Will use all factors in \code{1:factor} 
 #' @param newMetaData required input MetaData for \code{PF$algorithm=='mStable'}.
