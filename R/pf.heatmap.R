@@ -85,6 +85,6 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
   if (is.null(column.order)){
     column.order <- 1:ncol(Data)
   }
-  gg <- gheatmap(gg,Data[,column.order],color=color,font.size=font.size,...)
+  gg <- ggtree::gheatmap(gg,Data[,column.order],color=color,font.size=font.size,...)
   return(gg)
 }
