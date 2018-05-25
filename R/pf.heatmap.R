@@ -80,7 +80,7 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
   if (is.null(factors)){
     gg <- ggtree::ggtree(PF$tree,layout='rectangular',branch.length = branch.length)
   } else {
-    gg <- pf.tree(PF,layout='rectangular',factors = factors,branch.length=branch.length)$ggplot
+    suppressWarnings(gg <- pf.tree(PF,layout='rectangular',factors = factors,branch.length=branch.length)$ggplot)
   }
   if (is.null(column.order)){
     column.order <- 1:ncol(Data)

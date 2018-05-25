@@ -328,47 +328,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     }
   }
   
-  ## Below is code attempting to automate frmla.phylo if only input is frmla
-  # if (is.null(frmla.phylo)){  
-  #   frmla.terms <- stats::terms(frmla) %>% base::attr('term.labels')
-  #   overlap <- sapply(PartitioningVariables,grepl,c(frmla.terms,''))
-  #   if (!all(apply(overlap,2,any))){
-  #     stop('Some PartitioningVariables are not found in input frmla')
-  #   }
-  #   if (is.null(PartitioningVariables)){
-  #     warning("Did not input PartitioningVariables nor frmla.phylo - default is to partition based on all variables, including (Intercept)")
-  #   }
-  #   if (algorithm == 'mix'){
-  #     warning("Did not input frmla.phylo for algorithm=mix. Default is to assign species-specific coefficients for all but PartitioningVariables")
-  #   }
-  #   if (algorithm %in% c('phylo','mStable','mix')){
-  #     if (is.null(PartitioningVariables)){
-  #       frmla.phylo <- stats::update(frmla,.~phylo*.)
-  #     } else {
-  #       Non_Partitioning_Variables <- setdiff(frmla.terms,PartitioningVariables)
-  #       PartitioningTerms <- sapply(PartitioningVariables,FUN=function(s) paste('phylo*',s,sep='')) %>% paste(collapse='+')
-  #       if (length(unique(Data$Sample))>1){
-  #         Non_Partitioning_Terms <- sapply(Non_Partitioning_Variables,FUN=function(s) paste('Species*',s,sep='')) %>% paste(collapse='+')
-  #       } else {
-  #         Non_Partitioning_Terms <- paste(Non_Partitioning_Variables,collapse='+')
-  #       }
-  #       LHS <- as.character(frmla[[2]])
-  #       if (LHS=='phylo'){
-  #         stop('Current gpf does not allow prediction of phylo. If you have thought about this carefully and are sure this is what you want, contact me at alex.d.washburne@gmail.com with your reason for wanting this & I may be able to re-write the package to accomodate')
-  #       }
-  #       if (length(LHS)==1){
-  #         frmla.phylo <- stats::as.formula(paste(paste(LHS,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+')))
-  #       } else {
-  #         if (!all.equal(tolower(LHS),c('cbind','successes','failures'))){
-  #           stop('unknown LHS of input formula. Contact alex.d.washburne@gmail.com with error report')
-  #         } else {
-  #           pp <- paste(LHS[1],'(',paste(LHS[2:3],collapse=','),')',sep='')
-  #           frmla.phylo <- stats::as.formula(paste(paste(pp,'~',sep=''),paste(Non_Partitioning_Terms,PartitioningTerms,sep='+'),sep=''))
-  #         }
-  #       }
-  #     }
-  #   }
-  # }
+
   output$frmla <- frmla
   output$frmla.phylo <- frmla.phylo
   
@@ -405,46 +365,76 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   ## (2) if Data is a matrix, the columns of Data must match the rows of MetaData.
   ## Otherwise, we'll report the number of samples that overlap.
   if (!is.null(MetaData)){
+    
     if (algorithm!='mStable'){
       warning('input MetaData is ignored for algorithm!="mStable"')
-    } else {
-      if (!'data.table'%in% class(MetaData)){
-        MetaData <- data.table::as.data.table(MetaData)
-        if ('data.frame' %in% class(Data)){
-          if (!'Sample' %in% names(Data)){
-            stop('If inputting meta-data, must have column "Sample" in input Data to align MetaData with Data')
-          }
-          if (!'Sample'%in%names(MetaData)){
-            stop('Input meta-data MetaData must contain a column named "Sample" for alignment with Data')
-          }
-          if (!any(MetaData$Sample %in% Data$Sample)){
-            stop('No MetaData$Sample in Data$Sample')
-          } else if (!all(MetaData$Sample %in% Data$Sample)){
-            warning(paste('Only',length(intersect(MetaData$Sample,Data$Sample)),'samples shared in both Data and MetaData'))
-          }
-        } else { #input data is a matrix or a list of matrices.
-          if (class(Data)=='list'){
-            if (!(ncol(Data[[1]])==nrow(MetaData) & ncol(Data[[2]])==nrow(MetaData))){
-              stop('Number of columns of Data[[1]] and/or Data[[2]] does not match number of rows of MetaData')
+    } else { ## two scenarios: data are matrix/list or data.frame. Either way: check Sample/colnames, make into data.tables & match.
+      if (any(class(Data) %in% c('list','matrix'))){ ## matrix input:check/add Sample, data.table MetaData & 
+        if (class(Data)=='list'){
+          if (!all(c(ncol(Data[[1]]),ncol(Data[[2]]))==nrow(MetaData))){
+            stop('MetaData does not have same number of rows as columns of Data[[1]] and/or Data[[2]]')
+          } else {  #same number of rows/columns - need to match names.
+            if (!'Sample' %in% colnames(MetaData)){
+              MetaData$Sample <- paste('Sample',1:nrow(MetaData))
             }
-          } else {
-            if (!ncol(Data)==nrow(MetaData)){
-              stop('Number of columns of Data does not match number of rows of MetaData')
-            }
-          }
-          
-          if (!'Sample' %in% names(MetaData)){
-            MetaData$Sample <- paste('Sample',1:nrow(MetaData))
-            if (class(Data)=='list'){
-              colnames(Data[[1]]) <- MetaData$Sample
+            if (is.null(colnames(Data[[1]]))){
+              colnames(Data[[1]]) <-  MetaData$Sample
               colnames(Data[[2]]) <- MetaData$Sample
             } else {
-              colnames(Data) <- MetaData$Sample
+              if (!all(colnames(Data[[1]])%in%MetaData$Sample)){
+                stop('not all colnames of Data[[1]] are in MetaData$Sample')
+              } else {
+                Data[[1]] <- Data[[1]][,MetaData$Sample]
+                Data[[2]] <- Data[[2]][,MetaData$Sample]
+              }
             }
           }
-          
+          MetaData <- data.table::as.data.table(MetaData)
+          setkey(MetaData,Sample)
+          Data[[1]] <- Data[[1]][,MetaData$Sample]
+          Data[[2]] <- Data[[2]][,MetaData$Sample]
+        } else {
+          if (!ncol(Data)==nrow(MetaData)){
+            stop('MetaData does not have same number of rows as columns of Data[[1]] and/or Data[[2]]')
+          } else {  #same number of rows/columns - need to match names.
+            if (!'Sample' %in% colnames(MetaData)){
+              MetaData$Sample <- paste('Sample',1:nrow(MetaData))
+            }
+            if (is.null(colnames(Data))){
+              colnames(Data) <-  MetaData$Sample
+            } else {
+              if (!all(colnames(Data)%in%MetaData$Sample)){
+                stop('not all colnames of Data are in MetaData$Sample')
+              } else {
+                Data <- Data[,MetaData$Sample]
+              }
+            }
+          }
+          MetaData <- data.table::as.data.table(MetaData)
+          setkey(MetaData,Sample)
+          Data <- Data[,MetaData$Sample]
         }
-        setkey(MetaData,Sample)
+        
+      } else {
+        if ((!'Sample' %in% colnames(MetaData)) | (!'Sample' %in% colnames(Data))){
+          stop('For input Data of class data.frame and MetaData, both data.frames must have column "Sample" for alignment and aggregation within-samples.')
+        }
+        if (!'data.table' %in% class(Data)){
+          Data <- data.table::as.data.table(Data)
+        }
+        if (!'data.table' %in% class(MetaData)){
+          MetaData <- data.table::as.data.table(MetaData)
+        }
+        if (!all.equal(sort(unique(MetaData$Sample)),sort(unique(Data$Sample)))){
+          warning('Not all Samples are present in both MetaData & Data')
+          smpls <- intersect(unique(MetaData$Sample),unique(Data$Sample))
+          if (length(smpls)==0){
+            stop('No Sample overlap between MetaData and Data')
+          } else {
+            Data <- Data[Sample %in% smpls]
+            MetaData <- MetaData[Sample %in% smpls]
+          }
+        }
       }
     }
   } else {
@@ -455,14 +445,6 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       MetaData <- data.table:::`[.data.table`(MetaData,!base::duplicated(MetaData))
       data.table::setkey(MetaData,Sample)
     }
-    # if (algorithm %in% c('CoefContrast','mix')){
-    #   RHS <- setdiff(setdiff(names(Data),as.character(frmla[[2]])),c('phylo','Species'))
-    # } else {
-    #   RHS <- setdiff(setdiff(names(Data),as.character(frmla.phylo[[2]])),c('phylo','Species'))
-    # }
-    # MetaData <- Data[,RHS,with=F]
-    # MetaData <- data.table:::`[.data.table`(MetaData,!base::duplicated(MetaData))
-    # data.table::setkey(MetaData,Sample)
   }
 
   if ('data.table' %in% class(Data)){
@@ -498,6 +480,18 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       setkey(Data,'Species')
     }
   } else {
+    if (class(Data)=='list'){
+      if (!all.equal(tree$tip.label,rownames(Data[[1]]))){
+        if (!all(tree$tip.label %in% rownames(Data[[1]]))){
+          stop('Not all tree tip labels are in data')
+        } else if (!all(rownames(Data[[1]]) %in% tree$tip.label)){
+          stop('Not all rownames of data are in tree tip labels')
+        } else {
+          Data[[1]] <- Data[[1]][tree$tip.label,]
+          Data[[2]] <- Data[[2]][tree$tip.label,]
+        }
+      }
+    } else {
       if (!all(tree$tip.label==rownames(Data))){
         if (!all(tree$tip.label %in% rownames(Data))){
           stop('Not all tree tip labels are in data')
@@ -507,6 +501,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
           Data <- Data[tree$tip.label,]
         }
       }
+    }
   }
   
 ##### Check additional arguments - family, subset, ... #########

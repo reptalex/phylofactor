@@ -105,6 +105,7 @@ predict.phylofactor <- function(PF,factor=NULL,frmla.phylo=NULL,newMetaData=NULL
       }
       rownames(preds) <- PF$tree$tip.label
       
+      
       phyloData <- NULL
       for (i in 1:length(Bins)){
         grp <- list(Bins[[i]],NULL)
@@ -120,6 +121,8 @@ predict.phylofactor <- function(PF,factor=NULL,frmla.phylo=NULL,newMetaData=NULL
       
       if (!is.null(newMetaData)){
         MD <- newMetaData
+        setkey(MD,'Species')
+        MD <- MD[BinMap]
       } else {
         MD <- PF$MetaData
       }

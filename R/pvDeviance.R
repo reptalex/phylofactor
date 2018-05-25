@@ -25,7 +25,9 @@ pvDeviance <- function(model,grp,tree,PartitioningVariables='',model.fcn,phyloDa
       ## Note: if PartitioningVariables phylo:x, we want to run a model with phylo and x, and not phylo*x
       ## likewise, for s(x,by=phylo) we want s(x)
       trms <- unique(c(attr(stats::terms(frmla),'term.labels'),setdiff(as.character(frmla[[3]]),'+')))
-      
+      if (any(grepl('s\\(',trms))){
+        trms <- setdiff(trms,'s')
+      }
       contains.phylo <- grepl('phylo',trms)
       smoothed.by.phylo <- grepl(', by = phylo',trms)
       if (pvs==''){
