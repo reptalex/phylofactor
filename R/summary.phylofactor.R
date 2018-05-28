@@ -27,6 +27,24 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     }
     if (is.null(taxonomy)){
       taxon.trimming <- 'species'
+    } else {
+      if (taxon.trimming %in% c('sup','taxon')){
+        brks <- grepl('\\[',taxonomy[,2]) | grepl('\\]',taxonomy[,2])
+        if (any(brks)){
+          taxonomy[brks,2] <- gsub('\\[','~',taxonomy[brks,2])
+          taxonomy[brks,2] <- gsub('\\]','~',taxonomy[brks,2])
+        }
+        curls <- grepl('\\{',taxonomy[,2]) | grepl('\\}',taxonomy[,2])
+        if (any(curls)){
+          taxonomy[curls,2] <- gsub('\\{','~',taxonomy[curls,2])
+          taxonomy[curls,2] <- gsub('\\}','~',taxonomy[curls,2])
+        }
+        parens <- grepl('\\(',taxonomy[,2]) | grepl('\\)',taxonomy[,2])
+        if (any(parens)){
+          taxonomy[parens,2] <- gsub('\\(','~',taxonomy[parens,2])
+          taxonomy[parens,2] <- gsub('\\)','~',taxonomy[parens,2])
+        }
+      }
     }
     if (!taxon.trimming %in% c('sup','taxon','species')){
       stop('unknown input taxon.trimming. Must be either "sup", "taxon", or "species".')
@@ -129,16 +147,26 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
         group1.taxa <- unique(group1.taxonomy[,2])
         group2.taxa <- unique(group2.taxonomy[,2])
       }
+      group1.taxa <- group1.taxa[order(nchar(group1.taxa),decreasing = T)]
+      group2.taxa <- group2.taxa[order(nchar(group2.taxa),decreasing = T)]
+      
       species.assignment1 <- vector(mode='list',length=length(group1.taxa))
       names(species.assignment1) <- group1.taxa
       species.assignment2 <- vector(mode='list',length=length(group2.taxa))
       names(species.assignment2) <- group2.taxa
-      for (tax in group1.taxa){
-        species.assignment1[[tax]] <- output$species.list[[1]][grepl(tax,group1.taxonomy[,2])]
+
+      tx <- sapply(group1.taxa,FUN=function(tax,taxa) grepl(tax,taxa),group1.taxonomy[,2]) %>%
+        apply(MARGIN=1,FUN=function(g) min(which(g)))
+      for (i in 1:length(group1.taxa)){
+        species.assignment1[[i]] <- output$species.list[[1]][tx==i]
       }
-      for (tax in group2.taxa){
-        species.assignment2[[tax]] <- output$species.list[[2]][grepl(tax,group2.taxonomy[,2])]
+      
+      tx <- sapply(group2.taxa,FUN=function(tax,taxa) grepl(tax,taxa),group2.taxonomy[,2]) %>%
+                  apply(MARGIN=1,FUN=function(g) min(which(g)))
+      for (i in 1:length(group2.taxa)){
+        species.assignment2[[i]] <- output$species.list[[2]][tx==i]
       }
+      
       output$taxon.species.assignments <- list('group1'=species.assignment1,
                                                'group2'=species.assignment2)
     } 
