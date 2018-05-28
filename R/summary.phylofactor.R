@@ -233,7 +233,8 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     }
     output$info <- list('phylofactor.fcn'=PF$phylofactor.fcn,
                         'method'=PF$method,'choice'=PF$choice,
-                        'algorithm'=PF$algorithm,'formula'=formula)
+                        'algorithm'=PF$algorithm,'formula'=formula,
+                        'factor'=factor,'nEdges'=length(Grps))
     class(output) <- 'phylofactor.summary'
     return(output)
   }

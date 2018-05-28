@@ -27,6 +27,11 @@ Formula                   : ',info$formula,sep='')
     formula <- NULL
   }
   
+  nedges <- paste('
+Edges Considered          : ',info$nEdges,sep='')
+  factor.print <- paste('
+Factor                    : ',info$factor,sep='')
+  
   factor <- rownames(s$group.summary) %>% strsplit(' ')
   factor <- factor[[1]][2]
   
@@ -58,7 +63,7 @@ Formula                   : ',info$formula,sep='')
               paste(rep('-',nchar(s$info$phylofactor.fcn)),collapse=''),sep='')
   output <- paste('       phylofactor object from function ',s$info$phylofactor.fcn,'
        ',ln,'
-Method                    : ',method,algorithm,choice,formula,'
+Method                    : ',method,algorithm,choice,formula,factor.print,nedges,'
 
 ',tbl.str,'
 ========================================================================
