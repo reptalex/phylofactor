@@ -28,7 +28,6 @@
 #' set.seed(2)
 #' library(phylofactor)
 #' library(phangorn)
-#' library(phytools)
 #' library(mgcv)
 #' mar <- par('mar')
 #' clo <- function(X) X/rowSums(X) 
@@ -59,7 +58,7 @@
 #' Data[sigClades[[2]],X==1] <- Data[sigClades[[2]],X==1]*9
 #' Data <- t(clo(t(Data)))
 #' Bins <- bins(G=sigClades,set=1:20)
-#' phylo.heatmap(tree,Data)
+#' pf.heatmap(tree=tree,Data=Data)
 #' 
 #' ### PhyloFactor ###
 #' PF <- PhyloFactor(Data,tree,X,nfactors=2)
@@ -99,7 +98,7 @@
 #' PFclades <- Descendants(tree,PFnodes,'tips')
 #' 
 #' par(mfrow=c(3,1))
-#' phylo.heatmap(tree,Data)
+#' pf.heatmap(tree=tree,Data=Data)
 #' # edgelabels(c('Factor 1','Factor 2'),edge=PFedges,bg=c('yellow','red'),cex=2)
 #' tiplabels('  ',PFclades[[1]],bg='yellow')
 #' tiplabels('  ',PFclades[[2]],bg='red')
@@ -108,11 +107,11 @@
 #' ### predicted data matrix given phylofactors
 #' pred <- pf.predict(PF)
 #' colnames(pred) <- colnames(Data)
-#' phylo.heatmap(tree,pf.predict(PF))
+#' pf.heatmap(tree=tree,Data=pf.predict(PF))
 #' ### residual data
 #' resid <- Data/pred
 #' resid <- resid %>% t %>% clo %>% t
-#' phylo.heatmap(tree,resid)
+#' pf.heatmap(tree=tree,Data=resid)
 #' par(mar=mar)
 #' ##################################
 #' 

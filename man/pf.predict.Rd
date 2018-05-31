@@ -42,6 +42,6 @@ CommunityEst <- pf.predict(PF,factors=1,newdata=data.frame(X=seq(0,11,by=1/3)))
 rownames(CommunityEst) <- rownames(Data)
 
 clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
-phytools::phylo.heatmap(tree,clr(Data))
-phytools::phylo.heatmap(tree,clr(CommunityEst))
+pf.heatmap(tree=tree,Data=clr(Data))
+pf.heatmap(tree=tree,Data=clr(CommunityEst))
 }

@@ -9,6 +9,16 @@
 #' @param color input \code{color} for \code{gheatmap}
 #' @param font.size font size for \code{gheatmap}
 #' @param ... additional arguments passed to \code{\link{gheatmap}}
+#' @examples
+#' library(phylofactor)
+#' require(ggpubr)
+#' data(FTmicrobiome)
+#' PF <- FTmicrobiome$PF
+#' obs <- PF$transform.fcn(PF$Data)
+#' pred <- predict(PF,factors=1:3)
+#' observed <- pf.heatmap(PF,Data=obs,factors=1:3,width=3)
+#' predicted <- pf.heatmap(PF,Data=pred,factors=1:3,width=3)
+#' ggarrange(observed,predicted,nrow=2)
 
 pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NULL,branch.length='none',color=NA,font.size=0,...){
   

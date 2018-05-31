@@ -5,7 +5,7 @@
 \title{Function for mapping phylogenetic factors in a phylofactor object to a new community through universal tree}
 \usage{
 pf.crossValidateMap(pf, universal.tree, new.community,
-  factors = 1:pf$nfactors)
+  factors = 1:pf$nfactors, fill.empty = FALSE)
 }
 \arguments{
 \item{pf}{phylofactor class object whose tree tip-labels are all in the \code{universal.tree}}
@@ -15,7 +15,42 @@ pf.crossValidateMap(pf, universal.tree, new.community,
 \item{new.community}{New community}
 
 \item{factors}{which factors to cross-map}
+
+\item{fill.empty}{Logical. Whether or not to fill any empty groups with the species from the original community. If true, the last element of the output will be a data frame indicating the species added to the factor-groups.}
 }
 \description{
 Function for mapping phylogenetic factors in a phylofactor object to a new community through universal tree
+}
+\examples{
+library(phylofactor)
+set.seed(1)
+m=10
+n=20
+tree <- rtree(m)
+plot(tree,show.tip.label = F)
+tiplabels()
+tree$tip.label <- paste('t',1:10,sep='')
+c1 <- tree$tip.label[setdiff(1:m,c(5,7))]
+c2 <- tree$tip.label                       #t5 added to group1, t7 ignored
+c3 <- tree$tip.label[setdiff(1:m,c(4,6))]  #t5 is the only member of our group 1
+c4 <- tree$tip.label[setdiff(1:m,4:6)]     #our factor will be empty for this community 
+clade1 <- c(4,6)
+D <- matrix(0,nrow=m,ncol=n)
+D[clade1,] <- rep(1:n,each=2)
+rownames(D) <- tree$tip.label
+D <- D[c1,]
+metadata <- data.frame('a'=1:n,'b'=rnorm(n),'c'=rpois(n,2))
+metadata <- data.frame('a'=1:n,'b'=factor(rep(0,1,each=n/2)))
+pf <- PhyloFactor(D,tree,metadata,frmla = Data~a,nfactors=1,transform.fcn = I)
+pf.groupsTospecies(pf)
+pf.crossValidateMap(pf,tree,c1)  ## same as above
+pf.crossValidateMap(pf,tree,c2)  ## add t5 to group1
+pf.crossValidateMap(pf,tree,c3)  ## Group1 contains only 5
+pf.crossValidateMap(pf,tree,c4)  ## group1 empty
+
+cv <- pf.crossValidateMap(pf,tree,c4,fill.empty = T) 
+## group1 same as in our original community - empty groups filled.
+cv$groups
+cv$filler.species                                    
+## factor1, group1 received species t4, t6 as fillers for an empty group.
 }

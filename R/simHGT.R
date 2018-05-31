@@ -11,10 +11,10 @@
 #' library(ape)
 #' 
 #' set.seed(5)
-#' tree <- rtree(5)
-#' sim <- simHGT(tree,0.3)
+#' tree <- rtree(10)
+#' sim <- simHGT(tree,0.3,sig2=3)
 #' par(mfrow=c(2,1))
-#' plot.phylo(tree)
+#' plot(tree)
 #' HGTplot(sim,lwd=2,main='HGT Dynamics')
 
 simHGT <- function(tree,rate,a=0,mu=0,sig2=1){
@@ -28,7 +28,7 @@ simHGT <- function(tree,rate,a=0,mu=0,sig2=1){
   grps <- sapply(as.list(nodes),FUN=function(n,t) phangorn::Descendants(t,n,type='tips'),t=tree)
   names(grps) <- nodes
                                               #distances of nodes to root
-  ndheights <- sapply(as.list(nodes),FUN=function(n,t) phytools::nodeheight(t,n),t=tree)
+  ndheights <- sapply(as.list(nodes),FUN=function(n,t) ape::node.depth.edgelength(t)[n],t=tree)
   names(ndheights) <- nodes
   
   

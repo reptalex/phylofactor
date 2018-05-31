@@ -20,14 +20,13 @@
 #' X <- FTmicrobiome$X
 #' taxonomy <- FTmicrobiome$taxonomy
 #' clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
-#' phytools::phylo.heatmap(tree,clr(Data))
+#' pf.heatmap(tree=tree,Data=clr(Data))
 #' 
 #' 
 #' phca <- PhyCA(Data,tree,ncomponents = 2)
 #' phcaPAR <- PhyCA(Data,tree,ncomponents=2,ncores=2)
 #' 
-#' phytools::phylo.heatmap(tree,clr(Data))
-#' edgelabels(text=1:3,edge = unlist(phcaPAR$edges),cex=2)
+#' pf.heatmap(tree=tree,Data=clr(Data))
 
 
 PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5,quiet=T,...){

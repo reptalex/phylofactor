@@ -17,6 +17,7 @@
 #' @return phylofactor object which can be manipulated with various \code{pf.} functions
 #' @examples 
 #' library(phylofactor)
+#' require(ggpubr)
 #' 
 #' ilogit <- function(eta) 1/(1+exp(-eta))
 #' set.seed(1)
@@ -131,9 +132,10 @@
 #'           family=binomial,algorithm='mStable')
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 #' 
-#' par(mfrow=c(2,1))
-#' phytools::phylo.heatmap(tree,M[,order(MetaData$y)])
-#' phytools::phylo.heatmap(tree,ilogit(pf.predict(pf)[,order(MetaData$y)]))
+#' 
+#' observed <- pf.heatmap(tree=tree,Data=M[,order(MetaData$y)])
+#' predicted <- pf.heatmap(tree=tree,Data=ilogit(pf.predict(pf)[,order(MetaData$y)]))
+#' ggarrange(observed,predicted,nrow=2)
 #' 
 #' ################# Poisson Regression
 #' set.seed(1)
@@ -165,9 +167,9 @@
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 #' 
 #' par(mfrow=c(2,1))
-#' phytools::phylo.heatmap(tree,M[,order(MetaData$y)])
-#' phytools::phylo.heatmap(tree,exp(pf.predict(pf)[,order(MetaData$y)]))
-#' 
+#' observed <- pf.heatmap(tree=tree,Data=M[,order(MetaData$y)])
+#' predicted <- pf.heatmap(tree=tree,Data=exp(pf.predict(pf)[,order(MetaData$y)]))
+#' ggarrange(observed,predicted,nrow=2)
 #' ### partition vector of data controlling for sample effort ###
 #' set.seed(1)
 #' effort <- rnorm(50)

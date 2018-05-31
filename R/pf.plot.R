@@ -8,7 +8,7 @@
 #' @param cex Size of node labels, default 2.
 #' @param factors factors of phylofactor object to be labelled on tree and used in prediction.
 #' @param compare Whether or not to compare the Data with phylofactor prediction. If compare = TRUE, two phylo-heatmaps will be produced for direct comparison.
-#' @param ... additional arguments for phylo.heatmap
+#' @param ... additional arguments for pf.heatmap
 #' @return phylo.heatmap labelling the tree with phylofactors and optionally comparing data to phylofactor predictions.
 #' @examples
 #'  ### Create Data ###
@@ -47,9 +47,9 @@ pf.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,
       PData <- pf.predict(PF,factors)
       rownames(PData) <- row.names
       colnames(PData) <- colnames(PData)
-      phytools::phylo.heatmap(tree,clr(PData),...)
+      pf.heatmap(tree=tree,Data=clr(PData),...)
     } else {
-      phytools::phylo.heatmap(tree,clr(Data),...)
+      pf.heatmap(tree=tree,Data=clr(Data),...)
     }
     # ape::nodelabels(text = as.list(factors),node=PF$nodes[factors],bg = bg,cex=cex)
   } else {
@@ -66,9 +66,9 @@ pf.plot <- function(PF,tree=NULL,Data=NULL,bg='white',cex=2,factors=1,compare=F,
     rownames(PData) <- tree$tip.label
     colnames(PData) <- colnames(Data)
 
-    phytools::phylo.heatmap(tree,clr(Data))
+    pf.heatmap(tree=tree,Data=clr(Data),...)
     # ape::nodelabels(text = as.list(factors),node=PF$nodes[factors],bg = bg,cex=cex)
-    phytools::phylo.heatmap(tree,clr(PData))
+    pf.heatmap(tree=tree,Data=clr(PData),...)
     # ape::nodelabels(text = as.list(factors),node=PF$nodes[factors],bg = bg,cex=cex)
 
 

@@ -22,7 +22,7 @@ pf.plot(PF, tree = NULL, Data = NULL, bg = "white", cex = 2,
 
 \item{compare}{Whether or not to compare the Data with phylofactor prediction. If compare = TRUE, two phylo-heatmaps will be produced for direct comparison.}
 
-\item{...}{additional arguments for phylo.heatmap}
+\item{...}{additional arguments for pf.heatmap}
 }
 \value{
 phylo.heatmap labelling the tree with phylofactors and optionally comparing data to phylofactor predictions.

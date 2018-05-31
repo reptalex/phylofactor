@@ -10,6 +10,8 @@ amalgamate(Grps, TransformedData, pseudo.count = 0.65)
 \item{Grps}{Either a list of \code{getPhyloGroups} or a single \code{getPhyloGroups} element}
 
 \item{TransformedData}{Transformed Data. For amalgamation-phylofactorization, set \code{transform.fcn=I} and \code{contrast.fcn=amalgamate}.}
+
+\item{pseudo.count}{Numeric greater than 0. If aggregation of a group is zero, it will be replaced with \code{pseudo.count}}
 }
 \description{
 Amalgamation contrast function

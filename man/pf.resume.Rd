@@ -7,7 +7,7 @@
 pf.resume(pf, ...)
 }
 \arguments{
-\item{pf}{phylofactor object from \code{\link{PhyloFactor}}, \code{\link{PhyCA}}, \code{\link{twoSamplefactor}} or \code{\link{gpf}}}
+\item{pf}{phylofactor object from \code{\link{PhyloFactor}}, \code{\link{PhyCA}}, \code{\link{twoSampleFactor}} or \code{\link{gpf}}}
 
 \item{...}{additional arguments..... INCOMPLETE}
 }

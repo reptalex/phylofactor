@@ -17,17 +17,17 @@
 #' ## type=1
 #' ec <- ecols
 #' ec[extractEdges(tr,txa)] = 'red'
-#' plot.phylo(tr,edge.color=ec,edge.width=3,main='Type=1')
+#' plot(tr,edge.color=ec,edge.width=3,main='Type=1')
 #'
 #' ## type=2
 #' ec <- ecols
 #' ec[extractEdges(tr,txa,type=2)] = 'red'
-#' plot.phylo(tr,edge.color=ec,edge.width=3,main='Type=2')
+#' plot(tr,edge.color=ec,edge.width=3,main='Type=2')
 #'
 #' ## type=3
 #' ec <- ecols
 #' ec[extractEdges(tr,txa,type=3)] = 'red'
-#' plot.phylo(tr,edge.color=ec,edge.width=3,main='Type=3')
+#' plot(tr,edge.color=ec,edge.width=3,main='Type=3')
 
 ###################### extractEdges ###################################################
 ###### This function was created by Dom J Bennett and downloaded from his GitHub #########

@@ -4,7 +4,7 @@
 \alias{print.phylofactor.summary}
 \title{Prints phylofactor.summary objects}
 \usage{
-\method{print}{phylofactor.summary}(s)
+print.phylofactor.summary(s)
 }
 \arguments{
 \item{output}{from \code{\link{summary.phylofactor}}}

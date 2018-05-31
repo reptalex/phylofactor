@@ -28,8 +28,8 @@
 #' rownames(CommunityEst) <- rownames(Data)
 #' 
 #' clr <- function(A) apply(A,MARGIN=2,FUN=function(a) log(a)-mean(log(a)))
-#' phytools::phylo.heatmap(tree,clr(Data))
-#' phytools::phylo.heatmap(tree,clr(CommunityEst))
+#' pf.heatmap(tree=tree,Data=clr(Data))
+#' pf.heatmap(tree=tree,Data=clr(CommunityEst))
 
 pf.predict <- function(PF,factors=NULL,...){
   #outputs the predictions, using nfactors from PhyloFactor.

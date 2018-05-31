@@ -25,9 +25,9 @@ library(phylofactor)
 library(ape)
 
 set.seed(5)
-tree <- rtree(5)
-sim <- simHGT(tree,0.3)
+tree <- rtree(10)
+sim <- simHGT(tree,0.3,sig2=3)
 par(mfrow=c(2,1))
-plot.phylo(tree)
+plot(tree)
 HGTplot(sim,lwd=2,main='HGT Dynamics')
 }

@@ -4,7 +4,7 @@
 \alias{print.phylofactor}
 \title{Prints phylofactor class objects}
 \usage{
-\method{print}{phylofactor}(PF)
+print.phylofactor(PF)
 }
 \arguments{
 \item{PF}{phylofactor object}

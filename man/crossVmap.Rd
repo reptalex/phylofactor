@@ -39,7 +39,7 @@ ecols <- rep('grey',ape::Nedge(tree))
 ecols[factored.edges] <- 'red'
 ecols[12] <- 'yellow'
 ecols[c(2,3,10,11)] <- 'blue'
-plot.phylo(tree,use.edge.length = FALSE,
+plot(tree,use.edge.length = FALSE,
             edge.width = 3,edge.color = ecols)
 tiplabels(tree$tip.label,cex=3)
 # one clade interrupts our chain of branches: t1

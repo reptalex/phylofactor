@@ -2,6 +2,7 @@
 #' 
 #' @param Grps Either a list of \code{getPhyloGroups} or a single \code{getPhyloGroups} element
 #' @param TransformedData Transformed Data. For amalgamation-phylofactorization, set \code{transform.fcn=I} and \code{contrast.fcn=amalgamate}.
+#' @param pseudo.count Numeric greater than 0. If aggregation of a group is zero, it will be replaced with \code{pseudo.count}
 #' @export
 #' @examples 
 #' library(phylofactor)

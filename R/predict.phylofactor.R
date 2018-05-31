@@ -1,10 +1,11 @@
 #' predict newdata with phylofactor object. Only works for \code{PhyloFactor} and \code{gpf} objects.
 #' @export
 #' @param PF phylofactor class object
-#' @param factor factor level to use for predictions. Will use all factors in \code{1:factor} 
+#' @param factor factor level to use for predictions. Will use all factors in \code{1:factor}
+#' @param frmla.phlo formula using term phylo, as in \code{\link{gpf}}.
 #' @param newMetaData required input MetaData for \code{PF$algorithm=='mStable'}.
 #' @param ... additional arguments for \code{\link{predict}}
-predict.phylofactor <- function(PF,factor=NULL,frmla.phylo=NULL,newMetaData=NULL,estimate.total=FALSE,input.total=NULL,...){
+predict.phylofactor <- function(PF,factor=NULL,frmla.phylo=NULL,newMetaData=NULL,...){
   if (is.null(factor)){
     factor <- PF$nfactors
     Bins <- PF$bins
@@ -29,7 +30,7 @@ predict.phylofactor <- function(PF,factor=NULL,frmla.phylo=NULL,newMetaData=NULL
     rownames(preds) <- rownames(PF$Data)
     colnames(preds) <- colnames(PF$Data)
     for (i in 1:length(Bins)){
-      args <- c(list('data'=data.frame('Data'=colMeans(PF$transform.fcn(PF$Data[Bins[[i]],])),c(PF$X))),'formula'=PF$models[[1]]$formula,c(PF$additional.args))
+      args <- c(list('data'=data.frame('Data'=colMeans(PF$transform.fcn(PF$Data[Bins[[i]],,drop=F])),c(PF$X))),'formula'=PF$models[[1]]$formula,c(PF$additional.args))
       if (PF$method=='glm'){
         yhat <- do.call(stats::glm,args) %>% stats::predict(...)
       } else if (PF$method=='gam'){
