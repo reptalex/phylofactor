@@ -14,7 +14,7 @@ phylobin <- function(B,pf=NULL,nfactors=NULL){
         stop('input nfactors is greater than pf$nfactors')
       }
     }
-    B <- bins(pf$basis[,1:nfactors])
+    B <- bins(pf$basis[,1:nfactors,drop=F])
   }
   
   bn <- numeric(sum(sapply(B,length)))
