@@ -1,11 +1,5 @@
 ## phylofactor: R package for phylogentic factorization of biological data
 
-```{r fig.width=6, fig.height=8,echo=FALSE,warning=FALSE}
-library(png)
-library(grid)
-img <- readPNG("figures/intro_pic.png")
-grid.raster(img)
-```
 
 This package provides functions to extract and visualize the phylogenetic factors in biological datasets. To get started, first you need to download two packages from Bioconductor:
 
@@ -25,4 +19,4 @@ The help functions in this package contain a decent amount of detail for how to 
 ? PhyloFactor
 ```
 
-For more detailed information, a tutorial is available online [here](http://media.wix.com/ugd/0119a1_951b32eb0abe4f228f0d6fd4ae11a0e8.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to post issues and contact me!
+For more detailed information, a tutorial is available online [here](https://docs.wixstatic.com/ugd/0119a1_099ae20df8424af9a38585dcebc0d45a.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to post issues and contact me!
