@@ -79,7 +79,7 @@ pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,groups=NULL,color
       } else {
         cols <- colors
       }
-      factor.map <- data.frame('Groups'=1:m,'colors'=cols)
+      factor.map <- data.frame('Groups'=1:m,'colors'=cols,stringsAsFactors = F)
     }
   }
   

@@ -14,12 +14,15 @@
 
 pf.BINprojection <- function(PF,factor=PF$nfactors,taxonomy=NULL,common.name=F,uniques=T,prediction=F,rel.abund=F,minimum.tax='p'){
   
+  if (PF$phylofactor.fcn!='PhyloFactor'){
+    stop('BINprojection currently only works for PhyloFactor output')
+  }
   Bins <- bins(PF$basis[,1:factor,drop=F])
   if (prediction){
     if (rel.abund){
-      binned_Data <- lapply(Bins,FUN=function(ix,Y) colSums(Y[ix,,drop=F]),Y=predict(PF,factors=factor))
+      binned_Data <- lapply(Bins,FUN=function(ix,Y) colSums(Y[ix,,drop=F]),Y=pf.predict(PF,factors=factor))
     } else {
-      binned_Data <- lapply(Bins,FUN=function(ix,Y) gMean(Y[ix,,drop=F]),Y=predict(PF,factors=factor))
+      binned_Data <- lapply(Bins,FUN=function(ix,Y) gMean(Y[ix,,drop=F]),Y=pf.predict(PF,factors=factor))
     }
   } else {
     if (rel.abund){
