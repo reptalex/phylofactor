@@ -24,7 +24,7 @@ predict.phylofactor <- function(PF,factor=NULL,frmla.phylo=NULL,newMetaData=NULL
   
   if (PF$phylofactor.fcn=='PhyloFactor'){
     if (PF$choice=='custom'){
-      stop('Cannot predict customized PhyloFactor objects')
+      warning('Customized PhyloFactor object - prediction will be same as for glm')
     }
     preds <- matrix(NA,nrow=nrow(PF$Data),ncol=ncol(PF$Data))
     rownames(preds) <- rownames(PF$Data)

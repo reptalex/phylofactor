@@ -2,8 +2,8 @@
 #'
 #' @export
 #' @param pf phylofactor class object
-#' @param method either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.
 #' @param tree An alternative tree on which to plot the phylogenetic factors \code{pf$tree}.
+#' @param method either "factors" or "bins", based on whether to use factors ( \code{factors} along with \code{groups}) or resultant bins (\code{pf$bins}) from phylofactorization.
 #' @param factors vector of factor numbers to be plotted
 #' @param groups vector of groups (1 or 2) to be plotted for each factor. Default is 1
 #' @param colors colors for each \code{factors x groups} pair, or each member of \code{GroupList} 

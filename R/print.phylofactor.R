@@ -42,12 +42,18 @@ Formula                   : ',Reduce(paste,deparse(PF$models[[1]]$formula)),sep=
     } else {
       if (PF$phylofactor.fcn=='PhyloFactor'){
         if (PF$choice=='custom'){
-          formula <- 'Customized'
+          if (is.null(PF$custom.output[[1]]$formula)){
+            formula <- 'Customized'
+          } else {
+            formula <- paste('
+Formula                   : ',Reduce(paste,deparse(PF$custom.output[[1]]$formula)),sep='')
+          }
         }
-      }
-      if (PF$algorithm=='CoefContrast'){
-        formula <- paste('
-Formula                   : ',Reduce(paste,deparse(PF$species.models[[1]]$formula)),sep='')
+      } else {
+        if (PF$algorithm=='CoefContrast'){
+          formula <- paste('
+  Formula                   : ',Reduce(paste,deparse(PF$species.models[[1]]$formula)),sep='')
+        }
       }
     }
     if (PF$phylofactor.fcn=='PhyloFactor'){

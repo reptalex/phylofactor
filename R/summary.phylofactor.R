@@ -1,4 +1,3 @@
-#' Summarize phylofactor objects
 #' @export
 #' @param PF phylofactor object
 #' @param taxonomy taxonomy (optional) for taxonomic trimming. First column contains tree tip-labels, second column has semicolon-delimited taxonomic character strings.
@@ -221,11 +220,16 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       } else {
         if (PF$phylofactor.fcn=='PhyloFactor'){
           if (PF$choice=='custom'){
-            formula <- 'Customized'
+            if (is.null(PF$custom.output[[1]]$formula)){
+              formula <- 'Customized'
+            } else {
+              formula <-Reduce(paste,deparse(PF$custom.output[[1]]$formula))
+            }
           }
-        }
-        if (PF$algorithm=='CoefContrast'){
-          formula <- Reduce(paste,deparse(PF$species.models[[1]]$formula))
+        } else {
+            if (PF$algorithm=='CoefContrast'){
+              formula <- Reduce(paste,deparse(PF$species.models[[1]]$formula))
+            }
         }
       }
     } else {
