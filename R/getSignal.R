@@ -17,19 +17,23 @@ getSignal <- function(grp,PF){
     
     if (PF$method!='custom'){
       if (PF$choice %in% c('var','F')){
-        dataset <- PF$models[[1]]$data
-        dataset$Data <- y
+        if (PF$method!='gam'){
+          dataset <- PF$models[[1]]$data
+          dataset$Data <- y
+        } else {
+          dataset <- cbind('Data'=y,PF$X)
+        }
         args = c(list('data'=dataset,'formula'=PF$models[[1]]$formula),PF$additional.args)
         model <- tryCatch(do.call(model.fcn,args),error=function(e) NULL)
         if (!is.null(model)){
           omega <- getStats(model)
+          if (PF$choice=='var'){
+            omega <- omega['ExplainedVar']
+          } else {
+            omega <- omega['F']
+          }
         } else {
           omega <- NA
-        }
-        if (PF$choice=='var'){
-          omega <- omega['ExplainedVar']
-        } else {
-          omega <- omega['F']
         }
       } else {
         omega <- var(y)

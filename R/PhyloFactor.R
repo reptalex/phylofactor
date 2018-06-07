@@ -372,8 +372,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
         if (choice=='custom'){
           stop('Cannot use customized choice function for built-in gam. Must be either "F" or "var". Use ? PhyloFactor for help building your own objective function')
         }
-        choice.fcn <- function(y,X,PF.output=FALSE,ff=frmla,cc=choice,...){
-          return(phylofactor::GAM(y,X,PF.output=PF.output,gamfrmla=ff,gamchoice=cc,...))
+        gamchoice=choice
+        choice.fcn <- function(y,X,PF.output=FALSE,ff=frmla,gamchoice.=gamchoice,...){
+          return(phylofactor::GAM(y,X,PF.output=PF.output,gamfrmla=ff,gamchoice=gamchoice,...))
         }
         choice.fcn.dependencies <- function(){library(mgcv)}
         dataset <- cbind('Data'=numeric(ncol(Data)),X)
@@ -739,6 +740,12 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   }
   if (method=='max.var'){
     output$X <- NULL
+  }
+  if (method=='gam'){
+    output$choice <- gamchoice
+    output$models <- output$custom.output
+    output$choice.fcn.dependencies <- NULL
+    output$choice.fcn <- NULL
   }
   
   if (length(output$models)>0){
