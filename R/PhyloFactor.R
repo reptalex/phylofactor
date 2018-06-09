@@ -665,7 +665,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
                                 '  \r')
     } else {
       GUI.notification <- paste(GUI.notification,'Estimated time of completion: at latest',
-                                as.character(tm+difftime(tm2,tm)*(nrow(Data)/pfs)),
+                                as.character(tm+difftime(tm2,tm)*nrow(Data)/pfs),
                                 '  \r')
     }
     base::cat(GUI.notification)

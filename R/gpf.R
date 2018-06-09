@@ -675,11 +675,11 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     }
     if (!is.null(nfactors)){
       GUI.notification <- paste(GUI.notification,'Estimated time of completion:',
-                                as.character(tm+difftime(tm2,tm)*(nfactors-pfs)/pfs),
+                                as.character(tm+difftime(tm2,tm)*nfactors/pfs),
                                 '  \r')
     } else {
       GUI.notification <- paste(GUI.notification,'Estimated time of completion: at latest',
-                                as.character(tm+difftime(tm2,tm)*(nrow(Data)/pfs)),
+                                as.character(tm+difftime(tm2,tm)*nrow(Data)/pfs),
                                 '  \r')
     }
     cat(GUI.notification)
