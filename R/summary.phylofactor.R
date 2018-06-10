@@ -220,7 +220,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     }
     rownames(Tbl1) <- NULL
     rownames(Tbl2) <- NULL
-    output$taxon.tables <- list('Group1'=Tbl1,'Group2'=Tbl2)
+    output$signal.table <- list('Group1'=Tbl1,'Group2'=Tbl2)
     
     if (PF$phylofactor.fcn %in% c('PhyloFactor','gpf')){
       if (!is.null(PF$models)){

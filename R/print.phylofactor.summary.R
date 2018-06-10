@@ -35,8 +35,8 @@ Factor                    : ',info$factor,sep='')
   factor <- rownames(s$group.summary) %>% strsplit(' ')
   factor <- factor[[1]][2]
   
-  n1 <- nrow(s$taxon.tables$Group1)
-  tx.tbl1 <- paste(capture.output(print.data.frame(s$taxon.tables$Group1[1:(min(3,n1)),c('Taxon','nSpecies','signal')])),collapse='\n')
+  n1 <- nrow(s$signal.table$Group1)
+  tx.tbl1 <- paste(capture.output(print.data.frame(s$signal.table$Group1[1:(min(3,n1)),c('Taxon','nSpecies','signal')])),collapse='\n')
   if (n1>3){
     if (n1==4){
       tx.tbl1 <- paste(tx.tbl1,'
@@ -46,8 +46,8 @@ Factor                    : ',info$factor,sep='')
                     .................  ',n1-3,' rows omitted .................',sep='')
     }
   }
-  n2 <- nrow(s$taxon.tables$Group2)
-  tx.tbl2 <- paste(capture.output(print.data.frame(s$taxon.tables$Group2[1:(min(3,nrow(s$taxon.tables$Group2))),c('Taxon','nSpecies','signal')])),collapse='\n')
+  n2 <- nrow(s$signal.table$Group2)
+  tx.tbl2 <- paste(capture.output(print.data.frame(s$signal.table$Group2[1:(min(3,nrow(s$signal.table$Group2))),c('Taxon','nSpecies','signal')])),collapse='\n')
   if (n2>3){
     if (n2==4){
       tx.tbl2 <- paste(tx.tbl2,'
