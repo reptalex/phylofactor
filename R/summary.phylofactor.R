@@ -154,7 +154,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       species.assignment2 <- vector(mode='list',length=length(group2.taxa))
       names(species.assignment2) <- group2.taxa
       
-      if (length(group1.taxa==1)){
+      if (length(group1.taxa)==1){
         tx <- 1
       } else {
         tx <- sapply(group1.taxa,FUN=function(tax,taxa) grepl(tax,taxa),group1.taxonomy[,2]) %>%
@@ -164,7 +164,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
         species.assignment1[[i]] <- output$species.list[[1]][tx==i]
       }
       
-      if (length(group2.taxa==1)){
+      if (length(group2.taxa)==1){
         tx <- 1
       } else {
         tx <- sapply(group2.taxa,FUN=function(tax,taxa) grepl(tax,taxa),group2.taxonomy[,2]) %>%
