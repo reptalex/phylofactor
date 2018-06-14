@@ -7,7 +7,7 @@
 gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
   PartitioningVariables = NULL, MetaData = NULL, nfactors = NULL,
   ncores = NULL, model.fcn = stats::glm, objective.fcn = pvDeviance,
-  algorithm = "mix", alpha = 0.2, ...)
+  algorithm = "mix", alpha = 0.2, cluster.depends = { }, ...)
 }
 \arguments{
 \item{Data}{data table containing columns of "Species", and terms in the \code{frmla}. If \code{algorithm=="mStable"}, \code{Data} must also include a column of "Sample" or, alternatively, \code{Data} can be a matrix whose rows are species and columns are samples and \code{MetaData} a data frame of meta-data with rows corresponding to columns of \code{Data} and the terms in \code{frmla} or non-phylo terms in \code{frmla.phylo}.}
@@ -33,6 +33,8 @@ gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
 \item{algorithm}{Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix. "phylo" will produce \code{phylo} factors. "mStable" will use \code{phylo} factors and marginally-stable aggregation of groups. "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
 
 \item{alpha}{Numeric between 0 and 1 (strictly greater than 0), indicating the top fraction of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2 selecting top 20 percent of edges.}
+
+\item{cluster.depends}{Expression. Will be evaluated in clusters to prime them - useful for customized \code{model.fcn} and \code{objective.fcn}}
 
 \item{...}{Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial}, \code{weights}, etc. For \code{algorithm!='mStable'}, \code{subset} is not a valid optional argument due to \code{gpf} recursively subsetting based on phylogenetic factors. For \code{algorithm='mStable'}, \code{subset} indexes correspond to the Samples in order of \code{unique(Data$Sample)}}
 }

@@ -4,12 +4,23 @@
 \alias{getObjective}
 \title{objective function for \code{\link{gpf}}}
 \usage{
-getObjective(grp, tree, Data, MetaData = NULL, frmla,
-  expfamily = "gaussian", model.fcn = stats::glm,
-  PartitioningVariables = "", mStableAgg, objective.fcn = pvDeviance, ...)
+getObjective(grp, frmla, PartitioningVariables = "", mStableAgg,
+  expfamily = "gaussian", tree. = tree, Data. = Data,
+  MetaData. = MetaData, model.fcn. = model.fcn,
+  objective.fcn. = objective.fcn, ...)
 }
 \arguments{
 \item{grp}{list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}}
+
+\item{frmla}{formula for \code{model.fcn}}
+
+\item{PartitioningVariables}{character vector containing of interest for phylofactorization partitioning.}
+
+\item{mStableAgg}{logical. See \code{\link{gpf}}}
+
+\item{expfamily}{character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.}
+
+\item{...}{additional arguments for \code{model.fcn}}
 
 \item{tree}{phylo class object}
 
@@ -17,19 +28,9 @@ getObjective(grp, tree, Data, MetaData = NULL, frmla,
 
 \item{MetaData}{meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}}
 
-\item{frmla}{formula for \code{model.fcn}}
-
-\item{expfamily}{character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.}
-
 \item{model.fcn}{model function, such as \code{\link{glm}} or \code{gam}.}
 
-\item{PartitioningVariables}{character vector containing of interest for phylofactorization partitioning.}
-
-\item{mStableAgg}{logical. See \code{\link{gpf}}}
-
 \item{objective.fcn}{Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.}
-
-\item{...}{additional arguments for \code{model.fcn}}
 }
 \description{
 objective function for \code{\link{gpf}}

@@ -538,8 +538,8 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
 ################## Parallelization #############
   if (!is.null(ncores)){
     cl <- phyloFcluster(ncores)
-    parallel::clusterExport(cl,varlist = c('Data','MetaData','tree','model.fcn','cluster.depends'),envir = environment())
-    parallel::clusterEvalQ(cl,expr = cluster.depends)
+    parallel::clusterExport(cl,varlist = c('Data','MetaData','tree','model.fcn','objective.fcn','cluster.depends'),envir = environment())
+    parallel::clusterEvalQ(cl,eval(parse(text=cluster.depends)))
   } else {
     cl <- NULL
   }
@@ -598,7 +598,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       rarest.spp <- names(sort(table(Data$Species)))[1]
       ix <- which(tree$tip.label==rarest.spp)
       grp <- list(ix,setdiff(1:length(tree$tip.label),ix))
-      tryCatch(getObjective(grp,tree,Data,frmla=frmla.phylo,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=F,objective.fcn=objective.fcn,...),
+      tryCatch(getObjective(grp,tree,Data,frmla.phylo,MetaData,PartitioningVariables,mStableAgg=F,expfamily,model.fcn,objective.fcn,...),
                error = function(e) stop(paste('Failure to getObjective from rarest species due to error:',e)))
     }
   }
@@ -629,9 +629,30 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     
     if (algorithm!='CoefContrast'){
       if (is.null(ncores)){
-        obj <- sapply(Grps,getObjective,tree,Data,MetaData,frmla.phylo,expfamily,model.fcn,PartitioningVariables,mStableAgg,objective.fcn,...)
+        obj <- sapply(Grps,getObjective,
+                      tree=tree,
+                      Data=Data,
+                      frmla=frmla.phylo,
+                      MetaData=MetaData,
+                      PartitioningVariables=PartitioningVariables,
+                      mStableAgg=mStableAgg,
+                      expfamily=expfamily,
+                      model.fcn=model.fcn,
+                      objective.fcn=objective.fcn,
+                      ...)
       } else {
-        obj <- parallel::parSapply(cl,Grps,FUN=function(grp,tree,Data,xx,frmla.phylo,expfamily,model.fcn,PartitioningVariables,mStableAgg,objective.fcn,...) getObjective(grp,tree,Data,xx,frmla.phylo,expfamily,model.fcn,PartitioningVariables,mStableAgg,objective.fcn,...),tree=tree,Data=Data,xx=MetaData,frmla.phylo=frmla.phylo,expfamily=expfamily,model.fcn=model.fcn,PartitioningVariables=PartitioningVariables,mStableAgg=mStableAgg,objective.fcn=objective.fcn,...)
+        obj <- parallel::parSapply(cl,Grps,
+                                   getObjective,
+                                   tree=tree,
+                                   Data=Data,
+                                   frmla=frmla.phylo,
+                                   MetaData=MetaData,
+                                   PartitioningVariables=PartitioningVariables,
+                                   mStableAgg=mStableAgg,
+                                   expfamily=expfamily,
+                                   model.fcn=model.fcn,
+                                   objective.fcn=objective.fcn,
+                                   ...)
       }
     }
     

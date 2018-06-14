@@ -1,3 +1,4 @@
+#' Summarize phylofactor objects
 #' @export
 #' @param PF phylofactor object
 #' @param taxonomy taxonomy (optional) for taxonomic trimming. First column contains tree tip-labels, second column has semicolon-delimited taxonomic character strings.
