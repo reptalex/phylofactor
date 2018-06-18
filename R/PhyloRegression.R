@@ -51,7 +51,8 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     } else {
     ##################### input choice.fcn ########################
       ch <- apply(Y,1,FUN=function(y,xx,...) choice.fcn(y=y,X=xx,...),xx=xx)
-      objective <- sapply(ch,FUN=function(x) x$objective)
+      objective <- sapply(ch,getElement,'objective')
+      output$stopStatistics <- sapply(ch,getElement,'stopStatistics')
     ###############################################################
     }
     
@@ -104,7 +105,8 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     ###################################################################################
     } else {
     ####################################### input choice.fcn ########################
-      objective <- sapply(Y,FUN=function(y,xx,...) choice.fcn(y=y,X=xx,...)$objective,xx=xx)
+      # objective <- sapply(Y,FUN=function(y,xx,...) choice.fcn(y=y,X=xx,...)$objective,xx=xx)
+      objective <- parallel::parLapply(cl,Y,choice.fcn,X,...) %>% sapply(getElement,'objective')
     #################################################################################
     }
     
@@ -130,7 +132,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     if (choice != 'custom'){
       if (method != 'max.var'){
         output$model <- GLMs[[winner]] ## this will enable us to easily extract effects and contrasts between clades, as well as project beyond our dataset for quantitative independent variables.
-        output$p.values <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
+        output$stopStatistics <- stats[,'Pval']   #this can allow us to do a KS test on P-values as a stopping function for PhyloFactor
         output$explainedvar <- stats[winner,'ExplainedVar']/totalvar
       } else {
         output$explainedvar <- objective[winner]/totalvar
@@ -154,7 +156,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     if (choice != 'custom'){
       if (!method=='max.var'){
         output$model <- gg[[winner]]
-        output$p.values <- unlist(c(sapply(Winners,FUN=function(x) x$p.values)))
+        output$stopStatistics <- unlist(c(sapply(Winners,FUN=function(x) x$p.values)))
       }
       if (choice=='var'){
         if (!method=='max.var'){
@@ -167,10 +169,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     
     } else {
       ######## choice.fcn input #####
-      for (nn in 1:length(Winners)){
-        output$stopStatistics <- c(output$stopStatistics,Winners[[nn]]$stopStatistics)
-      }
-        # output$stopStatistics <- lapply(Winners,FUN=function(x) x$stopStatistics)
+        output$stopStatistics <- sapply(Winners,getElement,'stopStatistics')
         output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
         ###############################
     }

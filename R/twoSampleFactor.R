@@ -5,9 +5,9 @@
 #' @param tree phylo class object
 #' @param nfactors number of factors to compute
 #' @param method string indicating two-sample test two use. Can take values of "contrast" (default), "Fisher", "Wilcox", 't.test', or "custom", indicating the two-sample test to be used.
-#' @param TestFunction optional input customized test function, taking input \code{{grps,tree,Z,p.value,..}} and output objective omega. \code{grps} is a two-element list containing indexes for each group; see \code{\link{getPhyloGroups}}. p.value is a logical: the output from p.value=T should be a P-value and can be input into the \code{stopFcn}.
+#' @param TestFunction optional input customized test function, taking input \code{{grps,tree,Z,PF.output,..}} and output objective omega. \code{grps} is a two-element list containing indexes for each group; see \code{\link{getPhyloGroups}}. PF.output is a logical: the output from PF.output=T should be a P-value and can be input into the \code{stop.fcn}.
 #' @param ncores number of cores to use for parallelization
-#' @param stopFcn stop function taking as input the output from \code{TestFunction} when \code{p.value=T} and returning logical where an output of \code{TRUE} will stop phylofactorization. Inputting character string "KS", will use KS-test on the P-values output from \code{TestFunction}.
+#' @param stop.fcn stop function taking as input the output from \code{TestFunction} when \code{PF.output=T} and returning logical where an output of \code{TRUE} will stop phylofactorization. Inputting character string "KS", will use KS-test on the P-values output from \code{TestFunction}.
 #' @param cluster.depends expression loading dependencies for \code{TestFunction} onto cluster.
 #' @param Metropolis logical. If true, phylofactorization will be implemented by stochastically sample edges using \code{sampleFcn}.
 #' @param sampleFcn function taking argument \code{omegas}, which is used to implement Metropolis phylofactorization.
@@ -52,15 +52,15 @@
 #' pp+geom_cladelabel(node=n1,'clade_1')+
 #'    geom_cladelabel(node=n2,'clade_2')+
 #'    geom_tippoint(color=tipcolors,size=3)
-twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,ncores=NULL,stopFcn=NULL,cluster.depends=NULL,Metropolis=F,sampleFcn=NULL,lambda=1,...){
+twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,ncores=NULL,stop.fcn=NULL,cluster.depends='',Metropolis=F,sampleFcn=NULL,lambda=1,...){
   
   if (!is.null(TestFunction)){
     method <- 'custom'
   }
   
   if (method=='contrast'){
-    TestFunction <- function(grps,Z,p.value=F,...){
-      if (!p.value){
+    TestFunction <- function(grps,Z,PF.output=F,...){
+      if (!PF.output){
         return(abs(matrix(ilrvec(grps,length(Z)),nrow=1) %*% Z))
       } else {
         return(stats::t.test(Z[grps[[1]]],Z[grps[[2]]],var.equal = T,...)$p.value)
@@ -68,22 +68,22 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
     }
     
   } else if (method=='Fisher'){
-    TestFunction <- function(grps,Z,p.value=F,...){
+    TestFunction <- function(grps,Z,PF.output=F,...){
       s1 <- S4Vectors::na.omit(Z[grps[[1]]])
       s2 <- S4Vectors::na.omit(Z[grps[[2]]])
       n1 <- sum(s1)
       n2 <- sum(s2)
       p <- tryCatch(stats::fisher.test(matrix(c(n1,length(s1)-n1,n2,length(s2)-n2),ncol=2),...)$p.value,
                      error=function(e) 1)
-      if (!p.value){
+      if (!PF.output){
         return(1/p)
       } else {
         return(p)
       }
     }
   } else if (method=='Wilcox'){
-    TestFunction <- function(grps,Z,p.value=F,...){
-      if (!p.value){
+    TestFunction <- function(grps,Z,PF.output=F,...){
+      if (!PF.output){
         s <- 1/stats::wilcox.test(S4Vectors::na.omit(Z[grps[[1]]]),S4Vectors::na.omit(Z[grps[[2]]]))$p.value
       } else {
         s <- stats::wilcox.test(Z[grps[[1]]],Z[grps[[2]]])$p.value
@@ -91,8 +91,8 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
       return(s)
     }
   } else if (method=='t.test'){
-    TestFunction <- function(grps,Z,p.value=F,...){
-      if (!p.value){
+    TestFunction <- function(grps,Z,PF.output=F,...){
+      if (!PF.output){
         return(tryCatch(stats::t.test(Z[grps[[1]]],Z[grps[[2]]],...)$statistic,
                         error=function(e) 0))
       } else {
@@ -110,10 +110,8 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
   
   if (!is.null(ncores)){
     cl <- phyloFcluster(ncores)
-    if (!is.null(cluster.depends)){
-      parallel::clusterExport(cl,varlist = 'cluster.depends')
-      parallel::clusterEvalQ(cl,expr = {cluster.depends()})
-    }
+    parallel::clusterExport(cl,varlist = 'cluster.depends',envir = environment())
+    parallel::clusterEvalQ(cl,eval(parse(text=cluster.depends)))
   }
   
   treeList <- list(tree)
@@ -139,11 +137,11 @@ twoSampleFactor <- function(Z,tree,nfactors,method='contrast',TestFunction=NULL,
     if (!Metropolis){
       ix <- which.max(omegas)
       best.grp <- Grps[[ix]]
-      P <- TestFunction(best.grp,Z=Z,p.value=T,...)
+      P <- TestFunction(best.grp,Z=Z,PF.output=T,...)
     } else {
       ix <- sampleFcn(omegas,lambda)
       best.grp <- Grps[[ix]]
-      P <- TestFunction(best.grp,Z=Z,p.value=T,...)
+      P <- TestFunction(best.grp,Z=Z,PF.output=T,...)
     }
     
     output$pvals <- c(output$pvals,P)

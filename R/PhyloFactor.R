@@ -21,7 +21,7 @@
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
 #' @param smallglm Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false. 
 #' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally. 
-#' @param choice.fcn.dependencies Function called by cluster to load all dependencies for custom choice.fcn. e.g. \code{choice.fcn.dependencies <- function(){library(bayesm)}}
+#' @param cluster.depends Character parsed and evaluated by cluster to load all dependencies for custom choice.fcn. e.g. \code{cluster.depends <- 'library(bayesm)'}
 #' @param ... optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
@@ -169,7 +169,7 @@
 #' 
 #' ############################# CUSTOMIZED CHOICE FUNCTIONS ################################
 #' #PhyloFactor can also be used for generalized additive models by inputting choice.fcn 
-#' #and choice.fcn.dependencies to load required packages onto the cluster
+#' #and cluster.depends to load required packages onto the cluster
 #' 
 #' ### Let's work with some newly simulated data ####
 #' set.seed(1.1)
@@ -219,14 +219,14 @@
 #'   }
 #' }
 #' 
-#' load.mgcv <- function(){library(mgcv)}
-#' ######### For parallelization of customized choice function, we also need to define a function, 
-#' ######### choice.fcn,dependencies, which loads all dependencies to cluster.
-#' ######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
+#' load.mgcv <- 'library(mgcv)'
+#' ######### For parallelization of customized choice function, we may also need to input 
+#' ######### cluster.depends which loads all dependencies to cluster.
+#' ######### The exact call will be clusterEvalQ(cl,eval(parse(text=cluster.depends)))
 #' 
 #' 
 #' PF.G.par <- PhyloFactor(Data,tree,X,choice.fcn=my_gam,sp=c(1,1),
-#'            choice.fcn.dependencies = load.mgcv,nfactors=2,ncores=2)
+#'            cluster.depends = load.mgcv,nfactors=2,ncores=2)
 #' ######### Or we can use the built-in method='gam' and input e.g. smoothing penalty sp
 #' PF.G.par2 <- PhyloFactor(Data,tree,X,method='gam',
 #'               frmla=Data~s(a)+s(b),sp=c(1,1),nfactors=2,ncores=2)
@@ -315,7 +315,7 @@
 #' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.fcn=log,contrast.fcn=NULL,method='glm',nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,choice.fcn.dependencies=function(){NULL},...){
+PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.fcn=log,contrast.fcn=NULL,method='glm',nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,cluster.depends='',...){
   
   
   ######################################################## Housekeeping #################################################################################
@@ -344,13 +344,13 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   }
   
   
-  ######## checking choice, choice.fcn and choice.fcn.dependencies
+  ######## checking choice, choice.fcn and cluster.depends
   if (!(choice %in% c('F','var','custom'))){stop('improper input "choice" - must be either "F", "var" or "custom"')}
   if (!is.null(choice.fcn)){
     if (!method=='glm'){warning('Input choice.fcn will override non-default method, i.e. phylofactorization will use choice.fcn.')}
     choice='custom'
     method='glm'
-    if (is.null(choice.fcn.dependencies())){warning('Did not input choice.fcn dependencies - this may cause errors in parallelization due to unavailable dependencies in cluster')}
+    if (is.null(cluster.depends)){warning('Did not input choice.fcn dependencies - this may cause errors in parallelization due to unavailable dependencies in cluster')}
   } else {
     choice.fcn <- function(y=NULL,X=NULL,PF.output=NULL){
       ch <- NULL
@@ -359,7 +359,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
       return(ch)
     }
   }
-  
+  eval(parse(text=cluster.depends))
   ########### Checking & initializing non-default phylofactorization
   default.phylofactorization= (choice %in% c('F','var') & method=='glm')
   if (!default.phylofactorization){
@@ -376,7 +376,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
         choice.fcn <- function(y,X,PF.output=FALSE,ff=frmla,gamchoice.=gamchoice,...){
           return(phylofactor::GAM(y,X,PF.output=PF.output,gamfrmla=ff,gamchoice=gamchoice,...))
         }
-        choice.fcn.dependencies <- function(){library(mgcv)}
+        cluster.depends <- 'library(mgcv)'
         dataset <- cbind('Data'=numeric(ncol(Data)),X)
         choice='custom'
       }
@@ -421,7 +421,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   #####################################################################################
   ## small.output warning
   if (small.output){
-    warning('For downstream phylofactor functions, you may need to add pf$X, compositional pf$Data <- OTUTable[tree$tip.labels,], and pf$tree (see beginning of PhyloFactor code for how to reproduce these tags). Information on bins can be found by bins(pf$basis).')
+    warning('For downstream phylofactor functions starting with "pf.", you may need to add pf$X, pf$Data, pf$tree and appropriately-made element "data" to all pf$models.')
   }
   ######################################################## Housekeeping #################################################################################
   
@@ -473,8 +473,8 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
       ################# export dependencies for choice.fcn ##################################
       gg=NULL
       dataset=NULL
-      parallel::clusterExport(cl,varlist=c('choice.fcn','choice.fcn.dependencies'),envir=environment())
-      parallel::clusterEvalQ(cl,choice.fcn.dependencies())
+      parallel::clusterExport(cl,varlist=c('choice.fcn','cluster.depends'),envir=environment())
+      parallel::clusterEvalQ(cl,eval(parse(text=cluster.depends)))
       #######################################################################################
     }
     xx <- X
@@ -519,7 +519,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   }
   output$choice <- choice
   output$choice.fcn <- choice.fcn
-  output$choice.fcn.dependencies <- choice.fcn.dependencies
+  output$cluster.depends <- cluster.depends
   output$method <- method
   output$transform.fcn <- transform.fcn
   output$additional.args <- list(...)
@@ -579,7 +579,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     if (STOP){
       if (!is.null(stop.early)){  #early stop - don't add this factor
           if (default.stop){
-            ks <- stats::ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
+            ks <- stats::ks.test(unlist(PhyloReg$stopStatistics),'punif',alternative=alternative)$p.value
             if (ks>KS.Pthreshold){
               if (pfs==0){
                 stop('No factors found due to early stop on first iteration')
@@ -614,6 +614,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     
     if (choice != 'custom'){
       if (method != 'max.var'){
+        if (small.output){
+          PhyloReg$model$data <- NULL
+        }
         output$models[[length(output$models)+1]] <- PhyloReg$model
       }
     } else {
@@ -635,7 +638,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     if (STOP){
       if (is.null(stop.early)){
           if (default.stop){
-            ks <- stats::ks.test(PhyloReg$p.values,'punif',alternative=alternative)$p.value
+            ks <- stats::ks.test(unlist(PhyloReg$stopStatistics),'punif',alternative=alternative)$p.value
             if (ks>KS.Pthreshold){
               output$terminated=T
               break
@@ -744,7 +747,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   if (method=='gam'){
     output$choice <- gamchoice
     output$models <- output$custom.output
-    output$choice.fcn.dependencies <- NULL
+    output$cluster.depends <- NULL
     output$choice.fcn <- NULL
   }
   

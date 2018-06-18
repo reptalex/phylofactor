@@ -13,7 +13,7 @@
 #' @param objective.fcn Optional input objective function. Takes \code{model.fcn} output as its input, and returns a number which will be maximized to determine phylogenetic factor.
 #' @param algorithm Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix. "phylo" will produce \code{phylo} factors. "mStable" will use \code{phylo} factors and marginally-stable aggregation of groups. "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.
 #' @param alpha Numeric between 0 and 1 (strictly greater than 0), indicating the top fraction of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2 selecting top 20 percent of edges.
-#' @param cluster.depends Expression. Will be evaluated in clusters to prime them - useful for customized \code{model.fcn} and \code{objective.fcn}
+#' @param cluster.depends Character expression input to \code{eval(parse(text=cluster.depends))}. Evaluated in clusters to prime local environment - useful for customized \code{model.fcn} and \code{objective.fcn}
 #' @param ... Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial}, \code{weights}, etc. For \code{algorithm!='mStable'}, \code{subset} is not a valid optional argument due to \code{gpf} recursively subsetting based on phylogenetic factors. For \code{algorithm='mStable'}, \code{subset} indexes correspond to the Samples in order of \code{unique(Data$Sample)}  
 #' @return phylofactor object which can be manipulated with various \code{pf.} functions
 #' @examples 
@@ -234,7 +234,7 @@
 #'           PartitioningVariables='y',family=binomial,
 #'           nfactors=2,ncores=2,model.fcn = mgcv::gam,algorithm = 'phylo')
 #' pf$factors
-gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL,MetaData=NULL,nfactors=NULL,ncores=NULL,model.fcn=stats::glm,objective.fcn=pvDeviance,algorithm='mix',alpha=0.2,cluster.depends={},...){
+gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL,MetaData=NULL,nfactors=NULL,ncores=NULL,model.fcn=stats::glm,objective.fcn=pvDeviance,algorithm='mix',alpha=0.2,cluster.depends='',...){
   
   output <- NULL
   output$call <- match.call()
