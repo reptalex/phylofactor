@@ -23,7 +23,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
   D <- dim(TransformedData)[1]
   xx=X
-  
+  output <- NULL
   ############# REGRESSION ################
   ##### SERIAL #####
   if (is.null(cl)){
@@ -46,13 +46,14 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
         Yhat <- lapply(GLMs,stats::predict)
       } else {
         objective <- apply(Y,1,stats::var)
+        stopStatistics <- objective
       }
     ###############################################################
     } else {
     ##################### input choice.fcn ########################
       ch <- apply(Y,1,FUN=function(y,xx,...) choice.fcn(y=y,X=xx,...),xx=xx)
       objective <- sapply(ch,getElement,'objective')
-      output$stopStatistics <- sapply(ch,getElement,'stopStatistics')
+      stopStatistics <- sapply(ch,getElement,'stopStatistics')
     ###############################################################
     }
     
@@ -125,7 +126,6 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
 
   ################################ OUTPUT ##########################
   output <- NULL
-
   if (is.null(cl)){ ############### SERIAL #########################
     
     ############ DEFAULT ##########
@@ -136,6 +136,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
         output$explainedvar <- stats[winner,'ExplainedVar']/totalvar
       } else {
         output$explainedvar <- objective[winner]/totalvar
+        output$stopStatistics <- stopStatistics
       }
       ###############################
     
@@ -169,7 +170,10 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     
     } else {
       ######## choice.fcn input #####
-        output$stopStatistics <- sapply(Winners,getElement,'stopStatistics')
+      for (i in 1:length(Winners)){
+        output$stopStatistics <- c(output$stopStatistics,Winners[[i]]$stopStatistics)
+      }
+        # output$stopStatistics <- sapply(Winners,getElement,'stopStatistics')
         output$custom.output <- choice.fcn(y=Y[[winner]],X=xx,PF.output=T,...)
         ###############################
     }

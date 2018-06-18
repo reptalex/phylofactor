@@ -23,11 +23,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,
     gg <- NULL #This will be our GLM
   }
 
-  if (choice %in% c('var','F') & method!='max.var'){
-    output$p.values <- numeric(length(nset))
-  } else {
-    output$stopStatistics <- vector(mode='list',length=length(nset))
-  }
+  output$stopStatistics <- vector(mode='list',length=length(nset))
   if (choice=='var'){
     output$ExplainedVar=0
   }
@@ -113,7 +109,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,
         
         ############# Update output if objective is larger #######
         stats=getStats(gg,y=Y)
-        output$p.values[iteration] <- stats['Pval']
+        output$stopStatistics[iteration] <- stats['Pval']
           if (choice=='var'){
             if (stats['ExplainedVar']>output$ExplainedVar){
               output$grp <- grp
