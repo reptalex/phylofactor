@@ -86,7 +86,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     # Winners=lapply(ix_cl,FUN=function(x,tree_map,treeList,treetips,contrast.fcn,choice,smallglm,frmla,xx,choice.fcn) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
     # Recall: output from findWinner is $grp and then our objective function output: $objective, $Fstat, or $ExplainedVar, corresponding to choice='custom','F', and 'var', respectivley.
     
-    grps <- lapply(Winners,FUN=function(x) x$grp)
+    grps <- lapply(Winners,getElement,'grp')
     Y <- lapply(grps,BalanceContrast,TransformedData=TransformedData)
     
     
@@ -157,7 +157,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     if (choice != 'custom'){
       if (!method=='max.var'){
         output$model <- gg[[winner]]
-        output$stopStatistics <- unlist(c(sapply(Winners,FUN=function(x) x$p.values)))
+        output$stopStatistics <- unlist(c(sapply(Winners,FUN=function(x) x$stopStatistics)))
       }
       if (choice=='var'){
         if (!method=='max.var'){
