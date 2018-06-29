@@ -46,11 +46,18 @@ PF.stop$models <- NULL
 options(warn=0)
 
 test_that('Default stop function works',expect_true(all.equal(PF.stop,PF)))
+invisible(capture.output(PF.stop <- PhyloFactor(Data,tree,X,ncores=2,stop.early = T,KS.Pthreshold = 0.05)))
+PF.stop$terminated <- FALSE
+PF.stop$models <- NULL
+test_that('Default stop function works in parallel',expect_true(all.equal(PF.stop,PF)))
+
 options(warn=-1)
 invisible(capture.output(PF.stop <- PhyloFactor(Data,tree,X,stop.early=F,KS.Pthreshold=0.05)))
 options(warn=0)
 
 test_that('Stop Late works',expect_true(PF.stop$nfactors==3))
+
+
 
 ###### non-default methods: method=='max.var'
 invisible(capture.output(suppressWarnings(pf.var <- PhyloFactor(Data,tree,method='max.var'))))

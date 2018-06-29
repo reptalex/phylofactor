@@ -28,6 +28,9 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     if (is.null(taxonomy)){
       taxon.trimming <- 'species'
     } else {
+      if (!all(class(taxonomy)=='data.frame')){
+        taxonomy <- as.data.frame(taxonomy)
+      }
       if (taxon.trimming %in% c('sup','taxon')){
         brks <- grepl('\\[',taxonomy[,2]) | grepl('\\]',taxonomy[,2])
         if (any(brks)){
@@ -93,7 +96,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       if (is.null(PF$X)){
         output$data <- data.frame('Data'=y)
       } else {
-        if (!class(PF$X)=='data.frame'){
+        if (!all(class(PF$X)=='data.frame')){
           output$data <- data.frame('Data'=y,'X'=PF$X)
         } else {
           output$data <- cbind(data.frame('Data'=y),PF$X)
