@@ -29,7 +29,7 @@ uniqueTaxa <- function(x,y){
   
   ## remove final semicolons
   output <- unlist(output)
-  ix <- base::endsWith(unlist(output),';')
+  ix <- base::endsWith(output,';') & !is.na(output)
   output[ix] <- substr(output[ix],1,nchar(output[ix])-1)
   
   return(output)
