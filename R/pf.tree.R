@@ -37,7 +37,7 @@
 #' pf.tree(pf,bacteroidetes.tree,factors=setdiff(1:pf$nfactors,41))
 #' ## factor 41 contains a large, paraphyletic group that encompases all of the 
 #' ## bacteroidetes - this will color our entire tree purple.
-pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
+pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,ignore.tips=TRUE,groups=NULL,colors=NULL,GroupList=NULL,bg.color=NA,bg.alpha=0.1,alphas=NULL,layout='circular',rootnode=FALSE,top.layer=F,top.alpha=0.1,color.fcn=viridis::viridis,...){
   
   if (!(is.null(GroupList) & is.null(factors))){
     if (method=='bins'){
