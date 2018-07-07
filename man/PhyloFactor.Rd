@@ -8,8 +8,7 @@ PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
   transform.fcn = log, contrast.fcn = NULL, method = "glm",
   nfactors = NULL, small.output = F, stop.fcn = NULL, stop.early = NULL,
   KS.Pthreshold = 0.01, alternative = "greater", ncores = NULL,
-  tolerance = 1e-10, delta = 0.65, choice.fcn = NULL,
-  cluster.depends = "", ...)
+  delta = 0.65, choice.fcn = NULL, cluster.depends = "", ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -41,8 +40,6 @@ PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
 \item{alternative}{alternative hypothesis input to \code{\link{ks.test}} if KS stopping function is used}
 
 \item{ncores}{Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory.}
-
-\item{tolerance}{Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.}
 
 \item{delta}{Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])}
 
