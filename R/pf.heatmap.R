@@ -58,18 +58,16 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
   
   if (!is.null(Data)){
     if (nrow(Data) != length(PF$tree$tip.label)){
-      stop('number of rows of Data does not equal number of columns in PF$tree tip-labels')
+      stop('number of rows of Data does not equal number of tips in PF$tree')
     } else {
       if (is.null(rownames(Data))){
+        warning('No rownames of input Data - pf.heatmap will assume rows are in same order of tree tip labels')
         rownames(Data) <- PF$tree$tip.label
       } else {
-        if (!all.equal(rownames(Data),PF$tree$tip.label)){
-          if (!all.equal(sort(rownames(Data)),sort(PF$tree$tip.label))){
-            warning('Rownames of Data cannot be matched with PF$tree tip-labels. Assuming rows are in same order as tree tip-labels')
-            rownames(Data) <- PF$tree$tip.label
-          } else {
+        if (!all(rownames(Data) %in% PF$tree$tip.label & all(PF$tree$tip.label %in% rownames(Data)))){
+            stop('could not match all rownames of Data with all tree tip labels.')
+        } else {
             Data <- Data[PF$tree$tip.label,]
-          }
         }
       }
     }

@@ -339,7 +339,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     }
     tree <- ape::drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
   if (!all(rownames(Data)==tree$tip.label)){
-    warning('rows of data are in different order of tree tip-labels - use output$data for downstream analysis, or set Data <- Data[tree$tip.label,]')
+    warning('rows of data are in different order of tree tip-labels - use output$data for downstream analysis, or set Data <- Data[output$tree$tip.label,]')
     Data <- Data[tree$tip.label,]
   }
   
