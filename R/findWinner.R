@@ -7,12 +7,11 @@
 #' @param contrast.fcn See \code{\link{PhyloFactor}} or example functions \code{\link{BalanceContrast}}, \code{\link{amalgamate}}
 #' @param choice string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}
 #' @param method See \code{\link{PhyloFactor}}
-#' @param smallglm Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.
 #' @param frmla Formula for \code{\link{glm}}. See \code{\link{PhyloFactor}} for more details.
 #' @param xx data frame containing non-ILR (\code{Data}) variables used in \code{frmla}
 #' @param choice.fcn See \code{\link{PhyloFactor}}
 #' @param ... optional input arguments to \code{\link{glm}}
-findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,method='glm',smallglm=F,frmla=NULL,xx=NULL,choice.fcn=NULL,...){
+findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,method='glm',frmla=NULL,xx=NULL,choice.fcn=NULL,...){
   
   
   ########### set-up and prime variables #############
@@ -100,11 +99,8 @@ findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,
         #########################################################
         args <- list('data'=dataset,'formula'=frmla,...)
         ############ Performing Regression ######################
-        if(smallglm){
-          gg=do.call(stats::glm,args)
-        } else {
-          gg=do.call(biglm::bigglm,args)
-        }
+        gg=do.call(stats::glm,args)
+       
         #########################################################
         
         ############# Update output if objective is larger #######
@@ -149,7 +145,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,
   
   
   ################## modify output glm for default choices #################
-  if (choice %in% c('var','F') & !smallglm & method!='max.var'){ #convert bigglm to glm
+  if (choice %in% c('var','F') & method!='max.var'){ #convert bigglm to glm
     if (is.null(contrast.fcn)){
       Y <- BalanceContrast(output$grp,TransformedData)
     } else {

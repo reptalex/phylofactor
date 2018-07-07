@@ -3,7 +3,6 @@
 #' @param y response variable
 #' @param xx independent variable
 #' @param frmla Formula for dependence of y on x
-#' @param smallglm Logical. See \code{\link{PhyloFactor}}
 #' @param ... optional input arguments to \code{\link{glm}}
 #' @return glm object
 #' @examples
@@ -18,9 +17,5 @@ pglm <- function(y,xx,frmla,smallglm=T,...){
   names(dataset) <- c('Data',names(xx))
   # dataset <- stats::model.frame(frmla,data = dataset)
   args <- list('data'=dataset,'formula'=frmla,...)
-  if(smallglm){
-    return(do.call(stats::glm,args))
-  } else {
-    return(do.call(biglm::bigglm,args))
-  }
+  return(do.call(stats::glm,args))
 }

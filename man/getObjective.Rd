@@ -4,15 +4,20 @@
 \alias{getObjective}
 \title{objective function for \code{\link{gpf}}}
 \usage{
-getObjective(grp, frmla, PartitioningVariables = "", mStableAgg,
-  expfamily = "gaussian", tree. = tree, Data. = Data,
-  MetaData. = MetaData, model.fcn. = model.fcn,
-  objective.fcn. = objective.fcn, ...)
+getObjective(grp, tree, Data, frmla, MetaData = NULL,
+  PartitioningVariables = "", mStableAgg, expfamily = "gaussian",
+  model.fcn = stats::glm, objective.fcn = pvDeviance, ...)
 }
 \arguments{
 \item{grp}{list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}}
 
+\item{tree}{phylo class object}
+
+\item{Data}{If \code{mStableAgg==TRUE}, a matrix whose rows are species and columns are samples. Otherwise, a data table whose columns include "Species" and "Sample" and whose key is "Species".}
+
 \item{frmla}{formula for \code{model.fcn}}
+
+\item{MetaData}{meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}}
 
 \item{PartitioningVariables}{character vector containing of interest for phylofactorization partitioning.}
 
@@ -20,17 +25,11 @@ getObjective(grp, frmla, PartitioningVariables = "", mStableAgg,
 
 \item{expfamily}{character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.}
 
-\item{...}{additional arguments for \code{model.fcn}}
-
-\item{tree}{phylo class object}
-
-\item{Data}{If \code{mStableAgg==TRUE}, a matrix whose rows are species and columns are samples. Otherwise, a data table whose columns include "Species" and "Sample" and whose key is "Species".}
-
-\item{MetaData}{meta-data containing variables in formula and the column "Sample". If \code{mStableAgg==F}, this input is not used - all variables must be contained in \code{Data}}
-
 \item{model.fcn}{model function, such as \code{\link{glm}} or \code{gam}.}
 
 \item{objective.fcn}{Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.}
+
+\item{...}{additional arguments for \code{model.fcn}}
 }
 \description{
 objective function for \code{\link{gpf}}

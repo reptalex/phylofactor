@@ -5,8 +5,7 @@
 \title{Internal PhyloRegression function for finding the winning edge.}
 \usage{
 findWinner(nset, tree_map, treeList, treetips, contrast.fcn = NULL, choice,
-  method = "glm", smallglm = F, frmla = NULL, xx = NULL,
-  choice.fcn = NULL, ...)
+  method = "glm", frmla = NULL, xx = NULL, choice.fcn = NULL, ...)
 }
 \arguments{
 \item{nset}{set of nodes}
@@ -22,8 +21,6 @@ findWinner(nset, tree_map, treeList, treetips, contrast.fcn = NULL, choice,
 \item{choice}{string indicating how we choose the winner. Must be either \code{'var'}, \code{'F'}, or \code{'phyca'}}
 
 \item{method}{See \code{\link{PhyloFactor}}}
-
-\item{smallglm}{Logical - whether or not to use regular \code{glm}. if smallglm=F, will use \code{\link{bigglm}} from the \code{\link{biglm}} package.}
 
 \item{frmla}{Formula for \code{\link{glm}}. See \code{\link{PhyloFactor}} for more details.}
 

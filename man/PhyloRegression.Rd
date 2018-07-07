@@ -6,8 +6,8 @@
 \usage{
 PhyloRegression(TransformedData, X, frmla, Grps = NULL, contrast.fcn = NULL,
   choice, treeList = NULL, cl, totalvar = NULL, ix_cl, treetips = NULL,
-  grpsizes = NULL, tree_map = NULL, quiet = T, nms = NULL,
-  smallglm = F, choice.fcn, method = "glm", ...)
+  grpsizes = NULL, tree_map = NULL, nms = NULL, choice.fcn,
+  method = "glm", ...)
 }
 \arguments{
 \item{TransformedData}{Transformed data matrix whose rows are species and columns are samples.}
@@ -36,11 +36,7 @@ PhyloRegression(TransformedData, X, frmla, Grps = NULL, contrast.fcn = NULL,
 
 \item{tree_map}{Cumulative number of nodes in trees of treeList - allows rapid mapping of nodes in ix_cl to appropriate tree in treeList.}
 
-\item{quiet}{Logical to supress warnings}
-
 \item{nms}{rownames of TransformedData, allowing reliable mapping of rows of data to tree.}
-
-\item{smallglm}{Logical. See \code{\link{PhyloFactor}}}
 
 \item{choice.fcn}{optional customized choice function to choose 'best' edge; see \code{\link{PhyloFactor}}}
 

@@ -5,7 +5,7 @@
 \title{Phylofactorization of vector data using two-sample tests}
 \usage{
 twoSampleFactor(Z, tree, nfactors, method = "contrast", TestFunction = NULL,
-  ncores = NULL, stopFcn = NULL, cluster.depends = NULL, Metropolis = F,
+  ncores = NULL, stop.fcn = NULL, cluster.depends = "", Metropolis = F,
   sampleFcn = NULL, lambda = 1, ...)
 }
 \arguments{
@@ -17,11 +17,11 @@ twoSampleFactor(Z, tree, nfactors, method = "contrast", TestFunction = NULL,
 
 \item{method}{string indicating two-sample test two use. Can take values of "contrast" (default), "Fisher", "Wilcox", 't.test', or "custom", indicating the two-sample test to be used.}
 
-\item{TestFunction}{optional input customized test function, taking input \code{{grps,tree,Z,p.value,..}} and output objective omega. \code{grps} is a two-element list containing indexes for each group; see \code{\link{getPhyloGroups}}. p.value is a logical: the output from p.value=T should be a P-value and can be input into the \code{stopFcn}.}
+\item{TestFunction}{optional input customized test function, taking input \code{{grps,tree,Z,PF.output,..}} and output objective omega. \code{grps} is a two-element list containing indexes for each group; see \code{\link{getPhyloGroups}}. PF.output is a logical: the output from PF.output=T should be a P-value and can be input into the \code{stop.fcn}.}
 
 \item{ncores}{number of cores to use for parallelization}
 
-\item{stopFcn}{stop function taking as input the output from \code{TestFunction} when \code{p.value=T} and returning logical where an output of \code{TRUE} will stop phylofactorization. Inputting character string "KS", will use KS-test on the P-values output from \code{TestFunction}.}
+\item{stop.fcn}{stop function taking as input the output from \code{TestFunction} when \code{PF.output=T} and returning logical where an output of \code{TRUE} will stop phylofactorization. Inputting character string "KS", will use KS-test on the P-values output from \code{TestFunction}.}
 
 \item{cluster.depends}{expression loading dependencies for \code{TestFunction} onto cluster.}
 

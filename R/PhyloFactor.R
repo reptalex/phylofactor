@@ -9,8 +9,6 @@
 #' @param contrast.fcn Contrast function. Default is an efficient version of \code{BalanceContrast}. Another built-in option is \code{\link{amalgamate}} - for amalgamation-based analyses of compositional data, set \code{transform.fcn=I} and \code{contrast.fcn=amalgamate}.
 #' @param method Which default objective function to use either "glm", "max.var" or "gam".
 #' @param nfactors Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T
-#' @param quiet Logical, default is \code{FALSE}, indicating whether or not to display standard warnings. 
-#' @param trust.me Logical, default \code{FALSE}, indicating whether or not to trust the input Data to be compositional with no zeros.
 #' @param small.output Logical, indicating whether or not to trim output. If \code{TRUE}, output may not work with downstream summary and plotting wrappers.
 #' @param stop.fcn Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.
 #' @param stop.early Logical indicating if stop.fcn should be evaluated before (stop.early=T) or after (stop.early=F) choosing an edge maximizing the objective function.
@@ -19,7 +17,6 @@
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory.
 #' @param tolerance Tolerance for deviation of column sums of data from 1. if abs(colSums(Data)-1)>tolerance, a warning message will be displayed.
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
-#' @param smallglm Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false. 
 #' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally. 
 #' @param cluster.depends Character parsed and evaluated by cluster to load all dependencies for custom choice.fcn. e.g. \code{cluster.depends <- 'library(bayesm)'}
 #' @param ... optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}
@@ -315,7 +312,7 @@
 #' #The optimal environment for this simulated organism is mu=-1
 #' c('sigma'=sigma,'sigma.hat'=sigma.hat) #The standard deviation is ~0.9. 
 
-PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.fcn=log,contrast.fcn=NULL,method='glm',nfactors=NULL,quiet=T,trust.me=F,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,smallglm=T,choice.fcn=NULL,cluster.depends='',...){
+PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.fcn=log,contrast.fcn=NULL,method='glm',nfactors=NULL,small.output=F,stop.fcn=NULL,stop.early=NULL,KS.Pthreshold=0.01,alternative='greater',ncores=NULL,tolerance=1e-10,delta=0.65,choice.fcn=NULL,cluster.depends='',...){
   
   
   ######################################################## Housekeeping #################################################################################
@@ -332,11 +329,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
       }
     }
   }
-  if (all(rownames(Data) %in% tree$tip.label)==F){stop('some rownames of Data are not found in tree')}
-  if (all(tree$tip.label %in% rownames(Data))==F){
-    if(!quiet){
-      warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
-    }
+  if (!all(rownames(Data) %in% tree$tip.label)){stop('some rownames of Data are not found in tree')}
+  if (!all(tree$tip.label %in% rownames(Data))){
+    warning('some tips in tree are not found in dataset - output PF$tree will contain a trimmed tree')
     tree <- ape::drop.tip(tree,setdiff(tree$tip.label,rownames(Data)))}
   if (!all(rownames(Data)==tree$tip.label)){
     warning('rows of data are in different order of tree tip-labels - use output$data for downstream analysis, or set Data <- Data[output$tree$tip.label,]')
@@ -385,37 +380,19 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   
   ###################### Default treatment of Data #################################
   
-  if (all.equal(transform.fcn,log)==TRUE){
+  if (all.equal(transform.fcn,log)==T){
     if (any(c(Data)<0)){
       stop('For log-transformed data analysis, all entries of Data must be greater than or equal to 0')
     }
-    if (!trust.me){
-      if (any(Data==0)){
-        if (delta==0.65){
-          if (!quiet){
-            warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced with delta*min(Data[Data>0]), default delta=0.65')
-          }
-        }
-        rplc <- function(x,delta){
-          x[x==0]=min(x[x>0])*delta
-          return(x)
-        }
-        
-        Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
-        
+    if (any(Data==0)){
+      if (delta==0.65){
+        warning('Data has zeros and will receive default modification of zeros. Zeros will be replaced column wise with delta*min(x[x>0]), default delta=0.65')
       }
-      # if (any(abs(colSums(Data)-1)>tolerance)){
-      #   if (!quiet){
-      #     warning('Column Sums of Data are not sufficiently close to 1 - Data will be re-normalized by column sums')
-      #   }
-      #   Data <- t(clo(t(Data)))
-      #   
-      #   if (any(abs(colSums(Data)-1)>tolerance)){
-      #     if (!quiet){
-      #       warning('Attempt to divide Data by column sums did not bring column sums within "tolerance" of 1 - will proceed with factorization, but such numerical instability may affect the accuracy of the results')
-      #     }
-      #   }
-      # }
+      rplc <- function(x,delta){
+        x[x==0]=min(x[x>0])*delta
+        return(x)
+      }
+      Data <- apply(Data,MARGIN=2,FUN=rplc,delta=delta)
     }
   }
   #####################################################################################
@@ -569,8 +546,8 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     }
     
     ############# Perform Regression on all of Groups, and implement choice function ##############
-    # PhyloReg <- PhyloRegression(TransformedData,X,frmla,Grps,contrast.fcn,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn)
-    PhyloReg <- PhyloRegression(TransformedData,X,frmla,Grps,contrast.fcn,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,quiet,nms,smallglm,choice.fcn=choice.fcn,method,...)
+    # PhyloReg <- PhyloRegression(TransformedData,X,frmla,Grps,contrast.fcn,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,nms,choice.fcn)
+    PhyloReg <- PhyloRegression(TransformedData,X,frmla,Grps,contrast.fcn,choice,treeList,cl,totalvar,ix_cl,treetips,grpsizes,tree_map,nms,choice.fcn=choice.fcn,method,...)
     ############################## EARLY STOP #####################################
     ###############################################################################
     

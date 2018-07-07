@@ -6,11 +6,10 @@
 \usage{
 PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
   transform.fcn = log, contrast.fcn = NULL, method = "glm",
-  nfactors = NULL, quiet = T, trust.me = F, small.output = F,
-  stop.fcn = NULL, stop.early = NULL, KS.Pthreshold = 0.01,
-  alternative = "greater", ncores = NULL, tolerance = 1e-10,
-  delta = 0.65, smallglm = T, choice.fcn = NULL,
-  choice.fcn.dependencies = function() {     NULL }, ...)
+  nfactors = NULL, small.output = F, stop.fcn = NULL, stop.early = NULL,
+  KS.Pthreshold = 0.01, alternative = "greater", ncores = NULL,
+  tolerance = 1e-10, delta = 0.65, choice.fcn = NULL,
+  cluster.depends = "", ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
@@ -31,10 +30,6 @@ PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
 
 \item{nfactors}{Number of clades or factors to produce in phylofactorization. Default, NULL, will iterate phylofactorization until either dim(Data)[1]-1 factors, or until stop.fcn returns T}
 
-\item{quiet}{Logical, default is \code{FALSE}, indicating whether or not to display standard warnings.}
-
-\item{trust.me}{Logical, default \code{FALSE}, indicating whether or not to trust the input Data to be compositional with no zeros.}
-
 \item{small.output}{Logical, indicating whether or not to trim output. If \code{TRUE}, output may not work with downstream summary and plotting wrappers.}
 
 \item{stop.fcn}{Currently, accepts input of 'KS'. Coming soon: input your own function of the environment in phylofactor to determine when to stop.}
@@ -51,11 +46,9 @@ PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
 
 \item{delta}{Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])}
 
-\item{smallglm}{Logical allowing use of \code{bigglm} when \code{ncores} is not \code{NULL}. If \code{TRUE}, will use regular \code{glm()} at base of regression. If \code{FALSE}, will use slower but memory-efficient \code{bigglm}. Default is false.}
-
 \item{choice.fcn}{Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally.}
 
-\item{choice.fcn.dependencies}{Function called by cluster to load all dependencies for custom choice.fcn. e.g. \code{choice.fcn.dependencies <- function(){library(bayesm)}}}
+\item{cluster.depends}{Character parsed and evaluated by cluster to load all dependencies for custom choice.fcn. e.g. \code{cluster.depends <- 'library(bayesm)'}}
 
 \item{...}{optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}}
 }
@@ -210,7 +203,7 @@ all.equal(PF.M$factors,PF.M.par$factors)
 
 ############################# CUSTOMIZED CHOICE FUNCTIONS ################################
 #PhyloFactor can also be used for generalized additive models by inputting choice.fcn 
-#and choice.fcn.dependencies to load required packages onto the cluster
+#and cluster.depends to load required packages onto the cluster
 
 ### Let's work with some newly simulated data ####
 set.seed(1.1)
@@ -260,14 +253,14 @@ my_gam <- function(y,X,PF.output=FALSE,...){
   }
 }
 
-load.mgcv <- function(){library(mgcv)}
-######### For parallelization of customized choice function, we also need to define a function, 
-######### choice.fcn,dependencies, which loads all dependencies to cluster.
-######### The exact call will be clusterEvalQ(cl,choice.fcn.dependencies())
+load.mgcv <- 'library(mgcv)'
+######### For parallelization of customized choice function, we may also need to input 
+######### cluster.depends which loads all dependencies to cluster.
+######### The exact call will be clusterEvalQ(cl,eval(parse(text=cluster.depends)))
 
 
 PF.G.par <- PhyloFactor(Data,tree,X,choice.fcn=my_gam,sp=c(1,1),
-           choice.fcn.dependencies = load.mgcv,nfactors=2,ncores=2)
+           cluster.depends = load.mgcv,nfactors=2,ncores=2)
 ######### Or we can use the built-in method='gam' and input e.g. smoothing penalty sp
 PF.G.par2 <- PhyloFactor(Data,tree,X,method='gam',
               frmla=Data~s(a)+s(b),sp=c(1,1),nfactors=2,ncores=2)

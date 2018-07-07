@@ -13,13 +13,11 @@
 #' @param treetips Number of tips in treeList for quickly identifying whether nodes correspond to a root
 #' @param grpsizes Number of nodes in each tree of treeList
 #' @param tree_map Cumulative number of nodes in trees of treeList - allows rapid mapping of nodes in ix_cl to appropriate tree in treeList.
-#' @param quiet Logical to supress warnings
 #' @param nms rownames of TransformedData, allowing reliable mapping of rows of data to tree.
-#' @param smallglm Logical. See \code{\link{PhyloFactor}}
 #' @param choice.fcn optional customized choice function to choose 'best' edge; see \code{\link{PhyloFactor}}
 #' @param method See \code{\link{PhyloFactor}}
 #' @param ... optional input arguments for \code{\link{glm}}
-PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,quiet=T,nms=NULL,smallglm=F,choice.fcn,method='glm',...){
+PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,choice,treeList=NULL,cl,totalvar=NULL,ix_cl,treetips=NULL,grpsizes=NULL,tree_map=NULL,nms=NULL,choice.fcn,method='glm',...){
    #cl - optional phyloCluster input for parallelization of regression across multiple groups.
   D <- dim(TransformedData)[1]
   xx=X
@@ -36,9 +34,8 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     }
     if (choice != 'custom'){
     ################ DEFAULT choice.fcn #########################
-      # GLMs <- apply(Y,1,FUN = phylofactor::pglm,xx=X,frmla=frmla,smallglm=T)
       if (method != 'max.var'){
-        GLMs <- apply(Y,1,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+        GLMs <- apply(Y,1,FUN = pglm,xx=X,frmla=frmla,...)
         stats <- matrix(sapply(GLMs,FUN=phylofactor::getStats),ncol=3,byrow=T) 
         #contains Pvalues, F statistics, and explained var
         rownames(stats) <- 1:ngrps
@@ -80,12 +77,8 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
       winner <- sample(winner,1)
     }
   } else {  ##### PARALLEL #####
-    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,contrast.fcn,choice,method,smallglm,frmla,xx,choice.fcn,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...)
-    # Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,contrast.fcn,choice,smallglm,frmla,xx,choice.fcn) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
-    
-    # Winners=lapply(ix_cl,FUN=function(x,tree_map,treeList,treetips,contrast.fcn,choice,smallglm,frmla,xx,choice.fcn) findWinner(nset=x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn) ,tree_map=tree_map,treeList=treeList,treetips=treetips,choice=choice,smallglm=smallglm,frmla=frmla,xx=xx,choice.fcn=choice.fcn)
-    # Recall: output from findWinner is $grp and then our objective function output: $objective, $Fstat, or $ExplainedVar, corresponding to choice='custom','F', and 'var', respectivley.
-    
+    Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,contrast.fcn,choice,method,frmla,xx,choice.fcn,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...)
+
     grps <- lapply(Winners,getElement,'grp')
     Y <- lapply(grps,BalanceContrast,TransformedData=TransformedData)
     
@@ -93,7 +86,7 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     ####################################### DEFAULT REGRESSIONS #####################
     if (choice != 'custom'){
       if (method != 'max.var'){
-        gg <- lapply(Y,FUN = pglm,xx=X,frmla=frmla,smallglm=T,...)
+        gg <- lapply(Y,FUN = pglm,xx=X,frmla=frmla,...)
         stats <- lapply(gg,getStats)
         if (choice=='var'){
           objective <- sapply(stats,function(x) x['ExplainedVar'])
@@ -113,10 +106,8 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     
     winner=which(objective==max(objective))
     if (length(winner)>1){
-      if (!quiet){
-        warning(paste('Objective function produced',toString(length(winner)),
+      warning(paste('Objective function produced',toString(length(winner)),
                       'identical groups. Will choose group at random.',sep=' '))
-      }
       winner <- sample(winner,1)
     }
   }

@@ -13,8 +13,6 @@ pglm(y, xx, frmla, smallglm = T, ...)
 
 \item{frmla}{Formula for dependence of y on x}
 
-\item{smallglm}{Logical. See \code{\link{PhyloFactor}}}
-
 \item{...}{optional input arguments to \code{\link{glm}}}
 }
 \value{
