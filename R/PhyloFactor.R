@@ -15,7 +15,7 @@
 #' @param KS.Pthreshold Numeric between 0 and 1. P-value threshold for KS-test as default stopping-function.
 #' @param alternative alternative hypothesis input to \code{\link{ks.test}} if KS stopping function is used
 #' @param ncores Number of cores for built-in parallelization of phylofactorization. Parallelizes the extraction of groups, amalgamation of data based on groups, regression, and calculation of objective function. Be warned - this can lead to R taking over a system's memory.
-#' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced with 0.65*min(Data[Data>0])
+#' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced column-wise with 0.65*min(x[x>0])
 #' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally. 
 #' @param cluster.depends Character parsed and evaluated by cluster to load all dependencies for custom choice.fcn. e.g. \code{cluster.depends <- 'library(bayesm)'}
 #' @param ... optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}
