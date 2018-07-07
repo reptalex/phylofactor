@@ -442,7 +442,6 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
           colnames(dataset)[ncol(dataset)] <- colnames(X)[ix[nn]]
           }
         args <- list('data'=dataset,'formula'=frmla,...)
-        # gg <- stats::glm(frmla,data=dataset,...)
         do.call(stats::glm,args)
       }
     } else {

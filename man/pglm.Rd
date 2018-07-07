@@ -4,7 +4,7 @@
 \alias{pglm}
 \title{Internal wrapper for \code{\link{glm}} for phylofactor}
 \usage{
-pglm(y, xx, frmla, smallglm = T, ...)
+pglm(y, xx, frmla, ...)
 }
 \arguments{
 \item{y}{response variable}

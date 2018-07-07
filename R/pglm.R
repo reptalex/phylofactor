@@ -11,11 +11,10 @@
 #' pglm(y,x,y~x)
 
 ################# phyloreg ############################
-pglm <- function(y,xx,frmla,smallglm=T,...){
+pglm <- function(y,xx,frmla,...){
   ##performs individual regression.
   dataset <- c(list(y),as.list(xx))
   names(dataset) <- c('Data',names(xx))
-  # dataset <- stats::model.frame(frmla,data = dataset)
   args <- list('data'=dataset,'formula'=frmla,...)
   return(do.call(stats::glm,args))
 }

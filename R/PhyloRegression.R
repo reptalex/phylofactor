@@ -99,7 +99,6 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     ###################################################################################
     } else {
     ####################################### input choice.fcn ########################
-      # objective <- sapply(Y,FUN=function(y,xx,...) choice.fcn(y=y,X=xx,...)$objective,xx=xx)
       objective <- parallel::parLapply(cl,Y,choice.fcn,X,...) %>% sapply(getElement,'objective')
     #################################################################################
     }

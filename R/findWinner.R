@@ -98,9 +98,7 @@ findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,
             }
         #########################################################
         args <- list('data'=dataset,'formula'=frmla,...)
-        ############ Performing Regression ######################
         gg=do.call(stats::glm,args)
-       
         #########################################################
         
         ############# Update output if objective is larger #######
@@ -142,22 +140,6 @@ findWinner <- function(nset,tree_map,treeList,treetips,contrast.fcn=NULL,choice,
     
   }
   #################################################### ITERATION OVER nset TO FIND WINNER #############################################################
-  
-  
-  ################## modify output glm for default choices #################
-  if (choice %in% c('var','F') & method!='max.var'){ #convert bigglm to glm
-    if (is.null(contrast.fcn)){
-      Y <- BalanceContrast(output$grp,TransformedData)
-    } else {
-      Y <- contrast.fcn(output$grp,TransformedData)
-    }
-    dataset <- c(list(Y),as.list(xx))
-    names(dataset) <- c('Data',names(xx))
-    dataset <- stats::model.frame(frmla,data = dataset)
-    args <- list('data'=dataset,'formula'=formula,...)
-    output$model <- do.call(stats::glm,args)
-  }
-  ##########################################################################
-  
+
   return(output)
 }
