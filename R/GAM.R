@@ -9,7 +9,6 @@
 GAM <- function(y,X,PF.output=FALSE,gamfrmla,gamchoice,...){
   dataset <- cbind('Data'=y,X)
   args=list('data'=dataset,'formula'=gamfrmla,...)
-  # gg <- mgcv::gam(gamfrmla,data=dataset,...)
   gg <- do.call(mgcv::gam,args)
   
   if (PF.output){

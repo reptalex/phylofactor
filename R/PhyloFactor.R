@@ -18,7 +18,7 @@
 #' @param delta Numerical value for replacement of zeros. Default is 0.65, so zeros will be replaced column-wise with 0.65*min(x[x>0])
 #' @param choice.fcn Function for customized choice function. Must take as input the numeric vector of ilr coefficients \code{y}, the input meta-data/independent-variable \code{X}, and a logical \code{PF.output}. If \code{PF.output==F}, the output of \code{choice.fcn} must be a two-member list containing numerics \code{output$objective} and \code{output$stopStatistic}. Phylofactor will choose the edge which maximizes \code{output$objective} and a customzed input \code{stop.fcn} can be used with the \code{output$stopStatistics} to stop phylofactor internally. 
 #' @param cluster.depends Character parsed and evaluated by cluster to load all dependencies for custom choice.fcn. e.g. \code{cluster.depends <- 'library(bayesm)'}
-#' @param ... optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}
+#' @param ... optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{mgcv::gam}
 #' @return Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}. 
 #' @examples
 #' set.seed(2)

@@ -47,7 +47,7 @@ PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
 
 \item{cluster.depends}{Character parsed and evaluated by cluster to load all dependencies for custom choice.fcn. e.g. \code{cluster.depends <- 'library(bayesm)'}}
 
-\item{...}{optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{nlme::gam}}
+\item{...}{optional input arguments for \code{\link{glm}} or, if \code{method=='gam'}, input for \code{mgcv::gam}}
 }
 \value{
 Phylofactor object, a list containing: "Data", "tree" - inputs from phylofactorization. Output also includes "factors","glms","terminated" - T if stop.fcn terminated factorization, F otherwise - "bins", "bin.sizes", "basis" - basis for projection of data onto phylofactors, and "Monophyletic.Clades" - a list of which bins are monophyletic and have bin.size>1. For customized \code{choice.fcn}, Phylofactor outputs \code{$custom.output}.
