@@ -87,6 +87,17 @@
 #'                     ncores=2)
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 #' 
+#' ## can also use categorical variables as predictors, but notice the warning for coefficient
+#' ## contrasts when PartitioningVariables are the formula's name for that variable. gpf will grep 
+#' ## for the PartitioningVariables in the names of coefficients - the warning below can be 
+#' ## ignored, but formulas whose terms grep each other may require specific PartitioningVariables.
+#' DF[,y_factor:=as.factor(y>0)]
+#' pf_categorical <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y_factor,
+#'           frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+phylo*y_factor,
+#'           PartitioningVariables='y_factor',
+#'           family=binomial,
+#'           nfactors=2,
+#'           ncores=2)
 #' 
 #' ### glm manipulation - can do everything except subset ###
 #' ### For non-mStable, weights slow down the algorithm due to data.table indexing issues ###
@@ -577,7 +588,20 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     tryCatch(SE <- t(sapply(models,FUN=function(m) sqrt(diag(stats::vcov(m))))),
              error=function(e) stop(paste('Could not extract standard errors from model.fcn for each species due to following error \n',e)))
 
-    BP <- coefficients[,PartitioningVariables,drop=F]/SE[,PartitioningVariables,drop=F]
+    if (all(PartitioningVariables %in% colnames(coefficients))){
+     BP <- coefficients[,PartitioningVariables,drop=F]/SE[,PartitioningVariables,drop=F]
+    } else {
+      pvs_not_found <- PartitioningVariables[!PartitioningVariables %in% colnames(coefficients)]
+      pvs_found <- setdiff(PartitioningVariables,pvs_not_found)
+      ix <- sapply(pvs_not_found,FUN=function(a,b) grepl(a,b),b=colnames(coefficients)) %>% apply(MARGIN=1,any)
+      warning(paste("PartitioningVariables {",paste(pvs_not_found,collapse=','),"} not found in coefficients from glm. Will grep for inexact matches, often caused by PartitioningVariables which are multilevel factors",sep=''))
+      warning(paste("Coefficients {",paste(colnames(coefficients)[ix],collapse=','),"} chosen as partitioning variables",sep=''))
+      ix <- ix | colnames(coefficients) %in% pvs_found
+      if (!any(ix)){
+        stop('Could neither match nor grep any PartitioningVariables in the coefficients of model. Try running stats::coefficients on your input model.fcn for a single species to determine the appropriate names for PartitioningVariables.')
+      }
+      BP <- coefficients[,ix,drop=F]/SE[,ix,drop=F]
+    }
     
     if (ncol(BP)!=length(PartitioningVariables)){
       BP <- t(BP)
