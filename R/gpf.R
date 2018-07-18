@@ -603,11 +603,8 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       BP <- coefficients[,ix,drop=F]/SE[,ix,drop=F]
     }
     
-    if (ncol(BP)!=length(PartitioningVariables)){
+    if (nrow(BP)!=length(species)){
       BP <- t(BP)
-      if (ncol(BP)!=length(PartitioningVariables)){
-        stop('error in converting partitioning variables to coefficient matrix. Perhaps Partitioning variables do not correspond to names of coefficients(model.fcn)')
-      }
     }
     rownames(coefficients) <- species
     rownames(BP) <- species
