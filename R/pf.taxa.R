@@ -15,8 +15,12 @@ pf.taxa <- function(pf,taxonomy,factor=1){
   g1 <- pf$tree$tip.label[pf$groups[[factor]][[1]]]
   g2 <- pf$tree$tip.label[pf$groups[[factor]][[2]]]
                             
-  t1 <- taxonomy[match(g1,taxonomy[,1]),2]
-  t2 <- taxonomy[match(g2,taxonomy[,1]),2]
+  t1 <- as.character(taxonomy[match(g1,taxonomy[,1]),2])
+  t2 <- as.character(taxonomy[match(g2,taxonomy[,1]),2])
+  
+  if (all(is.na(t1)) | all(is.na(t2))){
+    stop('could not match tree tip-labels of groups to first column of taxonomy')
+  }
   
   output <- NULL
   output$group1 <- uniqueTaxa(t1,t2) %>% unique
