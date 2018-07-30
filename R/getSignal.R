@@ -81,8 +81,22 @@ getSignal <- function(grp,PF){
     } else {
       n=length(PF$tree$tip.label)
       v <- matrix(ilrvec(grp,n),ncol=n)
-      v <- v %*% (PF$coefficient.matrix/PF$coefficient.SE)
-      omega <- v[,PF$PartitioningVariables,drop=F] %*% t(v[,PF$PartitioningVariables,drop=F])
+      if (all(PF$PartitioningVariables %in% colnames(PF$coefficient.matrix))){
+        B <- PF$coefficient.matrix[,PF$PartitioningVariables,drop=F]/PF$coefficient.SE[,PF$PartitioningVariables,drop=F]
+      } else {
+        pvs_not_found <- PF$PartitioningVariables[!PF$PartitioningVariables %in% colnames(PF$coefficient.matrix)]
+        pvs_found <- setdiff(PF$PartitioningVariables,pvs_not_found)
+        ix <- sapply(pvs_not_found,FUN=function(a,b) grepl(a,b),b=colnames(PF$coefficient.matrix)) %>% apply(MARGIN=1,any)
+        ix <- ix | colnames(PF$coefficient.matrix) %in% pvs_found
+        if (!any(ix)){
+          stop('Could neither match nor grep any PartitioningVariables in the coefficients of model. Try running stats::coefficients on your input model.fcn for a single species to determine the appropriate names for PartitioningVariables.')
+        }
+        B <- PF$coefficient.matrix[,ix,drop=F]/PF$coefficient.SE[,ix,drop=F]
+      }
+      omega <- v %*% B
+      if (length(omega)>1){
+        omega <- sum(omega^2)
+      }
     }
     
   } else { ##twoSampleFactor

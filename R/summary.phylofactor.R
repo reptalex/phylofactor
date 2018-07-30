@@ -75,10 +75,17 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       if (PF$algorithm!='CoefContrast'){
         output$model.summary <- summary(PF$models[[factor]])
       } else {
-        if (length(PF$PartitioningVariables)==1){
+        if (all(PF$PartitioningVariables %in% colnames(PF$coefficient.matrix))){
           B <- t(PF$coefficient.matrix[,PF$PartitioningVariables,drop=F]/PF$coefficient.SE[,PF$PartitioningVariables,drop=F]) %*% PF$basis[,factor]
         } else {
-          B <- t(PF$coefficient.matrix[,PF$PartitioningVariables,drop=F]/PF$coefficient.SE[,PF$PartitioningVariables,drop=F]) %*% PF$basis[,factor]
+          pvs_not_found <- PF$PartitioningVariables[!PF$PartitioningVariables %in% colnames(PF$coefficient.matrix)]
+          pvs_found <- setdiff(PF$PartitioningVariables,pvs_not_found)
+          ix <- sapply(pvs_not_found,FUN=function(a,b) grepl(a,b),b=colnames(PF$coefficient.matrix)) %>% apply(MARGIN=1,any)
+          ix <- ix | colnames(PF$coefficient.matrix) %in% pvs_found
+          if (!any(ix)){
+            stop('Could neither match nor grep any PartitioningVariables in the coefficients of model. Try running stats::coefficients on your input model.fcn for a single species to determine the appropriate names for PartitioningVariables.')
+          }
+          B <- t(PF$coefficient.matrix[,ix,drop=F]/PF$coefficient.SE[,ix,drop=F]) %*% PF$basis[,factor]
         }
         output$model.summary <- data.frame('PartitioningVariable'=PF$PartitioningVariables,'CoefContrast'=B)
       }
