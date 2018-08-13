@@ -115,7 +115,8 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     } else if (PF$phylofactor.fcn == 'gpf'){
       if (PF$algorithm!='CoefContrast'){
         output$data <- PF$models[[factor]]$data
-        output$data$fitted.values <- PF$models[[factor]]$fitted.values
+        output$data$fitted.values <- NA
+        output$data$fitted.values[setdiff(1:nrow(output$data),PF$models[[factor]]$na.action)] <- PF$models[[factor]]$fitted.values
       } else {
         output$data <- list('Coefficient_matrix'=PF$coefficient.matrix,
                             'Coefficient_SE'=PF$coefficient.SE,
@@ -219,6 +220,9 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     }
     
     if (output.signal){
+      if (!key(PF$Data)=='Species'){
+        setkey(PF$Data,Species)
+      }
       Grps1 <- lapply(species.assignment1,FUN=function(spp,tree) match(spp,tree$tip.label),PF$tree)
       Grps2 <- lapply(species.assignment2,FUN=function(spp,tree) match(spp,tree$tip.label),PF$tree)
       Grps1 <- lapply(Grps1,FUN=function(g1,g2) list(g1,g2),g2=unlist(PF$groups[[factor]][2]))
