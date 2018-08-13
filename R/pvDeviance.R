@@ -83,7 +83,8 @@ pvDeviance <- function(model,grp,tree,PartitioningVariables='',model.fcn,phyloDa
         }
         omega <- sum(ss$Deviance[nms])
       } else {
-        warning(paste('Model failed for a group. Objective set to 0 for phyloGroups of sizes',r,'and',s,sep=' '))
+        warning(paste('Model failed for a group. Objective set to 0 for phyloGroups of sizes',length(grp[[1]]),
+                      'and',length(grp[[2]]),sep=' '))
         omega <- 0
       }
     }
