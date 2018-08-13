@@ -67,7 +67,7 @@ pvDeviance <- function(model,grp,tree,PartitioningVariables='',model.fcn,phyloDa
       
     } else {
     
-      ss <- stats::anova(model)
+      ss <- tryCatch(stats::anova(model),error=function(e) NA)
       if (any(grepl('anova',class(ss)))){
         rn <- rownames(ss)
         nms <- grepl('phylo',rn)
