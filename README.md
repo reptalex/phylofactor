@@ -17,6 +17,7 @@ The help functions in this package contain a decent amount of detail for how to 
 
 ```{r PhyloFactor}
 ? PhyloFactor
+? gpf
 ```
 
 For more detailed information, a tutorial is available online [here](https://docs.wixstatic.com/ugd/0119a1_099ae20df8424af9a38585dcebc0d45a.pdf "Phylofactor Tutorial").  If you have any questions, please feel free to post issues and contact me!
