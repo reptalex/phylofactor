@@ -1,7 +1,7 @@
 ## phylofactor: R package for phylogentic factorization of biological data
 
 
-This package provides functions to extract and visualize the phylogenetic factors in biological datasets. To get started, first you need to download two packages from Bioconductor:
+This package provides functions to extract and visualize the phylogenetic factors in biological datasets. To get started, download R and Rtools. In R, you first need to download two packages from Bioconductor:
 
 ```{r install}
 source("https://bioconductor.org/biocLite.R")
