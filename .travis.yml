@@ -16,12 +16,14 @@ r_packages:
   - magrittr 
   - ape
   - phangorn
-  - phytools 
   - caper 
-  - scatterplot3d 
-  - biglm 
   - testthat
   - devtools
+  - ggplot2
+  - mgcv
+  - parallel
+  - viridis
+  - tidyverse
 
 bioc_packages:
   - Biostrings
