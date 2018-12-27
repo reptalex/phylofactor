@@ -4,7 +4,7 @@
 \alias{summary.phylofactor}
 \title{Summarize phylofactor objects}
 \usage{
-summary.phylofactor(PF, taxonomy = NULL, factor = NULL,
+\method{summary}{phylofactor}(PF, taxonomy = NULL, factor = NULL,
   taxon.trimming = "sup", output.signal = T)
 }
 \arguments{

@@ -4,8 +4,8 @@
 \alias{pvDeviance}
 \title{obtains deviance for partitioning variables - default objective function for \code{\link{gpf}}}
 \usage{
-pvDeviance(model, grp, tree, PartitioningVariables = "", model.fcn, phyloData,
-  ...)
+pvDeviance(model, grp, tree, PartitioningVariables = "", model.fcn,
+  phyloData, ...)
 }
 \arguments{
 \item{model}{model, such as glm, lm, nls, gam, which can be put into anova.}

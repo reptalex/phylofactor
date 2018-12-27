@@ -6,7 +6,8 @@
 \usage{
 getObjective(grp, tree, Data, frmla, MetaData = NULL,
   PartitioningVariables = "", mStableAgg, expfamily = "gaussian",
-  model.fcn = stats::glm, objective.fcn = pvDeviance, ...)
+  model.fcn = stats::glm, objective.fcn = pvDeviance,
+  ignore.tips = F, ...)
 }
 \arguments{
 \item{grp}{list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}}

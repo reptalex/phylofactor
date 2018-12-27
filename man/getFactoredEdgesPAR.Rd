@@ -4,8 +4,8 @@
 \alias{getFactoredEdgesPAR}
 \title{Parallelized version of getFactoredEdges}
 \usage{
-getFactoredEdgesPAR(cl = NULL, ncores = NULL, tree = NULL, V = NULL,
-  PF = NULL)
+getFactoredEdgesPAR(cl = NULL, ncores = NULL, tree = NULL,
+  V = NULL, PF = NULL)
 }
 \arguments{
 \item{cl}{optional input \code{phyloFcluster}}

@@ -4,9 +4,10 @@
 \alias{twoSampleFactor}
 \title{Phylofactorization of vector data using two-sample tests}
 \usage{
-twoSampleFactor(Z, tree, nfactors, method = "contrast", TestFunction = NULL,
-  ncores = NULL, stop.fcn = NULL, cluster.depends = "", Metropolis = F,
-  sampleFcn = NULL, lambda = 1, ...)
+twoSampleFactor(Z, tree, nfactors, method = "contrast",
+  TestFunction = NULL, ncores = NULL, stop.fcn = NULL,
+  cluster.depends = "", Metropolis = F, sampleFcn = NULL,
+  lambda = 1, ...)
 }
 \arguments{
 \item{Z}{Vector of data.}

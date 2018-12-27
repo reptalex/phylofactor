@@ -4,7 +4,8 @@
 \alias{getFactoredEdges}
 \title{Returns edges from a phylofactor}
 \usage{
-getFactoredEdges(v = NULL, tree, M = NULL, grp1 = NULL, grp2 = NULL)
+getFactoredEdges(v = NULL, tree, M = NULL, grp1 = NULL,
+  grp2 = NULL)
 }
 \arguments{
 \item{v}{Optional input of an ILR-style partition vector, which automatically extracts grp1 and grp2}

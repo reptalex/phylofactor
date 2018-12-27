@@ -4,10 +4,10 @@
 \alias{PhyloRegression}
 \title{PhyloFactor internal function to prep, find and summarize the best ILR coordinate}
 \usage{
-PhyloRegression(TransformedData, X, frmla, Grps = NULL, contrast.fcn = NULL,
-  choice, treeList = NULL, cl, totalvar = NULL, ix_cl, treetips = NULL,
-  grpsizes = NULL, tree_map = NULL, nms = NULL, choice.fcn,
-  method = "glm", ...)
+PhyloRegression(TransformedData, X, frmla, Grps = NULL,
+  contrast.fcn = NULL, choice, treeList = NULL, cl, totalvar = NULL,
+  ix_cl, treetips = NULL, grpsizes = NULL, tree_map = NULL,
+  nms = NULL, choice.fcn, method = "glm", ...)
 }
 \arguments{
 \item{TransformedData}{Transformed data matrix whose rows are species and columns are samples.}

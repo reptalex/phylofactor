@@ -4,8 +4,9 @@
 \alias{findWinner}
 \title{Internal PhyloRegression function for finding the winning edge.}
 \usage{
-findWinner(nset, tree_map, treeList, treetips, contrast.fcn = NULL, choice,
-  method = "glm", frmla = NULL, xx = NULL, choice.fcn = NULL, ...)
+findWinner(nset, tree_map, treeList, treetips, contrast.fcn = NULL,
+  choice, method = "glm", frmla = NULL, xx = NULL,
+  choice.fcn = NULL, ...)
 }
 \arguments{
 \item{nset}{set of nodes}

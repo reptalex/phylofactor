@@ -2,12 +2,13 @@
 % Please edit documentation in R/gpf.R
 \name{gpf}
 \alias{gpf}
-\title{Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.}
+\title{Generalized phylofactorization}
 \usage{
 gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
   PartitioningVariables = NULL, MetaData = NULL, nfactors = NULL,
   ncores = NULL, model.fcn = stats::glm, objective.fcn = pvDeviance,
-  algorithm = "mix", alpha = 0.2, cluster.depends = "", ...)
+  ignore.tips = F, algorithm = "mix", alpha = 0.2,
+  cluster.depends = "", ...)
 }
 \arguments{
 \item{Data}{data table containing columns of "Species", and terms in the \code{frmla}. If \code{algorithm=="mStable"}, \code{Data} must also include a column of "Sample" or, alternatively, \code{Data} can be a matrix whose rows are species and columns are samples and \code{MetaData} a data frame of meta-data with rows corresponding to columns of \code{Data} and the terms in \code{frmla} or non-phylo terms in \code{frmla.phylo}.}
@@ -30,6 +31,8 @@ gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
 
 \item{objective.fcn}{Optional input objective function. Takes \code{model.fcn} output as its input, and returns a number which will be maximized to determine phylogenetic factor.}
 
+\item{ignore.tips}{Logical whether or not to ignore tips (tips are automatically given objective -Inf; aggregation, \code{model.fcn} and \code{objective.fcn} are only run on groups containing more than one tip)}
+
 \item{algorithm}{Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix. "phylo" will produce \code{phylo} factors. "mStable" will use \code{phylo} factors and marginally-stable aggregation of groups. "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
 
 \item{alpha}{Numeric between 0 and 1 (strictly greater than 0), indicating the top fraction of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2 selecting top 20 percent of edges.}
@@ -42,7 +45,7 @@ gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
 phylofactor object which can be manipulated with various \code{pf.} functions
 }
 \description{
-Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.
+Generalized phylofactorization
 }
 \examples{
 library(phylofactor)
@@ -115,6 +118,17 @@ pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y,
                     ncores=2)
 all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 
+## can also use categorical variables as predictors, but notice the warning for coefficient
+## contrasts when PartitioningVariables are the formula's name for that variable. gpf will grep 
+## for the PartitioningVariables in the names of coefficients - the warning below can be 
+## ignored, but formulas whose terms grep each other may require specific PartitioningVariables.
+DF[,y_factor:=as.factor(y>0)]
+pf_categorical <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y_factor,
+          frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+phylo*y_factor,
+          PartitioningVariables='y_factor',
+          family=binomial,
+          nfactors=2,
+          ncores=2)
 
 ### glm manipulation - can do everything except subset ###
 ### For non-mStable, weights slow down the algorithm due to data.table indexing issues ###

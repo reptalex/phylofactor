@@ -4,8 +4,8 @@
 \alias{HGTplot}
 \title{Visualize results form simHGT}
 \usage{
-HGTplot(sim, main = "Trait Evolution", cex = 1.5, lwd = 2, pch = 16,
-  ...)
+HGTplot(sim, main = "Trait Evolution", cex = 1.5, lwd = 2,
+  pch = 16, ...)
 }
 \arguments{
 \item{sim}{Simulation output from \code{\link{simHGT}}}

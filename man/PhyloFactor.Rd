@@ -6,9 +6,10 @@
 \usage{
 PhyloFactor(Data, tree, X = NULL, frmla = Data ~ X, choice = "var",
   transform.fcn = log, contrast.fcn = NULL, method = "glm",
-  nfactors = NULL, small.output = F, stop.fcn = NULL, stop.early = NULL,
-  KS.Pthreshold = 0.01, alternative = "greater", ncores = NULL,
-  delta = 0.65, choice.fcn = NULL, cluster.depends = "", ...)
+  nfactors = NULL, small.output = F, stop.fcn = NULL,
+  stop.early = NULL, KS.Pthreshold = 0.01, alternative = "greater",
+  ncores = NULL, delta = 0.65, choice.fcn = NULL,
+  cluster.depends = "", ...)
 }
 \arguments{
 \item{Data}{Data matrix whose rows are tip labels of the tree, columns are samples of the same length as X, and whose columns sum to 1}
