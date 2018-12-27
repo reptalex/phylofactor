@@ -1,4 +1,4 @@
-#' Generalized phylofactorization - currently skeleton for binomial glm; will expand to exponential, gamma etc. soon.
+#' Generalized phylofactorization
 #' 
 #' @export
 #' @param Data data table containing columns of "Species", and terms in the \code{frmla}. If \code{algorithm=="mStable"}, \code{Data} must also include a column of "Sample" or, alternatively, \code{Data} can be a matrix whose rows are species and columns are samples and \code{MetaData} a data frame of meta-data with rows corresponding to columns of \code{Data} and the terms in \code{frmla} or non-phylo terms in \code{frmla.phylo}.
