@@ -30,6 +30,7 @@ bioc_packages:
   - ggtree
 
 script:
+  - Rscript -e "Sys.getenv("R_PROFILE_USER")"
   - Rscript -e "devtools::install_github('reptalex/phylofactor',INSTALL_opts = "--install-tests")"
   - Rscript -e "library(testthat); test_package('phylofactor')"
 
