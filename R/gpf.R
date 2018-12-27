@@ -11,6 +11,7 @@
 #' @param ncores integers for number of cores to use for parallelization
 #' @param model.fcn Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.
 #' @param objective.fcn Optional input objective function. Takes \code{model.fcn} output as its input, and returns a number which will be maximized to determine phylogenetic factor.
+#' @param ignore.tips Logical whether or not to ignore tips (tips are automatically given objective -Inf; aggregation, \code{model.fcn} and \code{objective.fcn} are only run on groups containing more than one tip)
 #' @param algorithm Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix. "phylo" will produce \code{phylo} factors. "mStable" will use \code{phylo} factors and marginally-stable aggregation of groups. "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.
 #' @param alpha Numeric between 0 and 1 (strictly greater than 0), indicating the top fraction of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2 selecting top 20 percent of edges.
 #' @param cluster.depends Character expression input to \code{eval(parse(text=cluster.depends))}. Evaluated in clusters to prime local environment - useful for customized \code{model.fcn} and \code{objective.fcn}
@@ -245,7 +246,7 @@
 #'           PartitioningVariables='y',family=binomial,
 #'           nfactors=2,ncores=2,model.fcn = mgcv::gam,algorithm = 'phylo')
 #' pf$factors
-gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL,MetaData=NULL,nfactors=NULL,ncores=NULL,model.fcn=stats::glm,objective.fcn=pvDeviance,algorithm='mix',alpha=0.2,cluster.depends='',...){
+gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL,MetaData=NULL,nfactors=NULL,ncores=NULL,model.fcn=stats::glm,objective.fcn=pvDeviance,ignore.tips=F,algorithm='mix',alpha=0.2,cluster.depends='',...){
   
   output <- NULL
   output$call <- match.call()
@@ -619,7 +620,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       rarest.spp <- names(sort(table(Data$Species)))[1]
       ix <- which(tree$tip.label==rarest.spp)
       grp <- list(ix,setdiff(1:length(tree$tip.label),ix))
-      tryCatch(getObjective(grp,tree,Data,frmla.phylo,MetaData,PartitioningVariables,mStableAgg=F,expfamily,model.fcn,objective.fcn,...),
+      tryCatch(getObjective(grp,tree,Data,frmla.phylo,MetaData,PartitioningVariables,mStableAgg=F,expfamily,model.fcn,objective.fcn,ignore.tips,...),
                error = function(e) stop(paste('Failure to getObjective from rarest species due to error:',e)))
     }
   }
@@ -660,6 +661,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
                       expfamily=expfamily,
                       model.fcn=model.fcn,
                       objective.fcn=objective.fcn,
+                      ignore.tips=ignore.tips,
                       ...)
       } else {
         obj <- parallel::parSapply(cl,Grps,
@@ -673,6 +675,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
                                    expfamily=expfamily,
                                    model.fcn=model.fcn,
                                    objective.fcn=objective.fcn,
+                                   ignore.tips=ignore.tips,
                                    ...)
       }
     }

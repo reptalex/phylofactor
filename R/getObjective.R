@@ -11,17 +11,33 @@
 #' @param model.fcn model function, such as \code{\link{glm}} or \code{gam}.
 #' @param objective.fcn Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.
 #' @param ... additional arguments for \code{model.fcn}
-getObjective <- function(grp,tree,Data,frmla,MetaData=NULL,PartitioningVariables='',mStableAgg,expfamily='gaussian',model.fcn=stats::glm,objective.fcn=pvDeviance,...){
-  if (mStableAgg==T){
-    phyloData <- mAggregation(Data,grp,tree,MetaData,expfamily,frmla)
-    fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
+getObjective <- function(grp,tree,Data,frmla,MetaData=NULL,PartitioningVariables='',mStableAgg,expfamily='gaussian',model.fcn=stats::glm,objective.fcn=pvDeviance,ignore.tips=F,...){
+  if (ignore.tips){
+    
+    if (any(sapply(grp,length)==1)){
+      omega <- -Inf
+    } else {
+      if (mStableAgg==T){
+        phyloData <- mAggregation(Data,grp,tree,MetaData,expfamily,frmla)
+        fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
+      } else {
+        phyloData <- phyloFrame(Data,grp,tree)
+        fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
+      }
+      
+      omega <- objective.fcn(fit,grp,tree,PartitioningVariables,model.fcn,phyloData,...)
+    }
   } else {
-    phyloData <- phyloFrame(Data,grp,tree)
-    fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
+  
+    if (mStableAgg==T){
+      phyloData <- mAggregation(Data,grp,tree,MetaData,expfamily,frmla)
+      fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
+    } else {
+      phyloData <- phyloFrame(Data,grp,tree)
+      fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
+    }
+    
+    omega <- objective.fcn(fit,grp,tree,PartitioningVariables,model.fcn,phyloData,...)
   }
-  
-  
-  omega <- objective.fcn(fit,grp,tree,PartitioningVariables,model.fcn,phyloData,...)
-  
   return(omega)
 }
