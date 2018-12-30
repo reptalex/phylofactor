@@ -7,7 +7,7 @@
 getObjective(grp, tree, Data, frmla, MetaData = NULL,
   PartitioningVariables = "", mStableAgg, expfamily = "gaussian",
   model.fcn = stats::glm, objective.fcn = pvDeviance,
-  ignore.tips = F, ...)
+  min.group.size = 1, ...)
 }
 \arguments{
 \item{grp}{list containing two disjoint lists of species, such as thouse output from \code{\link{getGroups}}}
@@ -29,6 +29,8 @@ getObjective(grp, tree, Data, frmla, MetaData = NULL,
 \item{model.fcn}{model function, such as \code{\link{glm}} or \code{gam}.}
 
 \item{objective.fcn}{Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.}
+
+\item{min.group.size}{minimum size of group allowed for partitioning. Default is 1.}
 
 \item{...}{additional arguments for \code{model.fcn}}
 }

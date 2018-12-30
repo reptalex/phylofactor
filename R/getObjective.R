@@ -10,11 +10,11 @@
 #' @param expfamily character string indicating manner of m-stable aggregation for \code{\link{mAggregation}}. Only "binomial" is meaningfully different.
 #' @param model.fcn model function, such as \code{\link{glm}} or \code{gam}.
 #' @param objective.fcn Objective function taking output from \code{model.fcn} as input. See \code{\link{gpf}}.
+#' @param min.group.size minimum size of group allowed for partitioning. Default is 1.
 #' @param ... additional arguments for \code{model.fcn}
-getObjective <- function(grp,tree,Data,frmla,MetaData=NULL,PartitioningVariables='',mStableAgg,expfamily='gaussian',model.fcn=stats::glm,objective.fcn=pvDeviance,ignore.tips=F,...){
-  if (ignore.tips){
-    
-    if (any(sapply(grp,length)==1)){
+getObjective <- function(grp,tree,Data,frmla,MetaData=NULL,PartitioningVariables='',mStableAgg,expfamily='gaussian',model.fcn=stats::glm,objective.fcn=pvDeviance,min.group.size=1,...){
+  
+  if (any(sapply(grp,length)<min.group.size)){
       omega <- -Inf
     } else {
       if (mStableAgg==T){
@@ -26,18 +26,6 @@ getObjective <- function(grp,tree,Data,frmla,MetaData=NULL,PartitioningVariables
       }
       
       omega <- objective.fcn(fit,grp,tree,PartitioningVariables,model.fcn,phyloData,...)
-    }
-  } else {
-  
-    if (mStableAgg==T){
-      phyloData <- mAggregation(Data,grp,tree,MetaData,expfamily,frmla)
-      fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
-    } else {
-      phyloData <- phyloFrame(Data,grp,tree)
-      fit <- do.call(model.fcn,args=list('formula'=frmla,'data'=phyloData,...))
-    }
-    
-    omega <- objective.fcn(fit,grp,tree,PartitioningVariables,model.fcn,phyloData,...)
   }
   return(omega)
 }

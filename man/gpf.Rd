@@ -7,7 +7,7 @@
 gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
   PartitioningVariables = NULL, MetaData = NULL, nfactors = NULL,
   ncores = NULL, model.fcn = stats::glm, objective.fcn = pvDeviance,
-  ignore.tips = F, algorithm = "mix", alpha = 0.2,
+  min.group.size = 1, algorithm = "mix", alpha = 0.2,
   cluster.depends = "", ...)
 }
 \arguments{
@@ -27,11 +27,11 @@ gpf(Data, tree, frmla.phylo = NULL, frmla = NULL,
 
 \item{ncores}{integers for number of cores to use for parallelization}
 
-\item{model.fcn}{Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}}.}
+\item{model.fcn}{Regression function, such as glm, gam, glm.nb, gls. Must have column labelled "Deviance" in \code{\link{anova}} for default \code{objective.fcn}, \code{\link{pvDeviance}}.}
 
 \item{objective.fcn}{Optional input objective function. Takes \code{model.fcn} output as its input, and returns a number which will be maximized to determine phylogenetic factor.}
 
-\item{ignore.tips}{Logical whether or not to ignore tips (tips are automatically given objective -Inf; aggregation, \code{model.fcn} and \code{objective.fcn} are only run on groups containing more than one tip)}
+\item{min.group.size}{Minimum group size; groups with one element having fewer members than \code{min.group.size} are automatically given objective -Inf; aggregation, \code{model.fcn} and \code{objective.fcn} are only run on groups containing as many or more members than \code{min.group.size}}
 
 \item{algorithm}{Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix. "phylo" will produce \code{phylo} factors. "mStable" will use \code{phylo} factors and marginally-stable aggregation of groups. "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.}
 
