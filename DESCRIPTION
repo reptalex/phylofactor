@@ -6,14 +6,14 @@ Date: 2018-01-08
 Author: Alex Washburne
 Authors@R: person("Alex","Washburne",email="bigalculus@gmail.com",role=c("aut","cre"))
 Maintainer: Alex Washburne <bigalculus@gmail.com>
-Description:
-  Phylofactorization of compositional data. This package allows users to identify clades of interest through a series of independent regressions on groups defined by phylogeny. There are many functions to assist the listing and visualization of phylofactorizations. See Washburne et al. (2016) for more details.
+Description: Phylogenetic factorization This package allows users to identify clades of interest through a series of independent regressions on groups defined by phylogeny. There are many functions to assist the listing and visualization of phylofactorizations. See Washburne et al. (2017),(2019) for more details.
 License: GPL-3
 LazyData: TRUE
 Depends:
   ape (>= 3.4),
   magrittr (>= 1.5),
   data.table (>= 1.10.4),
+  Matrix (>= 1.2-15),
   R (>= 2.10)
 Imports:
   phangorn (>= 2.0.2),

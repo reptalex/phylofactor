@@ -37,7 +37,6 @@ GAM <- function(y,X,PF.output=F,...){
 
   if (PF.output){
     return(gg)
-    break
   } else {
     output <- NULL
     output$objective <- getStats(gg)['ExplainedVar']  ## The output of the choice function for PF.output=F must contain two labelled numerics: an "objective" statistic and a "stopStatistics".
@@ -48,8 +47,10 @@ GAM <- function(y,X,PF.output=F,...){
 
 load.dependencies <- 'library(mgcv)'
 
-invisible(capture.output(suppressWarnings(PF.G <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,cluster.depends = load.dependencies,sp=c(1,1)))))
-invisible(capture.output(suppressWarnings(PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,cluster.depends = load.dependencies,ncores=2,sp=c(1,1)))))
+invisible(capture.output(suppressWarnings(PF.G <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,
+                                                              cluster.depends = load.dependencies,sp=c(1,1)))))
+invisible(capture.output(suppressWarnings(PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,
+                                                                  cluster.depends = load.dependencies,ncores=2,sp=c(1,1)))))
 test_that('Parellelized & serialized customized objective function - GAM - are not equal',expect_true(all.equal(PF.G,PF.G.par)))
 names(PF.G$bins) <- NULL
 test_that('GAM phylofactorization did not extract correct clades',expect_true(all.equal(unlist(sigClades),unlist(PF.G$bins[2:3]))))

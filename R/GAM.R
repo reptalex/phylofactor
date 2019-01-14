@@ -13,7 +13,6 @@ GAM <- function(y,X,PF.output=FALSE,gamfrmla,gamchoice,...){
   
   if (PF.output){
     return(gg)
-    break
   } else {
     output <- NULL
     if (gamchoice=='var'){

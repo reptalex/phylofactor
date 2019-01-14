@@ -1,5 +1,5 @@
 #' Generalized phylofactorization
-#' 
+#'
 #' @export
 #' @param Data data table containing columns of "Species", and terms in the \code{frmla}. If \code{algorithm=="mStable"}, \code{Data} must also include a column of "Sample" or, alternatively, \code{Data} can be a matrix whose rows are species and columns are samples and \code{MetaData} a data frame of meta-data with rows corresponding to columns of \code{Data} and the terms in \code{frmla} or non-phylo terms in \code{frmla.phylo}.
 #' @param tree phylo class object containing all species in \code{Data}
@@ -15,12 +15,12 @@
 #' @param algorithm Character, either "CoefContrast", "phylo", "mStable" or "mix". "CoefContrast" will partition the standardized coefficient matrix. "phylo" will produce \code{phylo} factors. "mStable" will use \code{phylo} factors and marginally-stable aggregation of groups. "mix" will use coefficient contrasts to identify the top alpha percent of edges and subsequently use the "phylo" algorithm for edge selection.
 #' @param alpha Numeric between 0 and 1 (strictly greater than 0), indicating the top fraction of edges to use when \code{algorithm=='mix'}. Default is alpha=0.2 selecting top 20 percent of edges.
 #' @param cluster.depends Character expression input to \code{eval(parse(text=cluster.depends))}. Evaluated in clusters to prime local environment - useful for customized \code{model.fcn} and \code{objective.fcn}
-#' @param ... Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial}, \code{weights}, etc. For \code{algorithm!='mStable'}, \code{subset} is not a valid optional argument due to \code{gpf} recursively subsetting based on phylogenetic factors. For \code{algorithm='mStable'}, \code{subset} indexes correspond to the Samples in order of \code{unique(Data$Sample)}  
+#' @param ... Additional arguments for \code{model.fcn}, e.g. for default \code{\link{glm}}, can use \code{family=binomial}, \code{weights}, etc. For \code{algorithm!='mStable'}, \code{subset} is not a valid optional argument due to \code{gpf} recursively subsetting based on phylogenetic factors. For \code{algorithm='mStable'}, \code{subset} indexes correspond to the Samples in order of \code{unique(Data$Sample)}
 #' @return phylofactor object which can be manipulated with various \code{pf.} functions
-#' @examples 
+#' @examples
 #' library(phylofactor)
 #' require(ggpubr)
-#' 
+#'
 #' ilogit <- function(eta) 1/(1+exp(-eta))
 #' set.seed(1)
 #' m <- 50
@@ -34,7 +34,7 @@
 #' binom.size=3
 #' clade <- phangorn::Descendants(tree,75,'tips')[[1]]
 #' clade2 <- phangorn::Descendants(tree,53,'tips')[[1]]
-#' 
+#'
 #' ######## presence/absence dataset with affected clade #######
 #' ## most species have higher P{present} with y
 #' eta <- .5*MetaData$z+MetaData$y
@@ -42,7 +42,7 @@
 #' M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=TRUE)
 #' rownames(M) <- tree$tip.label
 #' colnames(M) <- MetaData$Sample
-#' 
+#'
 #' #### the first clade decreases with y ####
 #' eta1 <- .5*MetaData$z-MetaData$y
 #' p1 <- ilogit(eta1)
@@ -55,31 +55,31 @@
 #' for (species in clade2){
 #'    M[species,] <- rbinom(n,binom.size,p2)
 #' }
-#' 
+#'
 #' #### Default algorithm: 'mix' #####
-#' ### For default can input data matrix or data frame 
+#' ### For default can input data matrix or data frame
 #' ### with "Species", "Sample", and all relevant meta-data
 #' DF <- matrix.to.phyloframe(M,data.name='Successes')
 #' DF[,Failures:=binom.size-Successes]
 #' setkey(DF,Sample)
 #' DF <- DF[MetaData]
-#' 
+#'
 #' ### DF must have "Species", "Sample", and the LHS of the formula input.
 #' ### A separate data frame or data table, MetaData, can have "Sample" and the RHS of the formula.
-#' 
-#' ### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for 
-#' ### selection by algorithm 'phylo'. This algorithm has the greatest power but is also 
+#'
+#' ### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for
+#' ### selection by algorithm 'phylo'. This algorithm has the greatest power but is also
 #' ### computationally intensive. It's recommended that you input both frmla (used in CoefContrst)
 #' ### and frmla.phylo (used in algorithm 'phylo').
 #' ### For species-specific effects in algorithm 'phylo', you can use the variable "Species", e.g.
-#' ### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients 
+#' ### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients
 #' ### for "z" across species, simply use frmla.phylo=cbind(Successes,Failures)~z+phylo*y
-#' ### Since we're modelling a constant effect of z across species, we want to offset(z) 
+#' ### Since we're modelling a constant effect of z across species, we want to offset(z)
 #' ### in the formula. Let's get the coefficients for that:
-#' 
+#'
 #' model.z <- glm(cbind(Successes,Failures)~z,family=binomial,data=DF)
 #' DF[,z.fit:=coef(model.z)['z']*z]
-#' 
+#'
 #' pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y,
 #'                   frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+phylo*y,
 #'                     PartitioningVariables='y',
@@ -87,10 +87,10 @@
 #'                     nfactors=2,
 #'                     ncores=2)
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
-#' 
+#'
 #' ## can also use categorical variables as predictors, but notice the warning for coefficient
-#' ## contrasts when PartitioningVariables are the formula's name for that variable. gpf will grep 
-#' ## for the PartitioningVariables in the names of coefficients - the warning below can be 
+#' ## contrasts when PartitioningVariables are the formula's name for that variable. gpf will grep
+#' ## for the PartitioningVariables in the names of coefficients - the warning below can be
 #' ## ignored, but formulas whose terms grep each other may require specific PartitioningVariables.
 #' DF[,y_factor:=as.factor(y>0)]
 #' pf_categorical <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y_factor,
@@ -99,7 +99,7 @@
 #'           family=binomial,
 #'           nfactors=2,
 #'           ncores=2)
-#' 
+#'
 #' ### glm manipulation - can do everything except subset ###
 #' ### For non-mStable, weights slow down the algorithm due to data.table indexing issues ###
 #' # w <- sample(2,nrow(DF),T)
@@ -108,25 +108,25 @@
 #' #                    PartitioningVariables='y',nfactors=2,ncores=2,
 #' #                    family=binomial,weights=w,offset=DF$z.fit)
 #' ###########################################################
-#' 
+#'
 #' pf.non.offset <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
 #'                   frmla.phylo=cbind(Successes,Failures)~z+phylo*y,
 #'                     PartitioningVariables='y',
 #'                     family=binomial,
 #'                     nfactors=2,
 #'                     ncores=2)
-#' 
-#' 
+#'
+#'
 #' ### The difference between the offset & non-offset is that the latter re-estimates the
 #' ### coefficient for z in each partition, potentially introducing error & wasting degrees of
 #' ### freedom in downstream factors.
 
-#' 
-#' ### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which
-#' ### is parallelizable. The argument "ncores" performs built-in parallelization.             
 #'
-#'                     
-#' ### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and 
+#' ### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which
+#' ### is parallelizable. The argument "ncores" performs built-in parallelization.
+#'
+#'
+#' ### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and
 #' ## Partitioning Variables. CoefContrast is extremely fast and best done without parallelization
 #' ## (as it is built off matrix multiplication).
 #' pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
@@ -135,7 +135,7 @@
 #'                     family=binomial,
 #'                     nfactors=2)
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
-#' 
+#'
 #' ####################### to partition on y, must have phylo* #########
 #' ## Also, for inputting matrices into gpf for binomial glm or gam,
 #' ## must input a list of matrices with "Successes" and "Failures":
@@ -144,12 +144,12 @@
 #'           frmla.phylo=cbind(Successes,Failures)~z+phylo*y,nfactors=2,
 #'           family=binomial,algorithm='mStable')
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
-#' 
-#' 
+#'
+#'
 #' observed <- pf.heatmap(tree=tree,Data=M[,order(MetaData$y)])
 #' predicted <- pf.heatmap(tree=tree,Data=ilogit(pf.predict(pf)[,order(MetaData$y)]))
 #' ggarrange(observed,predicted,nrow=2)
-#' 
+#'
 #' ################# Poisson Regression
 #' set.seed(1)
 #' eta <- 2*MetaData$z+MetaData$y
@@ -157,7 +157,7 @@
 #' M <- matrix(rpois(m*n,rep(lambda,times=m)),nrow=m,ncol=n,byrow=TRUE)
 #' rownames(M) <- tree$tip.label
 #' colnames(M) <- MetaData$Sample
-#' 
+#'
 #' #### the first clade decreases with y ####
 #' eta1 <- .3*MetaData$z-MetaData$y
 #' lambda1 <- exp(eta1)
@@ -170,15 +170,15 @@
 #' for (species in clade2){
 #'    M[species,] <- rpois(n,lambda2)
 #' }
-#' 
-#' 
-#' 
+#'
+#'
+#'
 #' ##For non-binomial, use "Data" as response variable #########
 #' pf <- gpf(M,tree,MetaData=MetaData,frmla.phylo=Data~phylo*(z+y),nfactors=2,family=poisson,
 #'           PartitioningVariables='y',algorithm='mStable')
 #' pf$factors
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
-#' 
+#'
 #' par(mfrow=c(2,1))
 #' observed <- pf.heatmap(tree=tree,Data=M[,order(MetaData$y)])
 #' predicted <- pf.heatmap(tree=tree,Data=exp(pf.predict(pf)[,order(MetaData$y)]))
@@ -196,9 +196,9 @@
 #' pf <- gpf(Data,tree,frmla.phylo=cbind(Successes,Failures)~effort+phylo,
 #'           nfactors=2,algorithm='phylo',family=binomial)
 #' all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
-#' 
-#' 
-#' 
+#'
+#'
+#'
 #' ############# generalized additive modelling ################
 #' set.seed(1)
 #' m <- 50
@@ -212,7 +212,7 @@
 #' binom.size=10
 #' clade <- phangorn::Descendants(tree,75,'tips')[[1]]
 #' clade2 <- phangorn::Descendants(tree,53,'tips')[[1]]
-#' 
+#'
 #' ######## presence/absence dataset with affected clade #######
 #' ## most species have higher P{present} with y
 #' eta <- .5*MetaData$z+MetaData$y
@@ -220,7 +220,7 @@
 #' M <- matrix(rbinom(m*n,binom.size,rep(p,times=m)),nrow=m,ncol=n,byrow=TRUE)
 #' rownames(M) <- tree$tip.label
 #' colnames(M) <- MetaData$Sample
-#' 
+#'
 #' #### the first clade decreases with y ####
 #' eta1 <- .5*MetaData$z+2*MetaData$y^2         #non-linear response
 #' p1 <- ilogit(eta1)
@@ -233,21 +233,21 @@
 #' for (species in clade2){
 #'   M[species,] <- rbinom(n,binom.size,p2)
 #' }
-#' 
+#'
 #' DF <- matrix.to.phyloframe(M,data.name='Successes')
 #' DF[,Failures:=binom.size-Successes]
 #' setkey(DF,Sample)
 #' DF <- DF[MetaData]
-#' 
+#'
 #' model.z <- glm(cbind(Successes,Failures)~z,family=binomial,data=DF)
 #' DF[,z.fit:=coef(model.z)['z']*z]
-#' 
+#'
 #' pf <- gpf(DF,tree,frmla.phylo=cbind(Successes,Failures)~offset(z.fit)+s(y,by=phylo),
 #'           PartitioningVariables='y',family=binomial,
 #'           nfactors=2,ncores=2,model.fcn = mgcv::gam,algorithm = 'phylo')
 #' pf$factors
 gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL,MetaData=NULL,nfactors=NULL,ncores=NULL,model.fcn=stats::glm,objective.fcn=pvDeviance,min.group.size=1,algorithm='mix',alpha=0.2,cluster.depends='',...){
-  
+
   output <- NULL
   output$call <- match.call()
   output$model.fcn <- model.fcn
@@ -259,7 +259,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   if (is.null(frmla) & is.null(frmla.phylo)){
     stop('must input either frmla or frmla.phylo')
   }
-  
+
   ### Coefficient contrast requires frmla and partitioning variables.
   ### The code below parses out input frmla.phylo into partitioning variables
   ### and frmla
@@ -272,7 +272,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     RHS <- RHS[!grepl(', by = phylo',RHS)]
     RHS <- gsub(' ','',RHS) %>% gsub('\\*',':',.)
     trms <- unique(c(base::attr(stats::terms(frmla.phylo),'term.labels'),RHS))
-    
+
     if (!any(grepl('phylo',trms))){
       stop(paste('For algorithm=',algorithm,', must either input frmla and (optional) partitioning variables or frmla.phylo with phylo* or *phylo term indicating the partitioning variables',sep=''))
     } else { ## we'll define partitioning variables by phylo*, *phylo, or s(var,by=phylo)
@@ -305,11 +305,11 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
           }
         }
       }
-      
+
       phylo.smooth <- grepl(', by = phylo',trms)
       if (any(phylo.smooth)){
         smooth.vars <- gsub(', by = phylo','',trms[phylo.smooth]) %>%
-                      strsplit(.,'\\(') %>% 
+                      strsplit(.,'\\(') %>%
                       lapply(.,FUN=function(a) gsub(')','',a)) %>%
                       sapply('[',2)
         if (length(smooth.vars)==0){
@@ -321,11 +321,11 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       }
     }
   }
-  
+
   if (algorithm %in% c('mix','phylo','mStable') & is.null(frmla.phylo)){
     stop('For algorithms "mix", "phylo", and "mStable", must input frmla.phylo')
   }
-  
+
   if (algorithm %in% c('phylo','mStable')){
     if (!is.null(frmla)){
       warning(paste('input frmla is ignored for algorithm=',algorithm,'. frmla.phylo will be used, frmla be ignored.',sep=''))
@@ -342,11 +342,11 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       stop('term phylo not found as explanatory variable in frmla.phylo')
     }
   }
-  
+
 
   output$frmla <- frmla
   output$frmla.phylo <- frmla.phylo
-  
+
 ####### Checking Algorithm-input compatibility #######
   if (algorithm=='mStable'){
     mStableAgg=T
@@ -367,24 +367,24 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   if ((algorithm=='mStable') & ('data.frame'%in%class(Data)) & (!'Sample' %in% names(Data))){
     stop('data.frame or data.table input "Data" must have column "Sample" for algorithm=mStable')
   }
-  
+
 ############## Checking Data and MetaData compatibility ###################
   ## convert Data to data.table
   if (('data.frame' %in% class(Data))&(!'data.table' %in% class(Data))){
     Data <- data.table::as.data.table(Data)
   }
-  
+
   ## check MetaData for algorithm='mStable'
-  ## The main rules are: 
+  ## The main rules are:
   ## (1) if Data is a data.frame or data.table, both MetaData and Data must have "Sample" for alignment.
   ## (2) if Data is a matrix, the columns of Data must match the rows of MetaData.
   ## Otherwise, we'll report the number of samples that overlap.
   if (!is.null(MetaData)){
-    
+
     if (algorithm!='mStable'){
       warning('input MetaData is ignored for algorithm!="mStable"')
     } else { ## two scenarios: data are matrix/list or data.frame. Either way: check Sample/colnames, make into data.tables & match.
-      if (any(class(Data) %in% c('list','matrix'))){ ## matrix input:check/add Sample, data.table MetaData & 
+      if (any(class(Data) %in% c('list','matrix'))){ ## matrix input:check/add Sample, data.table MetaData &
         if (class(Data)=='list'){
           if (!all(c(ncol(Data[[1]]),ncol(Data[[2]]))==nrow(MetaData))){
             stop('MetaData does not have same number of rows as columns of Data[[1]] and/or Data[[2]]')
@@ -429,7 +429,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
           setkey(MetaData,Sample)
           Data <- Data[,MetaData$Sample]
         }
-        
+
       } else {
         if ((!'Sample' %in% colnames(MetaData)) | (!'Sample' %in% colnames(Data))){
           stop('For input Data of class data.frame and MetaData, both data.frames must have column "Sample" for alignment and aggregation within-samples.')
@@ -496,7 +496,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     }
   } else {
     if (class(Data)=='list'){
-      if (!all.equal(tree$tip.label,rownames(Data[[1]]))){
+      if (!base::isTRUE(all.equal(tree$tip.label,rownames(Data[[1]])))){
         if (!all(tree$tip.label %in% rownames(Data[[1]]))){
           stop('Not all tree tip labels are in data')
         } else if (!all(rownames(Data[[1]]) %in% tree$tip.label)){
@@ -518,7 +518,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       }
     }
   }
-  
+
 ##### Check additional arguments - family, subset, ... #########
   if ('family' %in% names(list(...))){
     family <- list(...)$family
@@ -555,7 +555,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   } else {
     cl <- NULL
   }
-  
+
 ############# CoefContrast Calculations ############
   if (algorithm %in% c('CoefContrast','mix')){
     mynorm <- function(b){
@@ -577,9 +577,9 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
         return(do.call(model.fcn,args=list('formula'=frmla,'data'=Data[Species==spp],...)))
       }
     }
-  
-    
-    tryCatch(models <- lapply(species,getModel,Data,frmla,...), 
+
+
+    tryCatch(models <- lapply(species,getModel,Data,frmla,...),
              error=function(e) stop(paste('Could not implement model.fcn for each species due to following error: \n',e)))
     for (i in 1:length(models)){
       models[[i]]$call <- frmla
@@ -603,7 +603,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       }
       BP <- coefficients[,ix,drop=F]/SE[,ix,drop=F]
     }
-    
+
     if (nrow(BP)!=length(species)){
       BP <- t(BP)
     }
@@ -624,8 +624,8 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
                error = function(e) stop(paste('Failure to getObjective from rarest species due to error:',e)))
     }
   }
-  
-  
+
+
 ############# phylofactorization ##############
   treeList <- list(tree)
   binList <- list(1:ape::Ntip(tree))
@@ -633,13 +633,13 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   pfs=0
   tm <- Sys.time()
   while (pfs<nfactors){
-    
+
     if (pfs>=1){
       treeList <- updateTreeList(treeList,binList,grp,tree,skip.check=T)
       binList <- updateBinList(binList,grp)
       Grps <- getNewGroups(tree,treeList,binList)
     }
-    
+
     if (algorithm %in% c('CoefContrast','mix')){
       V <- t(sapply(Grps,ilrvec,n=length(tree$tip.label)))
       obj <- apply( V %*% BP ,1,mynorm)
@@ -648,7 +648,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
         Grps <- Grps[order(obj,decreasing = T)[1:nt]]
       }
     }
-    
+
     if (algorithm!='CoefContrast'){
       if (is.null(ncores)){
         obj <- sapply(Grps,getObjective,
@@ -679,7 +679,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
                                    ...)
       }
     }
-    
+
     winner <- which.max(obj)
     grp <- Grps[[winner]]
     if (pfs==0){
@@ -707,10 +707,10 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     }
     grp <- getLabelledGrp(tree=tree,Groups=Grps[[winner]])
     output$groups <- c(output$groups,list(Grps[[winner]]))
-    
+
     grpInfo <- matrix(c(names(grp)),nrow=2)
     output$factors <- cbind(output$factors,grpInfo)
-    
+
     pfs=pfs+1
     tm2 <- Sys.time()
     time.elapsed <- signif(difftime(tm2,tm,units = 'mins'),3)
@@ -731,12 +731,12 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     cat(GUI.notification)
     utils::flush.console()
   }
-  
+
   if (!is.null(ncores)){
     parallel::stopCluster(cl)
     rm('cl')
   }
-  
+
   if (pfs>1){
     output$factors <- t(output$factors) %>% as.data.frame
   } else {
@@ -748,7 +748,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   for (i in 1:length(output$groups)){
     output$basis[,i] <- ilrvec(output$groups[[i]],ape::Ntip(tree))
   }
-  
+
   output$bins <- bins(output$basis)
   output$tree <- tree
   output$nfactors <- pfs

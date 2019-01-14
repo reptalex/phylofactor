@@ -87,7 +87,7 @@ for (species in clade2){
 }
 
 #### Default algorithm: 'mix' #####
-### For default can input data matrix or data frame 
+### For default can input data matrix or data frame
 ### with "Species", "Sample", and all relevant meta-data
 DF <- matrix.to.phyloframe(M,data.name='Successes')
 DF[,Failures:=binom.size-Successes]
@@ -97,14 +97,14 @@ DF <- DF[MetaData]
 ### DF must have "Species", "Sample", and the LHS of the formula input.
 ### A separate data frame or data table, MetaData, can have "Sample" and the RHS of the formula.
 
-### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for 
-### selection by algorithm 'phylo'. This algorithm has the greatest power but is also 
+### The default algorithm is "mix", which uses CoefContrast to limit the number of edges for
+### selection by algorithm 'phylo'. This algorithm has the greatest power but is also
 ### computationally intensive. It's recommended that you input both frmla (used in CoefContrst)
 ### and frmla.phylo (used in algorithm 'phylo').
 ### For species-specific effects in algorithm 'phylo', you can use the variable "Species", e.g.
-### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients 
+### frmla.phylo=cbind(Successes,Failures)~Species*z+phylo*y. For universal/shared coefficients
 ### for "z" across species, simply use frmla.phylo=cbind(Successes,Failures)~z+phylo*y
-### Since we're modelling a constant effect of z across species, we want to offset(z) 
+### Since we're modelling a constant effect of z across species, we want to offset(z)
 ### in the formula. Let's get the coefficients for that:
 
 model.z <- glm(cbind(Successes,Failures)~z,family=binomial,data=DF)
@@ -119,8 +119,8 @@ pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y,
 all.equal(pf$groups[[1]][[1]],clade) & all.equal(pf$groups[[2]][[1]],clade2)
 
 ## can also use categorical variables as predictors, but notice the warning for coefficient
-## contrasts when PartitioningVariables are the formula's name for that variable. gpf will grep 
-## for the PartitioningVariables in the names of coefficients - the warning below can be 
+## contrasts when PartitioningVariables are the formula's name for that variable. gpf will grep
+## for the PartitioningVariables in the names of coefficients - the warning below can be
 ## ignored, but formulas whose terms grep each other may require specific PartitioningVariables.
 DF[,y_factor:=as.factor(y>0)]
 pf_categorical <- gpf(DF,tree,frmla=cbind(Successes,Failures)~offset(z.fit)+y_factor,
@@ -152,10 +152,10 @@ pf.non.offset <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,
 ### freedom in downstream factors.
 
 ### Algorithms "phylo", "mix", and "mStable" have a fairly high percent of the computation which
-### is parallelizable. The argument "ncores" performs built-in parallelization.             
+### is parallelizable. The argument "ncores" performs built-in parallelization.
 
-                    
-### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and 
+
+### Another algorithm is "CoefContrast". For this algorithm, you need to input the frmla and
 ## Partitioning Variables. CoefContrast is extremely fast and best done without parallelization
 ## (as it is built off matrix multiplication).
 pf <- gpf(DF,tree,frmla=cbind(Successes,Failures)~z+y,

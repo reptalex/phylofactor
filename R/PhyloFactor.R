@@ -380,7 +380,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   ###################### Default treatment of Data #################################
   
   if (all.equal(transform.fcn,log)==T){
-    if (any(c(Data)<0)){
+    if (any(Data)<0){
       stop('For log-transformed data analysis, all entries of Data must be greater than or equal to 0')
     }
     if (any(Data==0)){
@@ -411,7 +411,17 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   binList <- list(1:ape::Ntip(tree))
   nms <- rownames(Data)
   
-  TransformedData = transform.fcn(Data)
+  if (isFALSE(all.equal(transform.fcn,I))){
+    TransformedData = transform.fcn(Data)
+  } else {
+    TransformedData <- Data
+  }
+  output <- NULL
+  if (!small.output){
+    output$Data <- Data
+  }
+  rm('Data')
+  gc()
   
   
   ix_cl=NULL
@@ -425,7 +435,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     
     ############################## Setting up phyloFcluster ################################
     cl <- phyloFcluster(ncores)
-    Y <- numeric(ncol(Data))
+    Y <- numeric(ncol(TransformedData))
     gg <- NULL
     if (!(choice == 'custom' | (method %in% c('gam','max.var')))){
         if (is.null(ncol(X))){
@@ -446,7 +456,6 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
       }
     } else {
       ################# export dependencies for choice.fcn ##################################
-      gg=NULL
       dataset=NULL
       parallel::clusterExport(cl,varlist=c('choice.fcn','cluster.depends'),envir=environment())
       parallel::clusterEvalQ(cl,eval(parse(text=cluster.depends)))
@@ -457,7 +466,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     
     #### The following variables - treetips, grpsizes, tree_map, ix_cl - change every iteration.
     #### Updated versions will need to be passed to the cluster.
-    nms=rownames(Data)
+    nms=rownames(TransformedData)
     treetips <- sapply(treeList,FUN=ape::Ntip)
     grpsizes <- sapply(treeList,FUN=function(tree,lg) ape::Nnode(phy=tree,internal.only=lg),lg=F)
     nnodes <- sum(grpsizes)
@@ -470,18 +479,16 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   OTUs <- tree$tip.label
   n <- length(tree$tip.label)
   if (choice=='var' | method=='max.var'){
-    totalvar= Data %>% apply(.,MARGIN=2,function(x) transform.fcn(x)-mean(transform.fcn(x))) %>% apply(.,MARGIN=1,stats::var) %>% sum
+    totalvar= TransformedData %>% apply(.,MARGIN=2,function(x) x-mean(x)) %>% apply(.,MARGIN=1,stats::var) %>% sum
   } else {
     totalvar=NULL
   }
   
   ################ OUTPUT Initialization ###################
-  output <- NULL
   if (method=='max.var' | choice=='var'){
     output$total.variance=totalvar
   }
   if (!small.output){
-    output$Data <- Data
     output$X <- X
     output$tree <- tree
   }
@@ -643,7 +650,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
                                 '  \r')
     } else {
       GUI.notification <- paste(GUI.notification,'Estimated time of completion: at latest',
-                                as.character(tm+difftime(tm2,tm)*nrow(Data)/pfs),
+                                as.character(tm+difftime(tm2,tm)*nrow(TransformedData)/pfs),
                                 '  \r')
     }
     base::cat(GUI.notification)

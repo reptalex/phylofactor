@@ -7,7 +7,6 @@ VAR <- function(y,X,PF.output=FALSE){
   v <- stats::var(y)
   if (PF.output){
     return(v)
-    break
   } else {
     output <- NULL
     output$objective <- v  

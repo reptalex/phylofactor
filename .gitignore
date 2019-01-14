@@ -11,3 +11,4 @@ src/phylofactor.dll
 src-i386/phylofactor.dll
 .R*
 demo_workspace
+DESCRIPTION.dcf
