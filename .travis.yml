@@ -1,7 +1,11 @@
 language: r
 cache: packages
 
-sudo: false
+sudo: true
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y libxml2-dev
 
 r:
   - release
@@ -30,6 +34,7 @@ bioc_packages:
   - ggtree
 
 script:
+  - Rscript -e
   - Rscript -e "devtools::install_github('reptalex/phylofactor',INSTALL_opts = "--install-tests")"
   - Rscript -e "library(testthat); test_package('phylofactor')"
 
