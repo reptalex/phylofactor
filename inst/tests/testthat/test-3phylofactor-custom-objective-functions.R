@@ -18,13 +18,13 @@ sigClades <- list(c(16,17),c(6,7,8,9,10,11,12,13,14,15))
 # Let's work with some newly simulated data ####
 set.seed(1.1)
 n=100
-Data <- matrix(rlnorm(20*n,meanlog = 8,sdlog = .5),nrow=20)
+Data <- matrix(rlnorm(20*n,meanlog = 3,sdlog = .5),nrow=20)
 rownames(Data) <- tree$tip.label
 a <- rnorm(n)
 b <- rnorm(n)
 X <- data.frame(a,b)
 Data[sigClades[[1]],] <- t(t(Data[sigClades[[1]],])*(20/(1+exp(5*b)))) ## This clade has a nonlinear response with b, decreasing for high values of b.
-Data[sigClades[[2]],] <- t(t(Data[sigClades[[2]],])*8*a^-2)  ## this clade is abundant only for intermediate values of a.
+Data[sigClades[[2]],] <- t(t(Data[sigClades[[2]],])*8*a^(-2))  ## this clade is abundant only for intermediate values of a.
 
 
 ############## To input a custom choice.fcn, it needs to take as input the vector of ILR coefficients 'y', the input meta-data 'X',
@@ -50,7 +50,7 @@ load.dependencies <- 'library(mgcv)'
 invisible(capture.output(suppressWarnings(PF.G <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,
                                                               cluster.depends = load.dependencies,sp=c(1,1)))))
 invisible(capture.output(suppressWarnings(PF.G.par <- PhyloFactor(Data,tree,X,nfactors=2,choice.fcn=GAM,
-                                                                  cluster.depends = load.dependencies,ncores=2,sp=c(1,1)))))
+                                                                  cluster.depends = load.dependencies,sp=c(1,1),ncores=2))))
 test_that('Parellelized & serialized customized objective function - GAM - are not equal',expect_true(all.equal(PF.G,PF.G.par)))
 names(PF.G$bins) <- NULL
 test_that('GAM phylofactorization did not extract correct clades',expect_true(all.equal(unlist(sigClades),unlist(PF.G$bins[2:3]))))

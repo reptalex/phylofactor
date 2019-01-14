@@ -80,7 +80,11 @@ PhyloRegression <- function(TransformedData,X,frmla,Grps=NULL,contrast.fcn=NULL,
     Winners=parallel::clusterApply(cl,x=ix_cl,fun= function(x,tree_map,treeList,treetips,contrast.fcn,choice,method,frmla,xx,choice.fcn,...) findWinner(x,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...) ,tree_map=tree_map,treeList=treeList,treetips=treetips,contrast.fcn=contrast.fcn,choice=choice,method=method,frmla=frmla,xx=xx,choice.fcn=choice.fcn,...)
 
     grps <- lapply(Winners,getElement,'grp')
-    Y <- lapply(grps,BalanceContrast,TransformedData=TransformedData)
+    if (is.null(contrast.fcn)){
+      Y <- lapply(grps,BalanceContrast,TransformedData=TransformedData)
+    } else {
+      Y <- lapply(grps,contrast.fcn,TransformedData=TransformedData)
+    }
     
     
     ####################################### DEFAULT REGRESSIONS #####################

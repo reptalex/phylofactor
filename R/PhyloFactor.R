@@ -411,7 +411,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   binList <- list(1:ape::Ntip(tree))
   nms <- rownames(Data)
   
-  if (isFALSE(all.equal(transform.fcn,I))){
+  if (!isTRUE(all.equal(transform.fcn,I))){
     TransformedData = transform.fcn(Data)
   } else {
     TransformedData <- Data
