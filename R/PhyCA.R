@@ -27,7 +27,7 @@
 #' phcaPAR <- PhyCA(Data,tree,ncomponents=2,ncores=2)
 #' 
 #' pf.heatmap(tree=tree,Data=clr(Data))
-PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=T,tol=1e-5,quiet=T,...){
+PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=F,tol=1e-5,quiet=T,...){
   
   
   output <- PhyloFactor(Data,tree,method='max.var',ncores=ncores,nfactors=ncomponents,tolerance = tol,quiet=quiet,...)
