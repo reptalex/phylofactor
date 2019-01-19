@@ -52,17 +52,17 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     if (!taxon.trimming %in% c('sup','taxon','species')){
       stop('unknown input taxon.trimming. Must be either "sup", "taxon", or "species".')
     }
-    
-    
+
+
     output <- NULL
     output$group.summary <- PF$factors[factor,]
-    
+
     if (factor==1){
       Grps <- getPhyloGroups(PF$tree)
     } else {
       Grps <- pf.getPhyloGroups(PF,factor)
     }
-    
+
     ### model.summary
     if (PF$phylofactor.fcn == 'PhyloFactor'){
       if (!is.null(PF$custom.output)){
@@ -96,7 +96,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
                                          'Test_Statistic'=PF$objective[factor],
                                          'Pval'=PF$pvals[factor])
     }
-    
+
     ### data ###
     if (PF$phylofactor.fcn %in% c('PhyloFactor','PhyCA')){
       y <- PF$contrast.fcn(PF$groups[[factor]],PF$transform.fcn(PF$Data))
@@ -130,15 +130,15 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
 
     ### species.list
     output$species.list <- pf.groupsTospecies(PF)[[factor]]
-    
+
     ### taxa.split
     if (!is.null(taxonomy)){
       output$taxa.split <- pf.taxa(PF,taxonomy,factor)
     } else {
       output$taxa.split <- NULL
     }
-    
-    
+
+
     ### taxon.table ##################################################
     if (taxon.trimming=='species'){
       spp1 <- output$species.list[[1]]
@@ -147,7 +147,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       group2.taxa <- spp2
       species.assignment1 <- spp1
       species.assignment2 <- spp2
-      
+
     } else {
       group1.taxonomy <- taxonomy[match(output$species.list[[1]],as.character(taxonomy[,1])),]
       group2.taxonomy <- taxonomy[match(output$species.list[[2]],as.character(taxonomy[,1])),]
@@ -160,12 +160,12 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       }
       group1.taxa <- group1.taxa[order(nchar(group1.taxa),decreasing = T)]
       group2.taxa <- group2.taxa[order(nchar(group2.taxa),decreasing = T)]
-      
+
       species.assignment1 <- vector(mode='list',length=length(group1.taxa))
       names(species.assignment1) <- group1.taxa
       species.assignment2 <- vector(mode='list',length=length(group2.taxa))
       names(species.assignment2) <- group2.taxa
-      
+
       if (length(group1.taxa)==1){
         tx <- 1
       } else {
@@ -175,7 +175,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       for (i in 1:length(group1.taxa)){
         species.assignment1[[i]] <- output$species.list[[1]][tx==i]
       }
-      
+
       if (length(group2.taxa)==1){
         tx <- 1
       } else {
@@ -185,16 +185,16 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       for (i in 1:length(group2.taxa)){
         species.assignment2[[i]] <- output$species.list[[2]][tx==i]
       }
-      
+
       output$taxon.species.assignments <- list('group1'=species.assignment1,
                                                'group2'=species.assignment2)
-    } 
-    
-    
+    }
+
+
     Tbl1 <- data.frame('Taxon'=group1.taxa,'nSpecies'=sapply(species.assignment1,length))
     Tbl2 <- data.frame('Taxon'=group2.taxa,'nSpecies'=sapply(species.assignment2,length))
-    
-    
+
+
     if (PF$phylofactor.fcn %in% c('PhyloFactor','PhyCA')){
       transform.means1 <- sapply(species.assignment1,FUN=function(ix,PF) mean(PF$transform.fcn(PF$Data[ix,,drop=F]),na.rm=T),PF)
       transform.vars1 <- sapply(species.assignment1,FUN=function(ix,PF) mean(apply(PF$transform.fcn(PF$Data[ix,,drop=F]),1,var,na.rm=T),na.rm=T),PF)
@@ -206,21 +206,21 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       raw.vars2 <- sapply(species.assignment2,FUN=function(ix,PF) mean(apply(PF$Data[ix,,drop=F],1,var,na.rm=T),na.rm=T),PF)
       raw.sum1 <- mapply(raw.means1,FUN = function(a,b) a*b,b=sapply(species.assignment1,length))
       raw.sum2 <- mapply(raw.means2,FUN = function(a,b) a*b,b=sapply(species.assignment2,length))
-      
+
       Stats1 <- data.frame('raw.sum'=raw.sum1,'raw.mean'=raw.means1,'raw.var'=raw.vars1,
                            'transformed.mean'=transform.means1,'transformed.var'=transform.vars1,row.names = NULL)
       Stats2 <- data.frame('raw.sum'=raw.sum2,'raw.mean'=raw.means2,'raw.var'=raw.vars2,
                          'transformed.mean'=transform.means2,'transformed.var'=transform.vars2,row.names=NULL)
-      
+
       Tbl1 <- cbind(Tbl1,Stats1)
       Tbl2 <- cbind(Tbl2,Stats2)
       Tbl1 <- Tbl1[order(Tbl1$raw.sum,decreasing = T),]
       Tbl2 <- Tbl2[order(Tbl2$raw.sum,decreasing = T),]
-      
+
     }
-    
+
     if (output.signal){
-      if (PF$phylofactor.fcn=='gpf'){
+      if (PF$phylofactor.fcn=='gpf' & !pf$algorithm=='mStable'){
         if (!key(PF$Data)=='Species'){
           setkey(PF$Data,Species)
         }
@@ -229,7 +229,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       Grps2 <- lapply(species.assignment2,FUN=function(spp,tree) match(spp,tree$tip.label),PF$tree)
       Grps1 <- lapply(Grps1,FUN=function(g1,g2) list(g1,g2),g2=unlist(PF$groups[[factor]][2]))
       Grps2 <- lapply(Grps2,FUN=function(g1,g2) list(g2,g1),g2=unlist(PF$groups[[factor]][1]))
-      
+
       Tbl1$signal <- sapply(Grps1,getSignal,PF)
       Tbl2$signal <- sapply(Grps2,getSignal,PF)
       Tbl1 <- Tbl1[order(Tbl1$signal,decreasing = T),]
@@ -238,7 +238,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     rownames(Tbl1) <- NULL
     rownames(Tbl2) <- NULL
     output$signal.table <- list('Group1'=Tbl1,'Group2'=Tbl2)
-    
+
     if (PF$phylofactor.fcn %in% c('PhyloFactor','gpf')){
       if (!is.null(PF$models)){
         formula <- Reduce(paste,deparse(PF$models[[1]]$formula))
