@@ -361,8 +361,16 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   if (algorithm!='mStable' & 'matrix' %in% class(Data)){
     stop(paste('algorithm=',algorithm,' requires input "Data" to be of class data.frame or data.table. Input "Data" of class matrix is only allowed for algorithm=mStable',sep=''))
   }
-  if ((algorithm=='mStable') & ('matrix' %in% class(Data)) & is.null(MetaData)){
-    stop('algorithm=mStable, with matrix-class input "Data", requires MetaData input')
+  if ((algorithm=='mStable') & (grepl('atrix',class(Data))) & is.null(MetaData)){
+    if (frmla.phylo[[3]]=='phylo'){
+      if (is.null(colnames(Data))){
+        MetaData <- data.table('Sample'=1:ncol(Data))
+      } else {
+        MetaData <- data.table('Sample'=colnames(Data))
+      }
+    } else {
+      stop('algorithm=mStable, with matrix-class input "Data" and frmla.phylo right-hand side containing more variables than just "phylo", requires MetaData input with columns for the RHS of frmla.phylo')
+    }
   }
   if ((algorithm=='mStable') & ('data.frame'%in%class(Data)) & (!'Sample' %in% names(Data))){
     stop('data.frame or data.table input "Data" must have column "Sample" for algorithm=mStable')
@@ -456,9 +464,27 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
     ## meta-data not input. If algorithm='mStable', we must extract MetaData for construction of Data matrix.
     if (algorithm=='mStable'){
       RHS <- setdiff(names(Data),c(as.character(frmla.phylo[[2]]),'phylo','Species'))
-      MetaData <- Data[,RHS,with=F]
-      MetaData <- data.table:::`[.data.table`(MetaData,!base::duplicated(MetaData))
-      data.table::setkey(MetaData,Sample)
+      if (!is.null(MetaData)){
+        MetaData <- Data[,RHS,with=F]
+        MetaData <- data.table:::`[.data.table`(MetaData,!base::duplicated(MetaData))
+        data.table::setkey(MetaData,Sample)
+      } else {
+        if ('list' %in% class(Data)){
+          if (is.null(colnames(Data[[1]]))){
+            nms <- 1:ncol(Data[[1]])
+          } else {
+            nms <- colnames(Data[[1]])
+          }
+        } else {
+          if (is.null(colnames(Data))){
+            nms <- 1:ncol(Data)
+          } else {
+            nms <- colnames(Data)
+          }
+        }
+        MetaData <- data.table(Sample=nms)
+        
+      }
     }
   }
 
@@ -590,7 +616,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
              error=function(e) stop(paste('Could not extract standard errors from model.fcn for each species due to following error \n',e)))
 
     if (all(PartitioningVariables %in% colnames(coefficients))){
-     BP <- coefficients[,PartitioningVariables,drop=F]/SE[,PartitioningVariables,drop=F]
+      BP <- coefficients[,PartitioningVariables,drop=F]/SE[,PartitioningVariables,drop=F]
     } else {
       pvs_not_found <- PartitioningVariables[!PartitioningVariables %in% colnames(coefficients)]
       pvs_found <- setdiff(PartitioningVariables,pvs_not_found)

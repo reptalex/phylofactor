@@ -12,6 +12,9 @@
 #' 
 #' pf.taxa(pf,tx,1)
 pf.taxa <- function(pf,taxonomy,factor=1){
+  if ('data.table' %in% class(taxonomy)){
+    taxonomy <- as.data.frame(taxonomy)
+  }
   g1 <- pf$tree$tip.label[pf$groups[[factor]][[1]]]
   g2 <- pf$tree$tip.label[pf$groups[[factor]][[2]]]
                             
