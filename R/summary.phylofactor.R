@@ -220,7 +220,7 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     }
 
     if (output.signal){
-      if (PF$phylofactor.fcn=='gpf' & !pf$algorithm=='mStable'){
+      if (PF$phylofactor.fcn=='gpf' & !PF$algorithm=='mStable'){
         if (!key(PF$Data)=='Species'){
           setkey(PF$Data,Species)
         }
