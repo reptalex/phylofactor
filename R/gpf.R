@@ -256,9 +256,9 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
 
 # Check Formulas --------------------------------------------------------
   ########## checking formulas ############
-  if (is.null(frmla) & is.null(frmla.phylo)){
-    stop('must input either frmla or frmla.phylo')
-  }
+  # if (is.null(frmla) & is.null(frmla.phylo)){
+  #   frmla.phylo <- Data~phylo
+  # }
 
   ### Coefficient contrast requires frmla and partitioning variables.
   ### The code below parses out input frmla.phylo into partitioning variables
@@ -361,7 +361,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   if (algorithm!='mStable' & 'matrix' %in% class(Data)){
     stop(paste('algorithm=',algorithm,' requires input "Data" to be of class data.frame or data.table. Input "Data" of class matrix is only allowed for algorithm=mStable',sep=''))
   }
-  if ((algorithm=='mStable') & (grepl('atrix',class(Data))) & is.null(MetaData)){
+  if ((algorithm=='mStable') & any(grepl('atrix',class(Data))) & is.null(MetaData)){
     if (frmla.phylo[[3]]=='phylo'){
       if (is.null(colnames(Data))){
         MetaData <- data.table('Sample'=1:ncol(Data))
