@@ -745,7 +745,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     rm(cl)
     gc()
   }
-  output$algorithm < 'contrast.basis'
+  output$algorithm <- 'contrast_basis'
   output$phylofactor.fcn <- 'PhyloFactor'
   class(output) <- 'phylofactor'
   return(output)
