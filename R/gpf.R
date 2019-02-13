@@ -789,7 +789,9 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
   }
   if (algorithm!='CoefContrast'){
     for (i in 1:pfs){
-      output$models[[i]]$call <- frmla.phylo
+      if (!'data.table' %in% class(output$models[[i]])){
+        output$models[[i]]$call <- frmla.phylo
+      }
     }
   }
   output$MetaData <- MetaData
