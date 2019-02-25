@@ -380,7 +380,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   ###################### Default treatment of Data #################################
   
   if (all.equal(transform.fcn,log)==T){
-    if (any(Data)<0){
+    if (any(Data<0)){
       stop('For log-transformed data analysis, all entries of Data must be greater than or equal to 0')
     }
     if (any(Data==0)){
@@ -515,8 +515,14 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     STOP=F
   } else {
     STOP=T
-    if (is.null(stop.fcn)){
+    if (is.null(stop.fcn) | isTRUE(all.equal(stop.fcn,'KS'))){
       default.stop=T
+      if (isTRUE(all.equal(stop.fcn,'KS'))){
+        stop.fcn <- function(p,KS.Pthreshold.=KS.Pthreshold){
+          ks <- stats::ks.test(unlist(p),'punif',alternative=alternative)$p.value
+          return(ks>KS.Pthreshold)
+        }
+      }
     } else {
       default.stop=F
     }
