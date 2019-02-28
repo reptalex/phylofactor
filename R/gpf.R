@@ -794,6 +794,7 @@ gpf <- function(Data,tree,frmla.phylo=NULL,frmla=NULL,PartitioningVariables=NULL
       }
     }
   }
+  output$min.group.size <- min.group.size
   output$MetaData <- MetaData
   output$objective.fcn <- objective.fcn
   output$method <- 'gpf'

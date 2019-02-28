@@ -502,6 +502,7 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   output$choice <- choice
   output$choice.fcn <- choice.fcn
   output$cluster.depends <- cluster.depends
+  output$frmla <- frmla
   output$method <- method
   output$transform.fcn <- transform.fcn
   output$additional.args <- list(...)

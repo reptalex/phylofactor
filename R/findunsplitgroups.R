@@ -32,7 +32,8 @@ find.unsplit.Grps <- function(V){ #function to find out the groups which still n
       dum <- split(ss[[inx]],S[which(S[,ll]!=0),ll])
       ss[[inx[1]]]=dum[[1]]
       ss[[ll+1]]=dum[[2]]
-    }}
+    }
+  }
   ss <- ss[which(unlist(lapply(ss,function(x){return(length(x)>1)})))]
   return(ss)
 }
