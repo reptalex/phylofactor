@@ -36,7 +36,7 @@ require(ggpubr)
 data(FTmicrobiome)
 PF <- FTmicrobiome$PF
 obs <- PF$transform.fcn(PF$Data)
-pred <- predict(PF,factors=1:3)
+pred <- predict(PF,factor=3)
 observed <- pf.heatmap(PF,Data=obs,factors=1:3,width=3)
 predicted <- pf.heatmap(PF,Data=pred,factors=1:3,width=3)
 ggarrange(observed,predicted,nrow=2)
