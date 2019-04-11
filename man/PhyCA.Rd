@@ -5,7 +5,7 @@
 \title{Performs Phylogenetic Principal Components Analysis}
 \usage{
 PhyCA(Data, tree, ncores = NULL, ncomponents = NULL,
-  output.edges = T, tol = 1e-05, quiet = T, ...)
+  output.edges = F, tol = 1e-05, quiet = T, ...)
 }
 \arguments{
 \item{Data}{Positive-valued data matrix whose rownames are tip-labels in the input \code{tree}.}
