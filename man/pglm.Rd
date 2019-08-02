@@ -4,16 +4,16 @@
 \alias{pglm}
 \title{Internal wrapper for \code{\link{glm}} for phylofactor}
 \usage{
-pglm(y, xx, frmla, ...)
+pglm(Y, xx, frmla, ...)
 }
 \arguments{
-\item{y}{response variable}
-
 \item{xx}{independent variable}
 
 \item{frmla}{Formula for dependence of y on x}
 
 \item{...}{optional input arguments to \code{\link{glm}}}
+
+\item{y}{response variable}
 }
 \value{
 glm object
