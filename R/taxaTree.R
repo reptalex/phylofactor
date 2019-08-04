@@ -10,6 +10,53 @@
 #'           'Eukarya; Fungi; Ascomycota; yeast')
 #' tree <- taxaTree(taxa)
 #' plot(tree)
+#' 
+#' 
+#' library(phylofactor)
+#' library(ggplot2)
+#' library(ggpubr)
+#' data("FTmicrobiome")
+#' OTUTable <- FTmicrobiome$OTUTable
+#' taxonomy <- FTmicrobiome$taxonomy
+#' MetaData <- FTmicrobiome$X
+#' 
+#' ### need unique taxonomic identifiers for duplicate species
+#' taxa <- taxonomy$taxonomy
+#' duplicate.taxa <- which(duplicated(taxa))
+#' taxa[duplicate.taxa] <- paste(taxa[duplicate.taxa],
+#'                               duplicate.taxa,sep='_')
+#' 
+#' ### With that, we can make a taxonomy tree!
+#' tree <- taxaTree(taxa)  ### this tree contains polytomies
+#' 
+#' ### We need to rename rows of our OTUTable by our unique taxonomy
+#' rownames(OTUTable) <- taxa[match(rownames(OTUTable),taxonomy$OTU_ID)]
+#' taxonomy$OTU_ID <- taxa ### our unique taxonomic names can be our OTU_IDs
+#' 
+#' ### phylofactorization
+#' pf <- PhyloFactor(OTUTable,tree,MetaData,nfactors=2,ncores=7)
+#' 
+#' ### Summary and Plotting 
+#' 
+#' tree.plot <- pf.tree(pf,top.layer = F)
+#' clade.colors <- tree.plot$legend$colors
+#' taxa1 <- pf.taxa(pf,taxonomy,1)[[1]] ## longest unique taxonomic prefix for our first factor
+#' taxa2 <- pf.taxa(pf,taxonomy,2)[[1]]
+#' Summary.Table <- data.table('Body_Site'=rep(pf$X,2),
+#'                             'ILR_Abundance'=c(pf$models[[1]]$y,
+#'                                               pf$models[[2]]$y),
+#'                             'taxa'=rep(c(taxa1,taxa2),
+#'                                        each=ncol(OTUTable)))
+#' abundance.plot <- ggplot(Summary.Table,aes(Body_Site,ILR_Abundance,color=taxa))+
+#'   geom_boxplot()+
+#'   geom_jitter(cex=2)+
+#'   facet_wrap(.~taxa,nrow=2)+
+#'   scale_x_discrete('Body Site')+
+#'   scale_y_continuous('ILR Abundance')+
+#'   scale_color_manual(values = clade.colors)+
+#'   theme(legend.position='none')
+#' 
+#' ggarrange(tree.plot$ggplot,abundance.plot,ncol=2,widths = c(1,2))
 taxaTree <- function(taxa){
   taxa.list <- sapply(taxa,strsplit,';')
   
