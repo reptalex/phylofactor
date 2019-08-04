@@ -42,7 +42,7 @@ Formula                   : ',Reduce(paste,deparse(PF$models[[1]]$formula)),sep=
     } else {
       if (PF$phylofactor.fcn=='PhyloFactor'){
         if (PF$choice=='custom'){
-          if (is.null(PF$custom.output[[1]]$formula)){
+          if (is.null(tryCatch(PF$custom.output[[1]]$formula,error=function(e) NULL))){
             formula <- 'Customized'
           } else {
             formula <- paste('

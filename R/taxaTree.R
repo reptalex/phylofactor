@@ -42,7 +42,8 @@ taxaTree <- function(taxa){
   }
   
   D <- m-D
-  tree <- as.phylo(hclust(as.dist(D)))
+  tree <- ape::as.phylo(stats::hclust(stats::as.dist(D)))
   tree$tip.label <- taxa
+  tree <- ape::di2multi(tree)
   return(tree)
 }

@@ -317,6 +317,9 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
   ######################################################## Housekeeping #################################################################################
   
   ############ Matching Data to tree
+  if (any(duplicated(tree$tip.label))){
+    stop('cannot use tree with duplicated(tree$tip.label)')
+  }
   if (is.null(X)){
     if (!(method=='max.var'|(!is.null(choice.fcn)))){
       stop('Must input X')
@@ -337,6 +340,12 @@ PhyloFactor <- function(Data,tree,X=NULL,frmla = Data~X,choice='var',transform.f
     Data <- Data[tree$tip.label,]
   }
   
+  if (isTRUE(all.equal(contrast.fcn,amalgamate))){
+    if (isTRUE(all.equal(transform.fcn,log))){
+      warning('contrast.fcn amalgamate already takes logarithm. Converting transform.fcn to I')
+      transform.fcn <- I
+    }
+  }
   
   ######## checking choice, choice.fcn and cluster.depends
   if (!(choice %in% c('F','var','custom'))){stop('improper input "choice" - must be either "F", "var" or "custom"')}
