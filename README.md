@@ -4,9 +4,9 @@
 This package provides functions to extract and visualize the phylogenetic factors in biological datasets. To get started, download R and Rtools. In R, you first need to download two packages from Bioconductor:
 
 ```{r install}
-source("https://bioconductor.org/biocLite.R")
-biocLite("Biostrings")
-biocLite("ggtree")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(c("Biostrings","ggtree"))
 ```
 Now, you're ready to download the \code{phylofactor} packsage using \code{devtools}:
 
