@@ -8,6 +8,7 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install(c("Biostrings","ggtree"))
 ```
+
 Now, you're ready to download the \code{phylofactor} packsage using \code{devtools}:
 
 ```{r install}
