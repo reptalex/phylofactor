@@ -69,6 +69,7 @@ pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,ignore.tips=TRUE,
         cols <- color.fcn(m)
         factor.map$colors <- cols
       } else {
+        cols <- colors
         factor.map$colors <- colors
       }
     } else {

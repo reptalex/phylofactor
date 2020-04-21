@@ -48,6 +48,8 @@ Formula                   : ',Reduce(paste,deparse(PF$models[[1]]$formula)),sep=
             formula <- paste('
 Formula                   : ',Reduce(paste,deparse(PF$custom.output[[1]]$formula)),sep='')
           }
+        } else if (PF$method=='max.var'){
+          formula <- NULL
         }
       } else {
         if (PF$algorithm=='CoefContrast'){
