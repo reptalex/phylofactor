@@ -245,11 +245,15 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
       } else {
         if (PF$phylofactor.fcn=='PhyloFactor'){
           if (PF$choice=='custom'){
-            if (is.null(PF$custom.output[[1]]$formula)){
+            
+            if (is.null(tryCatch(PF$custom.output[[1]]$formula,error=function(e) NULL))){
               formula <- 'Customized'
             } else {
-              formula <-Reduce(paste,deparse(PF$custom.output[[1]]$formula))
+              formula <- paste('
+                               Formula                   : ',Reduce(paste,deparse(PF$custom.output[[1]]$formula)),sep='')
             }
+          } else if (PF$method=='max.var'){
+              formula <- NULL
           }
         } else {
             if (PF$algorithm=='CoefContrast'){

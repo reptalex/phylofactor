@@ -10,9 +10,13 @@ getSignal <- function(grp,PF){
       model.fcn <- stats::glm
     } else if (PF$method=='gam'){
       model.fcn <- mgcv::gam
+    } else if (PF$method=='max.var'){
+      return(var(y))
     } else {
       model.fcn <- PF$choice.fcn
-      PF$choice.fcn.dependencies()
+      if (!is.null(PF$choice.fcn.dependencies)){
+        PF$choice.fcn.dependencies()
+      }
     }
     
     if (PF$method!='custom'){
