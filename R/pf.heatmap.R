@@ -33,8 +33,8 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
       stop('cannot input factors without input PF phylofactor object')
     }
   } else {
-    if (!PF$phylofactor.fcn %in% c('PhyloFactor','gpf')){
-      stop('pf.heatmap only works for PhyloFactor or gpf mStable input')
+    if (!PF$phylofactor.fcn %in% c('PhyloFactor','gpf','PhyCA')){
+      stop('pf.heatmap only works for PhyloFactor, PhyCA, or gpf mStable input')
     }
     if (PF$phylofactor.fcn=='gpf'){
       if (PF$algorithm!='mStable'){

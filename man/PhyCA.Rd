@@ -46,5 +46,5 @@ pf.heatmap(tree=tree,Data=clr(Data))
 phca <- PhyCA(Data,tree,ncomponents = 2)
 phcaPAR <- PhyCA(Data,tree,ncomponents=2,ncores=2)
 
-pf.heatmap(tree=tree,Data=clr(Data))
+pf.heatmap(phca,factors=1:2)
 }

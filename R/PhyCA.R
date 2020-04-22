@@ -26,7 +26,7 @@
 #' phca <- PhyCA(Data,tree,ncomponents = 2)
 #' phcaPAR <- PhyCA(Data,tree,ncomponents=2,ncores=2)
 #' 
-#' pf.heatmap(tree=tree,Data=clr(Data))
+#' pf.heatmap(phca,factors=1:2)
 PhyCA <- function(Data,tree,ncores=NULL,ncomponents=NULL,output.edges=F,tol=1e-5,quiet=T,...){
   
   
