@@ -220,9 +220,11 @@ summary.phylofactor <- function(PF,taxonomy=NULL,factor=NULL,taxon.trimming='sup
     }
 
     if (output.signal){
-      if (PF$phylofactor.fcn=='gpf' & !PF$algorithm=='mStable'){
-        if (!key(PF$Data)=='Species'){
-          setkey(PF$Data,Species)
+      if (PF$phylofactor.fcn=='gpf'){
+        if (!PF$algorithm=='mstable'){
+          if (!key(PF$Data)=='Species'){
+            setkey(PF$Data,Species)
+          }
         }
       }
       Grps1 <- lapply(species.assignment1,FUN=function(spp,tree) match(spp,tree$tip.label),PF$tree)
