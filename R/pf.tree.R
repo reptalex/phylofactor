@@ -131,14 +131,14 @@ pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,ignore.tips=TRUE,
     if (is.na(bg.color)){
       bg.color=cols[1]
     }
-    gg <- gg+ggtree::geom_hilight(n+1,fill=bg.color,alpha=bg.alpha)
+    gg <- gg+ggtree::geom_hilight(node=n+1,fill=bg.color,alpha=bg.alpha)
   }
   
   i=0
   for (ndd in nd){
     i=i+1
     if (!ndd==(n+1) | rootnode){
-      gg <- gg+ggtree::geom_hilight(ndd,fill=cols[ix[i]],alpha=alphas[i])
+      gg <- gg+ggtree::geom_hilight(node=ndd,fill=cols[ix[i]],alpha=alphas[i])
     }
   }
   
@@ -149,7 +149,7 @@ pf.tree <- function(pf,tree=NULL,method='factors',factors=NULL,ignore.tips=TRUE,
     for (ndd in nd){
       i=i+1
       if (!ndd==(n+1) | rootnode){
-        gg <- gg+ggtree::geom_hilight(ndd,fill=cols[ix[i]],alpha=top.alpha)
+        gg <- gg+ggtree::geom_hilight(node=ndd,fill=cols[ix[i]],alpha=top.alpha)
       }
     }
   }
