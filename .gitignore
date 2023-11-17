@@ -12,3 +12,4 @@ src-i386/phylofactor.dll
 .R*
 demo_workspace
 DESCRIPTION.dcf
+.DS_Store
