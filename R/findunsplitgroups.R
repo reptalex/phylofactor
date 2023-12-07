@@ -28,7 +28,12 @@ find.unsplit.Grps <- function(V){ #function to find out the groups which still n
   if(m>1){
     for (ll in 2:m){
       ind <- which(S[,ll]!=0)
-      inx <- which(unlist(lapply(ss,function(x,y){all(y %in% x && x %in% y)},y=ind)))
+      comparison_results <- lapply(ss, function(x, y) {
+          in_x <- all(y %in% x)
+          in_y <- all(x %in% y)
+          return(in_x && in_y)
+      }, y = ind)
+      inx <- which(unlist(comparison_results))
       dum <- split(ss[[inx]],S[which(S[,ll]!=0),ll])
       ss[[inx[1]]]=dum[[1]]
       ss[[ll+1]]=dum[[2]]
