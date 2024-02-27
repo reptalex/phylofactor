@@ -76,7 +76,7 @@ pf.heatmap <- function(PF=NULL,tree=NULL,Data=NULL,factors=NULL,column.order=NUL
   if (is.null(Data)){
       Data <- as.data.frame(PF$transform.fcn(PF$Data))
   } else {
-    if (class(Data)!='data.frame'){
+    if (!('data.frame' %in% class(Data))){
       nms <- colnames(Data)
       Data <- as.data.frame(Data)
       if (is.null(nms)){
